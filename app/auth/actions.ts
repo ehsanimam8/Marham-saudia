@@ -61,10 +61,28 @@ export async function login(prevState: any, formData: FormData) {
 
     revalidatePath('/', 'layout');
 
+    // Check role for smart redirect
+    let redirectUrl = next && next.startsWith('/') ? next : '/';
+
+    // We fetch user again or reuse data if available. 
+    // Note: earlier `user` variable is scoped to `if (user)` block? No, line 31 defines it const.
+    // Wait, line 31 `const { data: { user } }` is outside.
+
+    if (user) {
+        const { data: currentProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+
+        if (currentProfile?.role === 'doctor') {
+            // If doctor, default to dashboard. Only respect 'next' if it's relevant.
+            if (!next || next === '/') {
+                redirectUrl = '/doctor/dashboard';
+            }
+        }
+    }
+
     // Return success with redirect URL instead of calling redirect()
     return {
         success: true,
-        redirectTo: next && next.startsWith('/') ? next : '/'
+        redirectTo: redirectUrl
     };
 }
 
