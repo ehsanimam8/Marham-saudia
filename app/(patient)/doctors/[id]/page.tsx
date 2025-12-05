@@ -141,7 +141,6 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
 }
 
 // Temporary helper until moved to separate file
-// Temporary helper until moved to separate file
 // import { supabase } from '@/lib/supabase'; // Removed
 async function getDoctorById(supabase: any, id: string) {
     const { data } = await supabase
