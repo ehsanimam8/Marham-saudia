@@ -1,11 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import VideoRoom from '@/components/video/VideoRoom';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Star } from 'lucide-react';
+import { CheckCircle, Star, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+
+const VideoRoom = dynamic(() => import('@/components/video/VideoRoom'), {
+    ssr: false,
+    loading: () => (
+        <div className="h-[calc(100vh-80px)] w-full bg-gray-900 rounded-2xl flex items-center justify-center text-white">
+            <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+            <span className="mr-2">جاري تحميل واجهة الفيديو...</span>
+        </div>
+    )
+});
 
 interface ConsultationClientProps {
     roomName: string;
