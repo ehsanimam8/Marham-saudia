@@ -35,7 +35,7 @@ export async function getDoctorSlots(supabase: any, doctorId: string, startDate:
         .neq('status', 'cancelled'); // Don't block cancelled slots
 
     const bookedSlots = new Set<string>();
-    existingAppointments?.forEach(apt => {
+    existingAppointments?.forEach((apt: any) => {
         // Format: YYYY-MM-DD_HH:mm:ss
         bookedSlots.add(`${apt.appointment_date}_${apt.start_time}`);
     });
@@ -51,7 +51,7 @@ export async function getDoctorSlots(supabase: any, doctorId: string, startDate:
         // Find schedule for this day
         // Note: JS getDay(): 0(Sun)-6(Sat). Supabase check constraint 0-6. 
         // Need to ensure mapping is correct. Assuming 0=Sunday matches.
-        const daySchedule = schedules.find(s => s.day_of_week === dayOfWeek);
+        const daySchedule = schedules.find((s: any) => s.day_of_week === dayOfWeek);
 
         if (daySchedule) {
             const slots: TimeSlot[] = [];

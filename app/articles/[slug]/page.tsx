@@ -8,9 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getArticleBySlug } from '@/lib/api/articles';
 import { Metadata } from 'next';
 
+import { createClient } from '@/lib/supabase/server';
+
 export async function generateMetadata({ params: paramsPromise }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const params = await paramsPromise;
-    const article = await getArticleBySlug(params.slug);
+    const supabase = await createClient();
+    const article = await getArticleBySlug(supabase, params.slug);
 
     if (!article) {
         return {
@@ -26,7 +29,8 @@ export async function generateMetadata({ params: paramsPromise }: { params: Prom
 
 export default async function ArticlePage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
     const params = await paramsPromise;
-    const article = await getArticleBySlug(params.slug);
+    const supabase = await createClient();
+    const article = await getArticleBySlug(supabase, params.slug);
 
     if (!article) {
         notFound();

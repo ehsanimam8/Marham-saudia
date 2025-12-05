@@ -23,7 +23,10 @@ export default async function ArticlesPage({ searchParams }: { searchParams: { c
     const category = params?.category || 'all';
     const searchQuery = params?.q || '';
 
-    const { data: articles } = await getArticles({
+    // Auth client
+    const supabase = await createClient();
+
+    const { data: articles } = await getArticles(supabase, {
         category: category,
         search: searchQuery
     });

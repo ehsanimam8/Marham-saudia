@@ -1,5 +1,4 @@
-
-import { supabase } from '@/lib/supabase';
+// import { supabase } from '@/lib/supabase'; // Removed implicit client
 
 export interface Article {
     id: string;
@@ -38,7 +37,7 @@ export interface ArticleFilters {
 }
 
 // Public: Get all published articles
-export async function getArticles(filters: ArticleFilters = {}) {
+export async function getArticles(supabase: any, filters: ArticleFilters = {}) {
     const page = filters.page || 1;
     const limit = filters.limit || 9;
     const start = (page - 1) * limit;
@@ -47,10 +46,10 @@ export async function getArticles(filters: ArticleFilters = {}) {
     let query = supabase
         .from('articles')
         .select(`
-            *,
-            doctors (
-                profiles (full_name_ar, full_name_en)
-            )
+    *,
+    doctors(
+        profiles(full_name_ar, full_name_en)
+    )
         `, { count: 'exact' })
         .eq('status', 'published')
         .order('published_at', { ascending: false })
@@ -61,7 +60,7 @@ export async function getArticles(filters: ArticleFilters = {}) {
     }
 
     if (filters.search) {
-        query = query.or(`title_ar.ilike.%${filters.search}%,title_en.ilike.%${filters.search}%`);
+        query = query.or(`title_ar.ilike.% ${filters.search}%, title_en.ilike.% ${filters.search}% `);
     }
 
     const { data, count, error } = await query;
@@ -75,17 +74,17 @@ export async function getArticles(filters: ArticleFilters = {}) {
 }
 
 // Public: Get single article by slug
-export async function getArticleBySlug(slug: string) {
+export async function getArticleBySlug(supabase: any, slug: string) {
     const { data, error } = await supabase
         .from('articles')
         .select(`
-            *,
-            doctors (
-                id,
-                profile_photo_url,
-                specialty,
-                profiles (full_name_ar, full_name_en)
-            )
+    *,
+    doctors(
+        id,
+        profile_photo_url,
+        specialty,
+        profiles(full_name_ar, full_name_en)
+    )
         `)
         .eq('slug', slug)
         .eq('status', 'published')
@@ -104,7 +103,7 @@ export async function getArticleBySlug(slug: string) {
 }
 
 // Doctor: Get own articles
-export async function getDoctorArticles(doctorId: string) {
+export async function getDoctorArticles(supabase: any, doctorId: string) {
     const { data, error } = await supabase
         .from('articles')
         .select('*')
@@ -119,5 +118,4 @@ export async function getDoctorArticles(doctorId: string) {
     return data as Article[];
 }
 
-// Doctor actions will likely be Server Actions for mutations, 
 // but we can have helpers here if needed.
