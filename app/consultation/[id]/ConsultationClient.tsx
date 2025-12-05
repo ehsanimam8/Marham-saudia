@@ -10,9 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 const VideoRoom = dynamic(() => import('@/components/video/VideoRoom'), {
     ssr: false,
     loading: () => (
-        <div className="h-[calc(100vh-80px)] w-full bg-gray-900 rounded-2xl flex items-center justify-center text-white">
-            <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
-            <span className="mr-2">جاري تحميل واجهة الفيديو...</span>
+        <div className="h-[calc(100vh-80px)] w-full bg-gray-900 rounded-2xl flex items-center justify-center text-white flex-col">
+            <Loader2 className="w-10 h-10 animate-spin text-teal-500 mb-4" />
+            <p className="text-lg font-bold">جاري تهيئة العيادة الافتراضية الآمنة...</p>
+            <p className="text-sm text-gray-400 mt-2">يتم تشفير الاتصال لضمان خصوصيتك</p>
         </div>
     )
 });
@@ -91,9 +92,12 @@ export default function ConsultationClient({ roomName, displayName, email, other
             {/* Simple Header */}
             <div className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 shadow-sm z-10">
                 <div className="flex items-center gap-3">
-                    <span className="font-bold text-lg text-teal-600">مرهم</span>
+                    <div className="flex items-center gap-2 text-teal-700 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="m9 12 2 2 4-4" /></svg>
+                        <span className="font-bold text-sm">عيادة آمنة ومشفرة</span>
+                    </div>
                     <span className="w-px h-6 bg-gray-200" />
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-700">
                         استشارة طبية مع {otherPartyName}
                     </span>
                 </div>
