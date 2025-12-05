@@ -14,12 +14,15 @@ interface SearchParams {
     search?: string;
 }
 
+import { createClient } from '@/lib/supabase/server';
+
 export default async function DoctorsPage({
     searchParams,
 }: {
     searchParams: Promise<SearchParams>;
 }) {
     const params = await searchParams;
+    const supabase = await createClient();
 
     const filters = {
         specialty: params.specialty,
@@ -30,7 +33,7 @@ export default async function DoctorsPage({
         search: params.search,
     };
 
-    const doctors = await getDoctors(filters);
+    const doctors = await getDoctors(supabase, filters);
 
     return (
         <div className="min-h-screen bg-gray-50">
