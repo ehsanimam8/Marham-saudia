@@ -2,9 +2,12 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getArticles } from '@/lib/api/articles';
 
+import { createClient } from '@/lib/supabase/server';
+
 export default async function ArticlesPreview() {
+    const supabase = await createClient();
     // Fetch 3 latest articles
-    const { data: articles } = await getArticles({ limit: 3 });
+    const { data: articles } = await getArticles(supabase, { limit: 3 });
 
     if (!articles || articles.length === 0) {
         return null;
