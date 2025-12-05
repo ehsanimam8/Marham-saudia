@@ -28,9 +28,17 @@ interface ConsultationClientProps {
 export default function ConsultationClient({ roomName, displayName, email, otherPartyName }: ConsultationClientProps) {
     const router = useRouter();
     const [callEnded, setCallEnded] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [hoveredStar, setHoveredStar] = useState(0);
 
     const handleCallEnd = () => {
         setCallEnded(true);
+    };
+
+    const handleRatingSubmit = async () => {
+        // Here we would submit the rating to the backend
+        // await submitReview(rating, ...);
+        router.push('/patient/appointments');
     };
 
     if (callEnded) {
@@ -49,10 +57,16 @@ export default function ConsultationClient({ roomName, displayName, email, other
                     <div className="space-y-6 mb-8 text-left">
                         <div>
                             <label className="text-sm font-semibold text-gray-700 mb-3 block text-center">كيف كانت تجربتك؟</label>
-                            <div className="flex justify-center gap-2">
+                            <div className="flex justify-center gap-2" onMouseLeave={() => setHoveredStar(0)}>
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                    <button key={star} className="text-gray-300 hover:text-yellow-400 transition-colors focus:outline-none">
-                                        <Star className="w-8 h-8 fill-current hover:fill-yellow-400" />
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => setRating(star)}
+                                        onMouseEnter={() => setHoveredStar(star)}
+                                        className={`transition-colors focus:outline-none ${star <= (hoveredStar || rating) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                    >
+                                        <Star className="w-8 h-8 fill-current" />
                                     </button>
                                 ))}
                             </div>
@@ -69,17 +83,17 @@ export default function ConsultationClient({ roomName, displayName, email, other
 
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button
-                            onClick={() => router.push('/patient/appointments')}
+                            onClick={handleRatingSubmit}
                             className="bg-teal-600 hover:bg-teal-700 w-full sm:w-auto min-w-[140px]"
                         >
-                            العودة لمواعيدي
+                            إرسال وتقييم
                         </Button>
                         <Button
                             variant="outline"
                             onClick={() => router.push('/')}
                             className="w-full sm:w-auto min-w-[140px]"
                         >
-                            الرئيسية
+                            تخطي
                         </Button>
                     </div>
                 </div>
