@@ -97,7 +97,7 @@ export default async function PatientAppointmentsPage() {
                                                     </Button>
                                                 </a>
                                             )}
-                                            <Button variant="outline" className="gap-2">
+                                            <Button variant="outline" className="gap-2" disabled title="قريباً">
                                                 <MessageSquare className="w-4 h-4" />
                                                 مراسلة
                                             </Button>
