@@ -36,7 +36,7 @@ export default function RecentReviews({ reviews }: RecentReviewsProps) {
                                 <span className="font-bold text-sm text-gray-900">{review.patients?.profiles?.full_name_ar || 'مريض'}</span>
                             </div>
                             {/* Format date */}
-                            <span className="text-xs text-gray-400">{new Date(review.created_at).toLocaleDateString('ar-SA')}</span>
+                            <span suppressHydrationWarning className="text-xs text-gray-400">{new Date(review.created_at).toLocaleDateString('ar-SA')}</span>
                         </div>
 
                         <div className="flex items-center gap-1 mb-2">
