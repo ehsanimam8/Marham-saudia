@@ -61,7 +61,7 @@ export default function DoctorStats({ stats }: DoctorStatsProps) {
                     </span>
                 </div>
                 <p className="text-sm text-gray-500 mb-1">أرباح الشهر</p>
-                <h3 className="text-2xl font-bold text-gray-900">{stats.earningsMonth.toLocaleString()} ر.س</h3>
+                <h3 className="text-2xl font-bold text-gray-900" suppressHydrationWarning>{stats.earningsMonth.toLocaleString('en-US')} ر.س</h3>
             </div>
         </div>
     );
