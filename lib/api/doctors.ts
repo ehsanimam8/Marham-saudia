@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+// import { supabase } from '@/lib/supabase'; // Removed implicit client
 
 export interface Doctor {
     id: string;
@@ -32,7 +32,7 @@ export interface DoctorFilters {
     search?: string;
 }
 
-export async function getDoctors(filters: DoctorFilters = {}) {
+export async function getDoctors(supabase: any, filters: DoctorFilters = {}) {
     let query = supabase
         .from('doctors')
         .select(`
@@ -94,7 +94,9 @@ export async function getDoctors(filters: DoctorFilters = {}) {
     return data as Doctor[];
 }
 
-export async function getDoctorProfile(userId: string) {
+export async function getDoctorProfile(supabase: any, userId: string) {
+    // If getting own profile, status check might not be needed or handled differently,
+    // but typically we just fetch by profile_id.
     const { data, error } = await supabase
         .from('doctors')
         .select(`

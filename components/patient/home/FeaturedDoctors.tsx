@@ -2,10 +2,11 @@ import { Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import type { Doctor } from '@/lib/api/doctors';
 
 async function getFeaturedDoctors(): Promise<Doctor[]> {
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from('doctors')
         .select(`

@@ -14,7 +14,7 @@ export default async function DoctorDashboardPage() {
         redirect('/auth/login');
     }
 
-    const doctor = await getDoctorProfile(user.id);
+    const doctor = await getDoctorProfile(supabase, user.id);
 
     if (!doctor) {
         // User is logged in but not a doctor or profile not created
