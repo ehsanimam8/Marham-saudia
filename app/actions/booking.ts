@@ -1,88 +1,72 @@
-'use server';
+"use server";
 
 import { createClient } from '@/lib/supabase/server';
+import { getAvailableSlots } from '@/lib/api/booking';
+import { addMinutes, format, parse } from 'date-fns';
 import { revalidatePath } from 'next/cache';
-import { randomUUID } from 'crypto';
 
-export async function bookAppointment(formData: any) {
+export async function getSlotsAction(doctorId: string, dateStr: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const date = new Date(dateStr);
+    return await getAvailableSlots(supabase, doctorId, date);
+}
 
+export async function bookAppointmentAction(data: any) {
+    const supabase = await createClient();
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        return { error: 'You must be logged in to book an appointment.' };
+        throw new Error("User not authenticated");
     }
 
-    // 1. Get Patient ID
-    const { data: patient, error: patientError } = await supabase
+    // Get patient profile
+    const { data: patient } = await supabase
         .from('patients')
         .select('id')
         .eq('profile_id', user.id)
         .single();
 
-    if (patientError || !patient) {
-        if (patientError) {
-            console.log('Error fetching patient:', patientError);
-        }
-
-        // Auto-register as patient if not exists
-        const { data: newPatient, error: newPatientError } = await supabase
+    if (!patient) {
+        // Create patient profile if missing (auto-onboarding)
+        const { data: newPatient, error: createError } = await supabase
             .from('patients')
             .insert({ profile_id: user.id })
             .select()
             .single();
 
-        if (newPatientError) {
-            console.error('Error creating patient:', newPatientError);
-            return { error: `Failed to find or create patient record. Details: ${newPatientError.message}` };
-        }
+        if (createError) throw new Error("Could not create patient profile");
 
-        return processBooking(supabase, newPatient.id, formData);
+        // Use new patient ID
+        data.patient_id = newPatient.id;
+    } else {
+        data.patient_id = patient.id;
     }
 
-    return processBooking(supabase, patient.id, formData);
-}
+    // Insert Appointment
+    // Calculate end time
+    const startTimeDate = parse(data.start_time, 'HH:mm', new Date());
+    const endTimeDate = addMinutes(startTimeDate, 30);
+    const endTime = format(endTimeDate, 'HH:mm:ss');
 
-async function processBooking(supabase: any, patientId: string, formData: any) {
-    const { doctorId, date, time, reason, price, type } = formData;
+    const appointmentPayload = {
+        doctor_id: data.doctor_id,
+        patient_id: data.patient_id,
+        appointment_date: data.appointment_date,
+        start_time: data.start_time,
+        end_time: endTime,
+        consultation_type: 'video', // default for now
+        price: data.price,
+        status: 'scheduled',
+        reason_ar: data.reason_ar,
+        payment_status: 'paid', // MOCKED: Simulate successful payment
+        payment_id: `mock_${Date.now()}` // MOCKED: Generate mock payment ID
+    };
 
-    // Generate Jitsi Meeting URL
-    // Format: https://meet.jit.si/marham-{uuid}
-    const meetingId = randomUUID();
-    const videoUrl = `https://meet.jit.si/marham-${meetingId}`;
+    const { error } = await supabase.from('appointments').insert(appointmentPayload);
 
-    const { error } = await supabase
-        .from('appointments')
-        .insert({
-            patient_id: patientId,
-            doctor_id: doctorId,
-            appointment_date: date,
-            start_time: time,
-            end_time: calculateEndTime(time), // Helper to add 30 mins
-            reason_ar: reason, // Assuming Arabic reason
-            price: price || 0, // Fallback
-            video_room_url: videoUrl,
-            status: 'scheduled',
-            consultation_type: type || 'new'
-        });
+    if (error) throw error;
 
-    if (error) {
-        console.error('Booking error:', error);
-        return { error: 'Failed to book appointment. Please try again.' };
-    }
-
-    revalidatePath('/patient/appointments');
-    revalidatePath(`/doctor/${doctorId}`); // Revalidate doctor profile to update slots
-
+    revalidatePath('/dashboard/appointments');
     return { success: true };
-}
-
-function calculateEndTime(startTime: string) {
-    // Basic helper: add 30 mins to "HH:mm" or "HH:mm:ss"
-    // For robustness, use date-fns or similar in real logic if needed, 
-    // but string manipulation is often enough for simple HH:mm
-    const [hours, minutes] = startTime.split(':').map(Number);
-    const date = new Date();
-    date.setHours(hours, minutes, 0);
-    date.setMinutes(date.getMinutes() + 30);
-    return date.toTimeString().split(' ')[0]; // Returns HH:mm:ss
 }

@@ -131,11 +131,11 @@ export default async function DashboardPage() {
                             <span className="font-medium text-gray-700">حجز موعد جديد</span>
                             <span className="text-gray-400">←</span>
                         </Link>
-                        <Link href="/patient/appointments" className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <Link href="/dashboard/appointments" className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                             <span className="font-medium text-gray-700">سجل المواعيد</span>
                             <span className="text-gray-400">←</span>
                         </Link>
-                        <Link href="/patient/settings" className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <Link href="/dashboard/settings" className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                             <span className="font-medium text-gray-700">تحديث الملف الشخصي</span>
                             <span className="text-gray-400">←</span>
                         </Link>
@@ -145,20 +145,16 @@ export default async function DashboardPage() {
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
                     <h3 className="font-bold text-gray-900 mb-4">نصائح صحية لك</h3>
                     <div className="space-y-4">
-                        <div className="flex gap-4">
-                            <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🤰</div>
-                            <div>
-                                <h4 className="font-bold text-gray-900 mb-1">أهمية الفيتامينات أثناء الحمل</h4>
-                                <p className="text-sm text-gray-500 line-clamp-2">تعرفي على أهم الفيتامينات والمعادن التي تحتاجينها لضمان صحتك وصحة جنينك.</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-4">
-                            <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl">🧘‍♀️</div>
-                            <div>
-                                <h4 className="font-bold text-gray-900 mb-1">تمارين رياضية آمنة</h4>
-                                <p className="text-sm text-gray-500 line-clamp-2">دليل شامل للتمارين الرياضية المناسبة لكل مرحلة من مراحل حياتك.</p>
-                            </div>
-                        </div>
+                        {/* We could fetch real articles here, for now let's link to library */}
+                        <p className="text-gray-500 text-sm mb-4">
+                            استكشفي أحدث المقالات الطبية الموثوقة في مكتبتنا الصحية.
+                        </p>
+                        <Link href="/health">
+                            <Button variant="outline" className="w-full justify-between">
+                                تصفح المكتبة الصحية
+                                <span>←</span>
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>

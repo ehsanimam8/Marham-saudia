@@ -1,14 +1,13 @@
-import MedicalRecords from '@/components/patient/dashboard/MedicalRecords';
+import { getPatientRecords } from '@/app/actions/records';
+import RecordsPageClient from '@/components/patient/records/RecordsPageClient';
 
-export default function RecordsPage() {
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">سجلي الطبي</h1>
-                <p className="text-gray-500 mt-1">جميع تقاريرك الطبية ووصفاتك في مكان واحد</p>
-            </div>
+export const metadata = {
+    title: 'سجلي الطبي | مرهم',
+    description: 'إدارة السجلات الطبية والوصفات'
+};
 
-            <MedicalRecords />
-        </div>
-    );
+export default async function MedicalRecordsPage() {
+    const records = await getPatientRecords();
+
+    return <RecordsPageClient initialRecords={records} />;
 }

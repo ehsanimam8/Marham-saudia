@@ -113,3 +113,22 @@ export async function getDoctorProfile(supabase: any, userId: string) {
 
     return data as Doctor;
 }
+
+export async function getDoctorById(supabase: any, doctorId: string) {
+    const { data, error } = await supabase
+        .from('doctors')
+        .select(`
+            *,
+            profiles!inner(full_name_ar, full_name_en, city),
+            doctor_schedules(*)
+        `)
+        .eq('id', doctorId)
+        .single();
+
+    if (error) {
+        console.error('Error fetching doctor by id:', error);
+        return null;
+    }
+
+    return data;
+}

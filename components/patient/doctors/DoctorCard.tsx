@@ -82,7 +82,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
                             </Link>
                         </Button>
                         <Button asChild size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
-                            <Link href={`/doctors/${doctor.id}#booking`}>
+                            <Link href={`/book/${doctor.id}`}>
                                 احجزي الآن
                             </Link>
                         </Button>

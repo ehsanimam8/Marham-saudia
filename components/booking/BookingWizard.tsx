@@ -1,218 +1,255 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, addDays, isSameDay } from 'date-fns';
 import { arSA } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DaySlots } from '@/lib/api/appointments';
-import { bookAppointment } from '@/app/actions/booking';
+import { Calendar, Clock, ChevronLeft, ChevronRight, CheckCircle, CreditCard, Stethoscope } from 'lucide-react';
+import { getSlotsAction, bookAppointmentAction } from '@/app/actions/booking';
+import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { Textarea } from '@/components/ui/textarea';
 
-interface BookingWizardProps {
-    doctorId: string;
-    doctorName: string;
-    price: number;
-    initialSlots: DaySlots[];
-}
-
-export default function BookingWizard({ doctorId, doctorName, price, initialSlots }: BookingWizardProps) {
+export default function BookingWizard({ doctor }: { doctor: any }) {
     const router = useRouter();
-    const [step, setStep] = useState<1 | 2 | 3>(1);
-    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [step, setStep] = useState(1);
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [slots, setSlots] = useState<string[]>([]);
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-    const [isBooking, setIsBooking] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [reason, setReason] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [booking, setBooking] = useState(false);
+    const [success, setSuccess] = useState(false);
 
-    // Filter slots for selected date
-    const currentDaySlots = initialSlots.find(day => day.date === selectedDate);
+    // Generate next 7 days
+    const days = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
 
-    const handleDateSelect = (date: string) => {
-        setSelectedDate(date);
-        setSelectedSlot(null); // Reset slot
-    };
+    useEffect(() => {
+        async function fetchSlots() {
+            setLoading(true);
+            setSlots([]);
+            setSelectedSlot(null);
+            try {
+                const fetched = await getSlotsAction(doctor.id, selectedDate.toISOString());
+                setSlots(fetched);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchSlots();
+    }, [selectedDate, doctor.id]);
 
-    const handleConfirmBooking = async () => {
-        if (!selectedDate || !selectedSlot) return;
+    const handleNext = async () => {
+        if (step === 1 && selectedSlot) {
+            // Validate auth before moving to step 2 (details)
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
 
-        setIsBooking(true);
-        setError(null);
-
-        try {
-            const result = await bookAppointment({
-                doctorId,
-                date: selectedDate,
-                time: selectedSlot,
-                price,
-                reason: 'Online Consultation', // Simple default for now
-                type: 'new'
-            });
-
-            // Type guard to handle the response
-            const response = result as { success?: boolean; error?: string };
-
-            if (response?.error) {
-                if (response.error.includes('must be logged in')) {
-                    setError('LOGIN_REQUIRED');
-                } else {
-                    setError(response.error);
-                }
+            if (!user) {
+                toast.error('يجب تسجيل الدخول لحجز موعد');
+                router.push(`/login?returnUrl=/book/${doctor.id}`);
                 return;
             }
-
-            if (response?.success) {
-                setStep(3); // Success step
-            }
-        } catch (err) {
-            setError('Something went wrong. Please try again.');
-        } finally {
-            setIsBooking(false);
+            setStep(2);
+        } else if (step === 2) {
+            handleBook();
         }
     };
 
-    if (step === 3) {
+    const handleBack = () => {
+        setStep(step - 1);
+    };
+
+    const handleBook = async () => {
+        setBooking(true);
+        try {
+            await bookAppointmentAction({
+                doctor_id: doctor.id,
+                appointment_date: format(selectedDate, 'yyyy-MM-dd'),
+                start_time: selectedSlot,
+                price: doctor.consultation_price,
+                reason_ar: reason // Pass reason
+            });
+            setSuccess(true);
+            toast.success('تم حجز الموعد والدفع بنجاح!');
+            setTimeout(() => router.push('/dashboard'), 2000);
+        } catch (error: any) {
+            toast.error(error.message || 'فشل الحجز');
+        } finally {
+            setBooking(false);
+        }
+    };
+
+    if (success) {
         return (
-            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600">
-                    <CheckCircle className="w-8 h-8" />
+            <div className="text-center py-16">
+                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle className="w-10 h-10" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">تم حجز موعدك بنجاح!</h3>
-                <p className="text-gray-500">
-                    تم تأكيد موعدك مع د. {doctorName} يوم {format(new Date(selectedDate!), 'EEEE d MMMM', { locale: arSA })} الساعة {selectedSlot}
-                </p>
-                <div className="pt-4">
-                    <Button
-                        className="bg-teal-600 hover:bg-teal-700 w-full"
-                        onClick={() => router.push('/patient/appointments')}
-                    >
-                        الذهاب لمواعيدي
-                    </Button>
-                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">تم تأكيد الموعد!</h2>
+                <p className="text-gray-500 mb-8">تم حجز موعدك مع د. {doctor.profiles.full_name_ar} بنجاح.</p>
+                <Button onClick={() => router.push('/dashboard')} className="w-full md:w-auto">
+                    الذهاب إلى لوحة التحكم
+                </Button>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            {/* Header */}
-            <div className="bg-gray-50 p-4 border-b border-gray-100">
-                <h3 className="font-bold text-gray-900">حجز موعد جديد</h3>
-                <p className="text-sm text-gray-500">اختر التاريخ والوقت المناسب لك</p>
+        <div className="flex flex-col gap-8 min-h-[400px]">
+            {/* Steps Indicator */}
+            <div className="flex items-center justify-center gap-4 mb-4">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 1 ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
+                <div className={`w-12 h-1 ${step >= 2 ? 'bg-teal-600' : 'bg-gray-200'}`}></div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= 2 ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
             </div>
 
-            <div className="p-6 space-y-6">
-                {/* Step 1: Date Selection */}
-                <div>
-                    <label className="text-sm font-medium text-gray-700 mb-3 block flex items-center gap-2">
-                        <CalendarIcon className="w-4 h-4" />
-                        اختر التاريخ
-                    </label>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                        {initialSlots.map((day) => (
-                            <button
-                                key={day.date}
-                                onClick={() => handleDateSelect(day.date)}
-                                className={`flex-shrink-0 w-20 p-3 rounded-xl border text-center transition-all ${selectedDate === day.date
-                                    ? 'border-teal-600 bg-teal-50 text-teal-700 ring-2 ring-teal-200'
-                                    : 'border-gray-200 text-gray-600 hover:border-purple-300'
-                                    }`}
-                            >
-                                <div className="text-xs font-medium mb-1">{day.dayName}</div>
-                                <div className="text-lg font-bold">
-                                    {format(new Date(day.date), 'd')}
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Step 2: Time Slots */}
-                {selectedDate && (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                        <label className="text-sm font-medium text-gray-700 mb-3 block flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            اختر الوقت
-                        </label>
-                        {!currentDaySlots || currentDaySlots.slots.length === 0 ? (
-                            <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-gray-500 text-sm">
-                                لا توجد مواعيد متاحة في هذا اليوم
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                                {currentDaySlots.slots.map((slot) => (
+            {step === 1 && (
+                <>
+                    {/* Calendar Strip */}
+                    <div>
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-teal-600" />
+                            اختر اليوم
+                        </h3>
+                        <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+                            {days.map((day) => {
+                                const isSelected = isSameDay(day, selectedDate);
+                                return (
                                     <button
-                                        key={slot.time}
-                                        disabled={!slot.available}
-                                        onClick={() => setSelectedSlot(slot.time)}
-                                        className={`p-2 rounded-lg text-sm font-medium transition-all ${!slot.available
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed decoration-slice'
-                                            : selectedSlot === slot.time
-                                                ? 'bg-teal-600 text-white shadow-md transform scale-105'
-                                                : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-400 hover:text-teal-600'
+                                        key={day.toISOString()}
+                                        onClick={() => setSelectedDate(day)}
+                                        className={`flex flex-col items-center justify-center min-w-[80px] p-3 rounded-xl border transition-all ${isSelected
+                                            ? 'bg-teal-600 text-white border-teal-600 shadow-md transform scale-105'
+                                            : 'bg-white border-gray-100 hover:border-teal-200 text-gray-600'
                                             }`}
                                     >
-                                        {slot.time}
+                                        <span className="text-sm font-medium">
+                                            {format(day, 'EEEE', { locale: arSA })}
+                                        </span>
+                                        <span className="text-xl font-bold mt-1">
+                                            {format(day, 'd')}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Time Slots */}
+                    <div>
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-teal-600" />
+                            المواعيد المتاحة
+                        </h3>
+
+                        {loading ? (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse"></div>
+                                ))}
+                            </div>
+                        ) : slots.length > 0 ? (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                                {slots.map((slot) => (
+                                    <button
+                                        key={slot}
+                                        onClick={() => setSelectedSlot(slot)}
+                                        className={`py-2 px-1 rounded-lg text-sm font-medium transition-all ${selectedSlot === slot
+                                            ? 'bg-teal-600 text-white shadow-md ring-2 ring-teal-200'
+                                            : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-500 hover:text-teal-600'
+                                            }`}
+                                    >
+                                        {slot}
                                     </button>
                                 ))}
                             </div>
+                        ) : (
+                            <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                <p className="text-gray-500">لا توجد مواعيد متاحة في هذا اليوم</p>
+                            </div>
                         )}
                     </div>
-                )}
+                </>
+            )}
 
-                {/* Summary & Action */}
-                {selectedDate && selectedSlot && (
-                    <div className="pt-6 border-t border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                        <div className="flex items-center justify-between mb-4 bg-teal-50 p-4 rounded-xl">
-                            <div>
-                                <span className="text-xs text-teal-600 font-bold block mb-1">الموعد المحدد</span>
-                                <span className="text-sm font-bold text-gray-900">
-                                    {format(new Date(selectedDate), 'EEEE d MMMM', { locale: arSA })} - {selectedSlot}
-                                </span>
+            {step === 2 && (
+                <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                    <div>
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Stethoscope className="w-5 h-5 text-teal-600" />
+                            تفاصيل الحالة
+                        </h3>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            سبب الزيارة (اختياري)
+                        </label>
+                        <Textarea
+                            placeholder="اشرحي باختصار الأعراض أو سبب حجز الموعد..."
+                            className="min-h-[100px]"
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
+                        />
+                    </div>
+
+                    <div>
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <CreditCard className="w-5 h-5 text-teal-600" />
+                            الدفع
+                        </h3>
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <div className="flex justify-between mb-2 text-sm">
+                                <span className="text-gray-600">رسوم الاستشارة</span>
+                                <span className="font-bold">{doctor.consultation_price} ر.س</span>
                             </div>
-                            <div className="text-left">
-                                <span className="text-xs text-teal-600 font-bold block mb-1">الكشفية</span>
-                                <span className="text-lg font-bold text-gray-900">{price} ر.س</span>
+                            <div className="flex justify-between mb-4 text-sm">
+                                <span className="text-gray-600">ضريبة القيمة المضافة</span>
+                                <span className="font-bold">0.00 ر.س</span>
+                            </div>
+                            <div className="border-t pt-2 flex justify-between font-bold text-lg text-teal-700">
+                                <span>الإجمالي</span>
+                                <span>{doctor.consultation_price} ر.س</span>
                             </div>
                         </div>
-
-                        {error && (
-                            <div className={`mb-4 p-3 ${error === 'LOGIN_REQUIRED' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-600'} text-sm rounded-lg flex items-center gap-2`}>
-                                <AlertCircle className="w-4 h-4" />
-                                {error === 'LOGIN_REQUIRED' ? (
-                                    <div className="flex items-center justify-between w-full">
-                                        <span>يجب عليك تسجيل الدخول لإتمام الحجز</span>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => router.push(`/auth/login?next=/doctors/${doctorId}`)}
-                                            className="bg-white hover:bg-amber-100 border-amber-200 text-amber-800"
-                                        >
-                                            تسجيل دخول
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    error
-                                )}
+                        <div className="mt-4 flex gap-3">
+                            <div className="flex-1 h-12 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 text-sm cursor-not-allowed">
+                                Apple Pay
                             </div>
-                        )}
-
-                        <Button
-                            className="w-full bg-teal-600 hover:bg-teal-700 h-12 text-lg shadow-lg shadow-teal-200"
-                            onClick={handleConfirmBooking}
-                            disabled={isBooking}
-                        >
-                            {isBooking ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin ml-2" />
-                                    جاري الحجز...
-                                </>
-                            ) : (
-                                'تأكيد الحجز والدفع'
-                            )}
-                        </Button>
-                        <p className="text-center text-xs text-gray-400 mt-3">
-                            بالضغط على تأكيد الحجز، أنت توافق على شروط وأحكام الخدمة
+                            <div className="flex-1 h-12 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 text-sm cursor-not-allowed">
+                                بطاقة مدى / ائتمانية
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-400 text-center mt-2">
+                            * سيتم خصم المبلغ وتأكيد الحجز (الدفع التجريبي مفعّل)
                         </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Actions */}
+            <div className="border-t pt-6 mt-auto">
+                {step === 1 ? (
+                    <Button
+                        className="w-full h-12 text-lg"
+                        disabled={!selectedSlot}
+                        onClick={handleNext}
+                    >
+                        المتابعة للدفع
+                    </Button>
+                ) : (
+                    <div className="flex gap-3">
+                        <Button variant="outline" className="h-12 px-6" onClick={handleBack} disabled={booking}>
+                            عودة
+                        </Button>
+                        <Button
+                            className="flex-1 h-12 text-lg"
+                            disabled={booking}
+                            onClick={handleBook}
+                        >
+                            {booking ? 'جاري التأكيد...' : 'تأكيد ودفع'}
+                        </Button>
                     </div>
                 )}
             </div>

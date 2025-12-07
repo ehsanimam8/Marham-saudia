@@ -1,12 +1,9 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Star, MapPin, GraduationCap, Globe, Clock, Shield } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BookingWizard from '@/components/booking/BookingWizard';
-import { getDoctorProfile } from '@/lib/api/doctors';
-import { getDoctorSlots } from '@/lib/api/appointments';
-
+import { getDoctorById } from '@/lib/api/doctors';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function DoctorProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,8 +16,6 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
     if (!doctor) {
         notFound();
     }
-
-    const slots = await getDoctorSlots(supabase, doctor.id);
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -99,28 +94,82 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
                     <div className="lg:col-span-2 space-y-8">
                         {/* Booking Wizard - Mobile/Desktop */}
                         <section id="booking" className="scroll-mt-24">
-                            <BookingWizard
-                                doctorId={doctor.id}
-                                doctorName={doctor.profiles.full_name_ar}
-                                price={doctor.consultation_price}
-                                initialSlots={slots}
-                            />
+                            <BookingWizard doctor={doctor} />
+                        </section>
+
+
+                        <section className="bg-white rounded-2xl p-6 border border-gray-100">
+                            <h2 className="text-xl font-bold text-gray-900 mb-6">البيانات المهنية</h2>
+
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 className="font-bold text-gray-800 mb-3 text-sm">التخصصات الدقيقة</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {doctor.sub_specialties?.map((sub: string, i: number) => (
+                                            <span key={i} className="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-100">
+                                                {sub}
+                                            </span>
+                                        )) || <span className="text-gray-400 text-sm">عام</span>}
+                                        <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-100">استشارات عن بعد</span>
+                                        <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-100">متابعة الحمل</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="font-bold text-gray-800 mb-3 text-sm">اللغات</h3>
+                                    <div className="flex gap-4 text-sm text-gray-600">
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                            العربية (اللغة الأم)
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                            English (Fluent)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </section>
 
                         <section className="bg-white rounded-2xl p-6 border border-gray-100">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">الشهادات والمؤهلات</h2>
-                            <ul className="space-y-3">
-                                {/* Mock data if qualifications is JSON/null */}
-                                <li className="flex items-start gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mt-1">
-                                        <GraduationCap className="w-4 h-4" />
+                            <ul className="space-y-4">
+                                <li className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                                        <GraduationCap className="w-5 h-5" />
                                     </div>
                                     <div>
                                         <p className="font-bold text-gray-900">البورد السعودي في {doctor.specialty}</p>
                                         <p className="text-sm text-gray-500">2018 - الهيئة السعودية للتخصصات الصحية</p>
                                     </div>
                                 </li>
+                                <li className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                                        <GraduationCap className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-900">بكالوريوس الطب والجراحة</p>
+                                        <p className="text-sm text-gray-500">2012 - جامعة الملك سعود</p>
+                                    </div>
+                                </li>
                             </ul>
+                        </section>
+
+                        {/* Videos / Intro */}
+                        <section className="bg-white rounded-2xl p-6 border border-gray-100">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">فيديو تعريفي</h2>
+                            <div className="relative aspect-video bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center group cursor-pointer">
+                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all"></div>
+                                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white border-2 border-white z-10 transition-transform group-hover:scale-110">
+                                    <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent ml-1"></div>
+                                </div>
+                                <Image
+                                    src={doctor.profile_photo_url || '/placeholder.jpg'}
+                                    alt="Video Thumbnail"
+                                    fill
+                                    className="object-cover -z-10 opacity-60"
+                                />
+                            </div>
                         </section>
                     </div>
 
@@ -138,18 +187,4 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
             </div>
         </div>
     );
-}
-
-// Temporary helper until moved to separate file
-// import { supabase } from '@/lib/supabase'; // Removed
-async function getDoctorById(supabase: any, id: string) {
-    const { data } = await supabase
-        .from('doctors')
-        .select(`
-            *,
-            profiles (full_name_ar, full_name_en, city)
-        `)
-        .eq('id', id)
-        .single();
-    return data;
 }

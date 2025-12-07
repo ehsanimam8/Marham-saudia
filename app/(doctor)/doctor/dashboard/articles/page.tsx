@@ -14,8 +14,8 @@ export default async function ArticlesDashboardPage() {
 
     // We assume middleware/layout ensures user is logged in
     // But getting profile is needed for ID
-    const doctor = await getDoctorProfile(user?.id!);
-    const articles = await getDoctorArticles(doctor?.id!);
+    const doctor = await getDoctorProfile(supabase, user?.id!);
+    const articles = await getDoctorArticles(supabase, doctor?.id!);
 
     return (
         <div className="space-y-6">
@@ -96,8 +96,8 @@ export default async function ArticlesDashboardPage() {
                                         </td>
                                         <td className="py-4 px-6">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${article.status === 'published'
-                                                    ? 'bg-green-50 text-green-700 border-green-100'
-                                                    : 'bg-yellow-50 text-yellow-700 border-yellow-100'
+                                                ? 'bg-green-50 text-green-700 border-green-100'
+                                                : 'bg-yellow-50 text-yellow-700 border-yellow-100'
                                                 }`}>
                                                 {article.status === 'published' ? (
                                                     <Globe className="w-3 h-3" />
@@ -127,9 +127,11 @@ export default async function ArticlesDashboardPage() {
                                         </td>
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-teal-600">
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
+                                                <Link href={`/doctor/dashboard/articles/edit/${article.id}`}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-teal-600">
+                                                        <Edit className="w-4 h-4" />
+                                                    </Button>
+                                                </Link>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-teal-600">
                                                     <MoreVertical className="w-4 h-4" />
                                                 </Button>

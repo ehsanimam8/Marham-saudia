@@ -1084,4 +1084,5 @@ Treatment options include lifestyle changes, medications like birth control pill
     8,
     'published',
     NOW() - INTERVAL '28 days'
-);
+)
+ON CONFLICT (slug) DO NOTHING;

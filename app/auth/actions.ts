@@ -76,6 +76,8 @@ export async function login(prevState: any, formData: FormData) {
             if (!next || next === '/') {
                 redirectUrl = '/doctor/dashboard';
             }
+        } else if (currentProfile?.role === 'admin') {
+            redirectUrl = '/admin/dashboard';
         }
     }
 

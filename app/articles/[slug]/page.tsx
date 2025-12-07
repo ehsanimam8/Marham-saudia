@@ -56,6 +56,9 @@ export default async function ArticlePage({ params: paramsPromise }: { params: P
                         <div className="flex flex-wrap items-center justify-center gap-6 text-teal-100 text-sm">
                             <div className="flex items-center gap-2">
                                 <Avatar className="w-8 h-8 border-2 border-teal-400">
+                                    {article.doctors?.profile_photo_url && (
+                                        <AvatarImage src={article.doctors.profile_photo_url} alt={article.doctors.profiles?.full_name_ar} />
+                                    )}
                                     <AvatarFallback>{article.doctors?.profiles?.full_name_ar?.[0]}</AvatarFallback>
                                 </Avatar>
                                 <span>د. {article.doctors?.profiles?.full_name_ar}</span>
@@ -116,6 +119,9 @@ export default async function ArticlePage({ params: paramsPromise }: { params: P
                             <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 sticky top-24">
                                 <div className="flex items-center gap-4 mb-4">
                                     <Avatar className="w-16 h-16">
+                                        {article.doctors?.profile_photo_url && (
+                                            <AvatarImage src={article.doctors.profile_photo_url} alt={article.doctors.profiles?.full_name_ar} />
+                                        )}
                                         <AvatarFallback className="text-xl bg-teal-100 text-teal-600">
                                             {article.doctors?.profiles?.full_name_ar?.[0]}
                                         </AvatarFallback>

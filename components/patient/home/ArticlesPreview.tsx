@@ -21,7 +21,7 @@ export default async function ArticlesPreview() {
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">مقالات صحية</h2>
                         <p className="text-gray-500">معلومات طبية موثوقة من طبيباتنا</p>
                     </div>
-                    <Link href="/articles" className="text-teal-600 hover:text-teal-700 font-semibold hidden md:block">
+                    <Link href="/health" className="text-teal-600 hover:text-teal-700 font-semibold hidden md:block">
                         تصفح المكتبة الصحية ←
                     </Link>
                 </div>
@@ -30,7 +30,7 @@ export default async function ArticlesPreview() {
                     {articles.map((article) => (
                         <Link
                             key={article.id}
-                            href={`/articles/${article.slug}`}
+                            href={`/health/${article.slug}`}
                             className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all"
                         >
                             <div className="h-48 bg-gradient-to-br from-teal-50 to-emerald-50 relative">
@@ -65,7 +65,7 @@ export default async function ArticlesPreview() {
                 </div>
 
                 <div className="text-center mt-8 md:hidden">
-                    <Link href="/articles" className="text-teal-600 hover:text-teal-700 font-semibold">
+                    <Link href="/health" className="text-teal-600 hover:text-teal-700 font-semibold">
                         تصفح المكتبة الصحية ←
                     </Link>
                 </div>

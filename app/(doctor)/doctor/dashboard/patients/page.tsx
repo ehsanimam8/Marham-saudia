@@ -11,7 +11,7 @@ export default async function PatientsPage() {
 
     if (!user) redirect('/auth/login');
 
-    const doctor = await getDoctorProfile(user.id);
+    const doctor = await getDoctorProfile(supabase, user.id);
     if (!doctor) redirect('/doctor/register');
 
     // Fetch Unique Patients via Appointments

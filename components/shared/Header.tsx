@@ -1,17 +1,24 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 export default function Header() {
+    const pathname = usePathname();
+
+    // Hide Header on Admin Pages
+    if (pathname?.startsWith('/admin')) return null;
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const navigation = [
         { name: 'الرئيسية', href: '/' },
         { name: 'ابحثي عن طبيبة', href: '/doctors' },
-        { name: 'المكتبة الصحية', href: '/health' },
+        { name: 'المكتبة الصحية', href: '/articles' },
         { name: 'كيف يعمل', href: '/how-it-works' },
         { name: 'عن مرهم', href: '/about' },
     ];
@@ -19,13 +26,17 @@ export default function Header() {
     return (
         <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
             <nav className="container mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
+                <div className="flex items-center justify-between py-3">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-xl flex items-center justify-center">
-                            <span className="text-white font-bold text-xl">م</span>
-                        </div>
-                        <span className="text-xl font-bold text-gray-900">مرهم</span>
+                        <Image
+                            src="/logo.png"
+                            alt="Marham Saudi"
+                            width={240}
+                            height={60}
+                            className="h-20 w-auto object-contain"
+                            priority
+                        />
                     </Link>
 
                     {/* Desktop Navigation */}
