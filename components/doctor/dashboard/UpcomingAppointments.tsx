@@ -64,11 +64,11 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
 
                         <div className="flex items-center gap-2">
                             {apt.video_room_url && (
-                                <a href={`/consultation/${apt.id}`} target="_blank" rel="noopener noreferrer">
-                                    <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
+                                <Button asChild size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
+                                    <a href={`/consultation/${apt.id}`} target="_blank" rel="noopener noreferrer">
                                         دخول
-                                    </Button>
-                                </a>
+                                    </a>
+                                </Button>
                             )}
                             <Button variant="ghost" size="icon" className="h-8 w-8">
                                 <MoreVertical className="w-4 h-4 text-gray-400" />

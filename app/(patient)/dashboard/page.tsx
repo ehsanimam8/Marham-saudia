@@ -33,6 +33,12 @@ export default async function DashboardPage() {
     // Fetch Data
     const appointments = await getPatientAppointments(supabase, patient.id);
 
+    // Fetch Records Count
+    const { count: recordsCount } = await supabase
+        .from('patient_records')
+        .select('*', { count: 'exact', head: true })
+        .eq('patient_id', patient.id);
+
     // Calculate Stats
     const now = new Date();
     const upcomingApps = appointments.filter((a: any) => {
@@ -73,7 +79,7 @@ export default async function DashboardPage() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">التقارير الطبية</p>
-                            <p className="text-2xl font-bold text-gray-900">0</p>
+                            <p className="text-2xl font-bold text-gray-900">{recordsCount || 0}</p>
                         </div>
                     </div>
                 </div>

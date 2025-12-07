@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Calendar, FileText, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { signOut } from '@/app/auth/actions';
 
 const navigation = [
     { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
@@ -45,7 +46,12 @@ export default function DashboardSidebar() {
                 </div>
 
                 <div className="p-4 border-t border-gray-200">
-                    <button className="flex items-center w-full px-3 py-3 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors">
+                    <button
+                        onClick={async () => {
+                            await signOut();
+                        }}
+                        className="flex items-center w-full px-3 py-3 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors"
+                    >
                         <LogOut className="ml-3 h-5 w-5" />
                         تسجيل الخروج
                     </button>
