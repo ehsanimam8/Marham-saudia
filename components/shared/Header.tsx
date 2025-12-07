@@ -57,7 +57,7 @@ export default function Header() {
                         <Link href="/doctor/register">
                             <Button variant="outline">انضمي كطبيبة</Button>
                         </Link>
-                        <Link href="/dashboard">
+                        <Link href="/auth/login">
                             <Button className="bg-teal-600 hover:bg-teal-700">حسابي</Button>
                         </Link>
                     </div>
@@ -89,7 +89,7 @@ export default function Header() {
                                 <Link href="/doctor/register" onClick={() => setMobileMenuOpen(false)}>
                                     <Button variant="outline" className="w-full">انضمي كطبيبة</Button>
                                 </Link>
-                                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                                <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
                                     <Button className="w-full bg-teal-600 hover:bg-teal-700">حسابي</Button>
                                 </Link>
                             </div>
