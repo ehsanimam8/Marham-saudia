@@ -24,7 +24,7 @@ export default async function ArticlesDashboardPage() {
                     <h1 className="text-2xl font-bold text-gray-900">المقالات والمحتوى</h1>
                     <p className="text-gray-500 mt-1">أدر مقالاتك الطبية وشارك معرفتك مع المرضى</p>
                 </div>
-                <Link href="/doctor-portal/dashboard/articles/new">
+                <Link href="/doctor-portal/articles/new">
                     <Button className="bg-teal-600 hover:bg-teal-700 gap-2">
                         <Plus className="w-4 h-4" />
                         مقال جديد
@@ -127,7 +127,7 @@ export default async function ArticlesDashboardPage() {
                                         </td>
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-2">
-                                                <Link href={`/doctor-portal/dashboard/articles/edit/${article.id}`}>
+                                                <Link href={`/doctor-portal/articles/edit/${article.id}`}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-teal-600">
                                                         <Edit className="w-4 h-4" />
                                                     </Button>

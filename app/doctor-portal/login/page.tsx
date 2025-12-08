@@ -91,7 +91,7 @@ function DoctorLoginForm() {
             }
 
             // All checks passed - redirect (layout will handle pending/rejected status)
-            router.push('/doctor-portal/dashboard');
+            router.push('/doctor-portal');
             router.refresh();
 
         } catch (err: any) {

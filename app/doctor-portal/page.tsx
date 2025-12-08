@@ -2,9 +2,9 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDoctorProfile } from '@/lib/api/doctors';
 import { getDoctorStats, getDoctorAppointments, getDoctorReviews } from '@/lib/api/dashboard';
-import DoctorStats from '@/components/doctor-portal/dashboard/DoctorStats';
-import UpcomingAppointments from '@/components/doctor-portal/dashboard/UpcomingAppointments';
-import RecentReviews from '@/components/doctor-portal/dashboard/RecentReviews';
+import DoctorStats from '@/components/doctor-portal/DoctorStats';
+import UpcomingAppointments from '@/components/doctor-portal/UpcomingAppointments';
+import RecentReviews from '@/components/doctor-portal/RecentReviews';
 
 export default async function DoctorDashboardPage() {
     const supabase = await createClient();

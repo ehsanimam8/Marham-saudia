@@ -114,7 +114,7 @@ export default async function DoctorPortalLayout({
                             بوابة الأطباء
                         </h3>
                         <nav className="space-y-2">
-                            <a href="/doctor-portal/dashboard" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
+                            <a href="/doctor-portal" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
                                 لوحة التحكم
                             </a>
                             <a href="/doctor/appointments" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
