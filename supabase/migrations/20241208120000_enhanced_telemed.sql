@@ -2,6 +2,24 @@
 -- MARHAM SAUDI - ENHANCED TELEMEDICINE SCHEMA
 -- ============================================
 
+-- 0. Storage Bucket Setup
+-- Create 'medical-files' bucket if not exists
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('medical-files', 'medical-files', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies
+-- (We'll use DO blocks to avoid errors if policies exist)
+DO $$ BEGIN
+    CREATE POLICY "Public Access to Medical Files" ON storage.objects FOR SELECT USING (bucket_id = 'medical-files');
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+    CREATE POLICY "Authenticated Users Upload" ON storage.objects FOR INSERT WITH CHECK (
+        bucket_id = 'medical-files' AND auth.role() = 'authenticated'
+    );
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
 -- 1. Patient Medical Records (EMR)
 CREATE TABLE IF NOT EXISTS patient_medical_records (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
