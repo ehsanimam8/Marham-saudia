@@ -38,7 +38,7 @@ export async function updateDoctorProfile(prevState: any, formData: FormData) {
 
         if (doctorError) throw doctorError;
 
-        revalidatePath('/doctor/dashboard/settings');
+        revalidatePath('/doctor-portal/dashboard/settings');
         return { success: true, message: 'تم تحديث الملف الشخصي بنجاح' };
     } catch (error: any) {
         console.error('Update error:', error);

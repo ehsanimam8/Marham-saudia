@@ -129,7 +129,7 @@ export async function saveDoctorSchedule(schedule: Record<string, any>) {
         }
     }
 
-    revalidatePath('/doctor/dashboard/schedule');
+    revalidatePath('/doctor-portal/dashboard/schedule');
     return { success: true };
 }
 

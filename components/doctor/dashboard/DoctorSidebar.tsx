@@ -6,16 +6,16 @@ import { LayoutDashboard, Calendar, Users, Star, Settings, LogOut, Wallet, Clock
 import { cn } from '@/lib/utils';
 
 const navigation = [
-    { name: 'لوحة التحكم', href: '/doctor/dashboard', icon: LayoutDashboard },
-    { name: 'المواعيد', href: '/doctor/dashboard/appointments', icon: Calendar },
-    { name: 'جدول العمل', href: '/doctor/dashboard/schedule', icon: Clock },
-    { name: 'مرضاي', href: '/doctor/dashboard/patients', icon: Users },
-    { name: 'التقييمات', href: '/doctor/dashboard/reviews', icon: Star },
-    { name: 'الأرباح', href: '/doctor/dashboard/earnings', icon: Wallet },
-    { name: 'الإعدادات', href: '/doctor/dashboard/settings', icon: Settings },
+    { name: 'لوحة التحكم', href: '/doctor-portal/dashboard', icon: LayoutDashboard },
+    { name: 'المواعيد', href: '/doctor-portal/dashboard/appointments', icon: Calendar },
+    { name: 'جدول العمل', href: '/doctor-portal/dashboard/schedule', icon: Clock },
+    { name: 'مرضاي', href: '/doctor-portal/dashboard/patients', icon: Users },
+    { name: 'التقييمات', href: '/doctor-portal/dashboard/reviews', icon: Star },
+    { name: 'الأرباح', href: '/doctor-portal/dashboard/earnings', icon: Wallet },
+    { name: 'الإعدادات', href: '/doctor-portal/dashboard/settings', icon: Settings },
 ];
 
-import { signOut } from '@/app/auth/actions';
+import { signOut } from '@/app/(auth)/actions';
 
 export default function DoctorSidebar() {
     const pathname = usePathname();

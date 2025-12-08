@@ -55,10 +55,10 @@ export default function Header() {
                     {/* Desktop CTA */}
                     <div className="hidden md:flex items-center gap-3">
                         <Button asChild variant="outline">
-                            <Link href="/doctor/register">انضمي كطبيبة</Link>
+                            <Link href="/doctor-portal/register">انضمي كطبيبة</Link>
                         </Button>
                         <Button asChild className="bg-teal-600 hover:bg-teal-700">
-                            <Link href="/auth/login">حسابي</Link>
+                            <Link href="/login">حسابي</Link>
                         </Button>
                     </div>
 
@@ -87,12 +87,12 @@ export default function Header() {
                             ))}
                             <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
                                 <Button asChild variant="outline" className="w-full">
-                                    <Link href="/doctor/register" onClick={() => setMobileMenuOpen(false)}>
+                                    <Link href="/doctor-portal/register" onClick={() => setMobileMenuOpen(false)}>
                                         انضمي كطبيبة
                                     </Link>
                                 </Button>
                                 <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
-                                    <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                                         حسابي
                                     </Link>
                                 </Button>

@@ -10,37 +10,37 @@ import { useRouter } from 'next/navigation';
 const sidebarItems = [
     {
         title: 'لوحة التحكم',
-        href: '/admin/dashboard',
+        href: '/admin-portal/dashboard',
         icon: LayoutDashboard
     },
     {
         title: 'الطبيبات',
-        href: '/admin/dashboard/doctors',
+        href: '/admin-portal/dashboard/doctors',
         icon: Stethoscope
     },
     {
         title: 'المقالات',
-        href: '/admin/dashboard/articles',
+        href: '/admin-portal/dashboard/articles',
         icon: FileText
     },
     {
         title: 'الاستشارات',
-        href: '/admin/dashboard/consultations',
+        href: '/admin-portal/dashboard/consultations',
         icon: Stethoscope // Reusing Stethoscope for now or Calendar/MessageCircle
     },
     {
         title: 'المستخدمين',
-        href: '/admin/dashboard/users',
+        href: '/admin-portal/dashboard/users',
         icon: Users
     },
     {
         title: 'الموسوعة الطبية',
-        href: '/admin/dashboard/encyclopedia',
+        href: '/admin-portal/dashboard/encyclopedia',
         icon: FileText
     },
     {
         title: 'إعدادات',
-        href: '/admin/dashboard/settings',
+        href: '/admin-portal/dashboard/settings',
         icon: Settings
     }
 ];

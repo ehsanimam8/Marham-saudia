@@ -12,14 +12,14 @@ export default async function DashboardPage() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect('/auth/login');
+        redirect('/login');
     }
 
     // Check Role
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
 
     if (profile?.role === 'doctor') {
-        redirect('/doctor/dashboard');
+        redirect('/doctor-portal/dashboard');
     }
 
     // Get Patient Record

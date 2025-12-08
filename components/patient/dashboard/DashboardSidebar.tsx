@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Calendar, FileText, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { signOut } from '@/app/auth/actions';
+import { signOut } from '@/app/(auth)/actions';
 
 const navigation = [
     { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },

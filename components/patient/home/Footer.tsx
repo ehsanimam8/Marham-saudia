@@ -33,7 +33,7 @@ export default function Footer() {
                             <li><Link href="/doctors" className="hover:text-teal-400 transition-colors">ابحثي عن طبيبة</Link></li>
                             <li><Link href="/how-it-works" className="hover:text-teal-400 transition-colors">كيف يعمل الموقع</Link></li>
                             <li><Link href="/pricing" className="hover:text-teal-400 transition-colors">الأسعار والباقات</Link></li>
-                            <li><Link href="/doctor/register" className="hover:text-teal-400 transition-colors">انضمي كطبيبة</Link></li>
+                            <li><Link href="/doctor-portal/register" className="hover:text-teal-400 transition-colors">انضمي كطبيبة</Link></li>
                         </ul>
                     </div>
 
