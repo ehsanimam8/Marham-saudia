@@ -10,37 +10,37 @@ import { useRouter } from 'next/navigation';
 const sidebarItems = [
     {
         title: 'لوحة التحكم',
-        href: '/admin-portal/dashboard',
+        href: '/admin',
         icon: LayoutDashboard
     },
     {
         title: 'الطبيبات',
-        href: '/admin-portal/dashboard/doctors',
+        href: '/admin/doctors',
         icon: Stethoscope
     },
     {
         title: 'المقالات',
-        href: '/admin-portal/dashboard/articles',
+        href: '/admin/articles',
         icon: FileText
     },
     {
         title: 'الاستشارات',
-        href: '/admin-portal/dashboard/consultations',
+        href: '/admin/consultations',
         icon: Stethoscope // Reusing Stethoscope for now or Calendar/MessageCircle
     },
     {
         title: 'المستخدمين',
-        href: '/admin-portal/dashboard/users',
+        href: '/admin/users',
         icon: Users
     },
     {
         title: 'الموسوعة الطبية',
-        href: '/admin-portal/dashboard/encyclopedia',
+        href: '/admin/encyclopedia',
         icon: FileText
     },
     {
         title: 'إعدادات',
-        href: '/admin-portal/dashboard/settings',
+        href: '/admin/settings',
         icon: Settings
     }
 ];
@@ -52,7 +52,7 @@ export default function AdminSidebar() {
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        router.push('/login');
+        router.push('/admin/login');
     };
 
     return (

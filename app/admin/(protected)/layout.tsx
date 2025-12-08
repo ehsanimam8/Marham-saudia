@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import AdminSidebar from '@/components/admin-portal/AdminSidebar';
 
 export default async function AdminPortalLayout({
     children,
@@ -35,13 +36,10 @@ export default async function AdminPortalLayout({
     // "Move from (admin)/..." to "app/(admin-portal)/..."
     // So we should just move the files and ensure this layout is used.
 
-    return (
-        <div className="min-h-screen bg-gray-50 flex">
-            {/* We will need to import AdminSidebar here or in individual pages if they had it */
-                /* Assuming specific layout for admin existed in (admin)/layout.tsx, we will check it later. */
-                /* For now, just render children wrapper */
-            }
+    <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+        <AdminSidebar />
+        <main className="flex-1 mr-64 p-8">
             {children}
-        </div>
-    );
+        </main>
+    </div>
 }

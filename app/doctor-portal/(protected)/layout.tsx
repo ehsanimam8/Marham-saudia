@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import DoctorSidebar from '@/components/doctor-portal/dashboard/DoctorSidebar';
 
 export default async function DoctorPortalLayout({
     children,
@@ -104,51 +105,11 @@ export default async function DoctorPortalLayout({
 
     // Approved doctor - show the portal
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* We'll add DoctorHeader and DoctorSidebar later */}
-            <div className="flex">
-                <aside className="w-64 bg-white border-r border-gray-200 min-h-screen hidden md:block">
-                    {/* Sidebar content */}
-                    <div className="p-6">
-                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                            بوابة الأطباء
-                        </h3>
-                        <nav className="space-y-2">
-                            <a href="/doctor-portal" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
-                                لوحة التحكم
-                            </a>
-                            <a href="/doctor/appointments" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
-                                المواعيد
-                            </a>
-                            <a href="/doctor/patients" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
-                                المريضات
-                            </a>
-                            <a href="/doctor/schedule" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
-                                الجدول
-                            </a>
-                            <a href="/doctor/earnings" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
-                                الأرباح
-                            </a>
-                            <a href="/doctor/settings" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-teal-700 rounded-lg">
-                                الإعدادات
-                            </a>
-                            <form action={async () => {
-                                'use server';
-                                const sb = createClient();
-                                await (await sb).auth.signOut();
-                                redirect('/doctor-portal/login');
-                            }}>
-                                <button type="submit" className="block w-full text-right px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg mt-4">
-                                    تسجيل الخروج
-                                </button>
-                            </form>
-                        </nav>
-                    </div>
-                </aside>
-                <main className="flex-1 p-8">
-                    {children}
-                </main>
-            </div>
+        <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+            <DoctorSidebar />
+            <main className="flex-1 mr-64 p-8">
+                {children}
+            </main>
         </div>
     );
 }
