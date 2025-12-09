@@ -47,7 +47,8 @@ export async function getArticles(supabase: any, filters: ArticleFilters = {}) {
         .from('articles')
         .select(`
     *,
-    doctors(
+    *,
+    doctors:doctors!articles_reviewed_by_doctor_id_fkey(
         profiles(full_name_ar, full_name_en)
     )
         `, { count: 'exact' })
@@ -79,7 +80,7 @@ export async function getArticleBySlug(supabase: any, slug: string) {
         .from('articles')
         .select(`
     *,
-    doctors(
+    doctors:doctors!articles_reviewed_by_doctor_id_fkey(
         id,
         profile_photo_url,
         specialty,
