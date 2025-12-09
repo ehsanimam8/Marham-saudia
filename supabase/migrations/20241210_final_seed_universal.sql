@@ -35,7 +35,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 2. Temporarily Disable Trigger to Prevent Conflicts during Seeding
-ALTER TABLE auth.users DISABLE TRIGGER on_auth_user_created;
+-- 2. (Skipped) Disable Trigger requires higher permissions.
+-- ALTER TABLE auth.users DISABLE TRIGGER on_auth_user_created;
 
 -- 3. Seed Data (Idempotent)
 
@@ -130,6 +131,6 @@ END;
 $$;
 
 -- 4. Re-enable Trigger
-ALTER TABLE auth.users ENABLE TRIGGER on_auth_user_created;
+-- ALTER TABLE auth.users ENABLE TRIGGER on_auth_user_created;
 
 COMMIT;
