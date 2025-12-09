@@ -97,47 +97,64 @@ export async function submitConsultation(data: any) {
     }
 }
 
+import fontkit from '@pdf-lib/fontkit';
+
+// ... (existing imports)
+
 async function generatePrescriptionPDF(data: any) {
     const pdfDoc = await PDFDocument.create();
+    pdfDoc.registerFontkit(fontkit);
+
+    // Fetch Arabic Font (Amiri)
+    const fontUrl = 'https://fonts.gstatic.com/s/amiri/v26/J7aRnpd8CGxBHpUrtLMA7w.ttf';
+    const fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
+
+    // Embed Fonts
+    const arabicFont = await pdfDoc.embedFont(fontBytes);
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
     const page = pdfDoc.addPage();
     const { width, height } = page.getSize();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     const fontSize = 12;
     const padding = 50;
     let y = height - padding;
 
-    // Header
-    page.drawText('MARHAM SAUDI - PRESCRIPTION', { x: padding, y, size: 18, font: boldFont, color: rgb(0.05, 0.58, 0.53) });
+    // Helper to draw text right-aligned for Arabic (optional, but good for RTL)
+    // For now we stick to LTR for layout simplicity but use the Arabic font.
+
+    // Header (English)
+    page.drawText('MARHAM SAUDI - PRESCRIPTION', { x: padding, y, size: 18, font: helveticaBold, color: rgb(0.05, 0.58, 0.53) });
     y -= 30;
 
     // Doctor/Patient Info
-    page.drawText(`Doctor: ${data.doctorName}`, { x: padding, y, size: fontSize, font: boldFont });
+    // Note: Names might be Arabic
+    page.drawText(`Doctor: ${data.doctorName}`, { x: padding, y, size: fontSize, font: arabicFont });
     y -= 20;
-    page.drawText(`Patient: ${data.patientName}`, { x: padding, y, size: fontSize, font });
+    page.drawText(`Patient: ${data.patientName}`, { x: padding, y, size: fontSize, font: arabicFont });
     y -= 20;
-    page.drawText(`Date: ${data.date}`, { x: padding, y, size: fontSize, font });
+    page.drawText(`Date: ${data.date}`, { x: padding, y, size: fontSize, font: arabicFont });
     y -= 40;
 
     // Diagnosis
-    page.drawText('Diagnosis:', { x: padding, y, size: 14, font: boldFont });
+    page.drawText('Diagnosis:', { x: padding, y, size: 14, font: helveticaBold });
     y -= 20;
-    page.drawText(data.diagnosis || 'N/A', { x: padding, y, size: fontSize, font });
+    page.drawText(data.diagnosis || 'N/A', { x: padding, y, size: fontSize, font: arabicFont });
     y -= 40;
 
     // Rx
-    page.drawText('Rx (Medications):', { x: padding, y, size: 14, font: boldFont });
+    page.drawText('Rx (Medications):', { x: padding, y, size: 14, font: helveticaBold });
     y -= 20;
 
     data.medications.forEach((med: any, index: number) => {
         const text = `${index + 1}. ${med.name} - ${med.dosage}`;
-        page.drawText(text, { x: padding, y, size: fontSize, font: boldFont });
+        // Medications are usually English, but instructions might be Arabic
+        page.drawText(text, { x: padding, y, size: fontSize, font: arabicFont });
         y -= 15;
-        page.drawText(`   Freq: ${med.frequency} | Duration: ${med.duration}`, { x: padding, y, size: fontSize - 2, font });
+        page.drawText(`   Freq: ${med.frequency} | Duration: ${med.duration}`, { x: padding, y, size: fontSize - 2, font: arabicFont });
         y -= 15;
         if (med.instructions) {
-            page.drawText(`   Note: ${med.instructions}`, { x: padding, y, size: fontSize - 2, font, color: rgb(0.4, 0.4, 0.4) });
+            page.drawText(`   Note: ${med.instructions}`, { x: padding, y, size: fontSize - 2, font: arabicFont, color: rgb(0.4, 0.4, 0.4) });
             y -= 15;
         }
         y -= 10;
@@ -145,9 +162,9 @@ async function generatePrescriptionPDF(data: any) {
 
     if (data.instructions) {
         y -= 20;
-        page.drawText('Instructions:', { x: padding, y, size: 14, font: boldFont });
+        page.drawText('Instructions:', { x: padding, y, size: 14, font: helveticaBold });
         y -= 20;
-        page.drawText(data.instructions, { x: padding, y, size: fontSize, font });
+        page.drawText(data.instructions, { x: padding, y, size: fontSize, font: arabicFont });
     }
 
     // Footer
@@ -155,7 +172,7 @@ async function generatePrescriptionPDF(data: any) {
         x: padding,
         y: 30,
         size: 10,
-        font,
+        font: helveticaBold, // Use standard for footer
         color: rgb(0.5, 0.5, 0.5),
     });
 
