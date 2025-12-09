@@ -14,7 +14,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
     const supabase = await createClient();
 
     // Try finding by ID first (UUID format check could optimize, but this is MVP)
-    let query = supabase.from('articles').select('*, doctors(profiles(full_name_ar))').eq('status', 'published');
+    let query = supabase.from('articles').select('*, doctors:doctors!articles_reviewed_by_doctor_id_fkey(profiles(full_name_ar))').eq('status', 'published');
 
     // Check if likely UUID
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
