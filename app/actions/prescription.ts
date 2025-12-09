@@ -10,8 +10,8 @@ export async function submitConsultation(data: any) {
 
     try {
         // 1. Save Consultation Notes
-        const { data: noteData, error: noteError } = await supabase
-            .from('consultation_notes')
+        const { data: noteData, error: noteError } = await (supabase
+            .from('consultation_notes') as any)
             .upsert({
                 appointment_id: appointmentId,
                 doctor_id: doctorId,
@@ -60,8 +60,8 @@ export async function submitConsultation(data: any) {
             prescriptionUrl = publicUrl;
 
             // Insert into DB
-            const { error: rxError } = await supabase
-                .from('prescriptions')
+            const { error: rxError } = await (supabase
+                .from('prescriptions') as any)
                 .insert({
                     appointment_id: appointmentId,
                     doctor_id: doctorId,
@@ -77,8 +77,8 @@ export async function submitConsultation(data: any) {
         }
 
         // 3. Mark Appointment Completed
-        const { error: apptError } = await supabase
-            .from('appointments')
+        const { error: apptError } = await (supabase
+            .from('appointments') as any)
             .update({ status: 'completed' })
             .eq('id', appointmentId);
 

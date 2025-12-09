@@ -11,8 +11,8 @@ export async function uploadMedicalRecord(formData: FormData) {
     if (!user) throw new Error("Unauthorized");
 
     // Get Patient ID
-    const { data: patient } = await supabase
-        .from('patients')
+    const { data: patient } = await (supabase
+        .from('patients') as any)
         .select('id')
         .eq('profile_id', user.id)
         .single();
@@ -42,8 +42,8 @@ export async function uploadMedicalRecord(formData: FormData) {
     }
 
     // 2. Insert Record into DB
-    const { error: dbError } = await supabase
-        .from('patient_records')
+    const { error: dbError } = await (supabase
+        .from('patient_records') as any)
         .insert({
             patient_id: patient.id,
             record_type: recordType, // prescription, lab_result, etc.
@@ -69,16 +69,16 @@ export async function getPatientRecords() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    const { data: patient } = await supabase
-        .from('patients')
+    const { data: patient } = await (supabase
+        .from('patients') as any)
         .select('id')
         .eq('profile_id', user.id)
         .single();
 
     if (!patient) return [];
 
-    const { data, error } = await supabase
-        .from('patient_records')
+    const { data, error } = await (supabase
+        .from('patient_records') as any)
         .select('*')
         .eq('patient_id', patient.id)
         .order('record_date', { ascending: false });
@@ -89,7 +89,7 @@ export async function getPatientRecords() {
     }
 
     // Generate signed URLs for display
-    const recordsWithUrls = await Promise.all(data.map(async (record) => {
+    const recordsWithUrls = await Promise.all(data.map(async (record: any) => {
         const { data: signed } = await supabase.storage
             .from('patient_records')
             .createSignedUrl(record.file_path, 3600); // 1 hour link

@@ -1,4 +1,4 @@
-import WeeklySchedule from '@/components/doctor/schedule/WeeklySchedule';
+import WeeklySchedule from '@/components/doctor-portal/schedule/WeeklySchedule';
 import { getDoctorSchedule } from '@/app/actions/schedule';
 
 export default async function SchedulePage() {

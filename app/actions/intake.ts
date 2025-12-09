@@ -13,8 +13,8 @@ export async function submitIntakeForm(data: any) {
 
     try {
         // 1. Save/Update Intake Form
-        const { data: intake, error: intakeError } = await supabase
-            .from('consultation_intake_forms')
+        const { data: intake, error: intakeError } = await (supabase
+            .from('consultation_intake_forms') as any)
             .upsert({
                 appointment_id: data.appointmentId,
                 patient_id: user.id,
@@ -52,8 +52,8 @@ export async function submitIntakeForm(data: any) {
             if (data.currentMedicationsList) updates.current_medications = data.currentMedicationsList.split('\n');
 
             if (Object.keys(updates).length > 0) {
-                await supabase
-                    .from('patient_medical_records')
+                await (supabase
+                    .from('patient_medical_records') as any)
                     .upsert({
                         patient_id: user.id,
                         ...updates,

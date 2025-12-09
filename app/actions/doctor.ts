@@ -19,8 +19,8 @@ export async function updateDoctorProfile(prevState: any, formData: FormData) {
     try {
         // 1. Update Profile (Name)
         if (fullName) {
-            const { error: profileError } = await supabase
-                .from('profiles')
+            const { error: profileError } = await (supabase
+                .from('profiles') as any)
                 .update({ full_name_ar: fullName })
                 .eq('id', user.id);
 
@@ -28,8 +28,8 @@ export async function updateDoctorProfile(prevState: any, formData: FormData) {
         }
 
         // 2. Update Doctor Details
-        const { error: doctorError } = await supabase
-            .from('doctors')
+        const { error: doctorError } = await (supabase
+            .from('doctors') as any)
             .update({
                 consultation_price: price,
                 bio_ar: bio,

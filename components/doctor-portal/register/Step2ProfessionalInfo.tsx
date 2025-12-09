@@ -27,22 +27,24 @@ export default function Step2ProfessionalInfo({ formData, updateFormData, onNext
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="specialty">التخصص الرئيسي</Label>
-                <Select
-                    value={formData.specialty}
-                    onValueChange={(value) => updateFormData({ specialty: value })}
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="اختر التخصص" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="OB/GYN">أمراض النساء والولادة</SelectItem>
-                        <SelectItem value="Fertility">الخصوبة وعلاج العقم</SelectItem>
-                        <SelectItem value="Maternal-Fetal Medicine">طب الأمومة والجنين</SelectItem>
-                        <SelectItem value="Mental Health">الصحة النفسية</SelectItem>
-                        <SelectItem value="Endocrinology">الغدد الصماء</SelectItem>
-                    </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                    <Label htmlFor="specialty">التخصص الرئيسي</Label>
+                    <Select
+                        value={formData.specialty}
+                        onValueChange={(value) => updateFormData({ specialty: value })}
+                    >
+                        <SelectTrigger className="w-full text-right" dir="rtl">
+                            <SelectValue placeholder="اختر التخصص" />
+                        </SelectTrigger>
+                        <SelectContent dir="rtl">
+                            <SelectItem value="OB/GYN">أمراض النساء والولادة</SelectItem>
+                            <SelectItem value="Fertility">الخصوبة وعلاج العقم</SelectItem>
+                            <SelectItem value="Maternal-Fetal Medicine">طب الأمومة والجنين</SelectItem>
+                            <SelectItem value="Mental Health">الصحة النفسية</SelectItem>
+                            <SelectItem value="Endocrinology">الغدد الصماء</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             <div className="space-y-2">

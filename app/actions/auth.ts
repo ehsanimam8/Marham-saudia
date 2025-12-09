@@ -47,8 +47,8 @@ export async function registerDoctor(formData: any) {
     // 2. Create Profile (Trigger might handle this, but let's ensure extra data if needed)
     // The handle_new_user trigger creates the basic profile. We might need to update it
     // with phone if it wasn't in metadata.
-    const { error: profileError } = await supabase
-        .from('profiles')
+    const { error: profileError } = await (supabase
+        .from('profiles') as any)
         .update({
             full_name_ar: `${firstName} ${lastName}`, // Assuming Arabic input for now
             phone: phone,
@@ -61,8 +61,8 @@ export async function registerDoctor(formData: any) {
     }
 
     // 3. Create Doctor Record
-    const { error: doctorError } = await supabase
-        .from('doctors')
+    const { error: doctorError } = await (supabase
+        .from('doctors') as any)
         .insert({
             profile_id: userId,
             scfhs_license: licenseNumber,

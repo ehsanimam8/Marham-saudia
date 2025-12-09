@@ -66,7 +66,7 @@ export async function getArticles(supabase: any, filters: ArticleFilters = {}) {
     const { data, count, error } = await query;
 
     if (error) {
-        console.error('Error fetching articles:', error);
+        console.error('Error fetching articles:', JSON.stringify(error, null, 2));
         return { data: [], count: 0 };
     }
 

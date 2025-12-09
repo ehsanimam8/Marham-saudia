@@ -55,13 +55,13 @@ export default function NewArticlePage() {
                 .from('doctors')
                 .select('id')
                 .eq('profile_id', user.id)
-                .single();
+                .single() as any;
 
             if (doctorError || !doctor) throw new Error("Doctor profile not found");
 
             // Insert Article
-            const { error } = await supabase
-                .from('articles')
+            const { error } = await (supabase
+                .from('articles') as any)
                 .insert({
                     title_ar: formData.title_ar,
                     // Temporarily using title as slug (url-encoded)

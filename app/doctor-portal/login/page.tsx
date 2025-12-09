@@ -59,7 +59,7 @@ function DoctorLoginForm() {
                 .from('profiles')
                 .select('role')
                 .eq('id', authData.user.id)
-                .single();
+                .single() as any;
 
             if (profileError) throw profileError;
 
@@ -81,9 +81,9 @@ function DoctorLoginForm() {
             // Check if doctor record exists
             const { data: doctorData, error: doctorError } = await supabase
                 .from('doctors')
-                .select('verification_status')
-                .eq('user_id', authData.user.id)
-                .single();
+                .select('status')
+                .eq('profile_id', authData.user.id)
+                .single() as any;
 
             if (doctorError) {
                 await supabase.auth.signOut();

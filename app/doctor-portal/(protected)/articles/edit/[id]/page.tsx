@@ -36,7 +36,7 @@ export default function EditArticlePage({ params: paramsPromise }: { params: Pro
                     .from('articles')
                     .select('*')
                     .eq('id', params.id)
-                    .single();
+                    .single() as any;
 
                 if (error) throw error;
                 if (article) {
@@ -83,8 +83,8 @@ export default function EditArticlePage({ params: paramsPromise }: { params: Pro
         try {
             const supabase = createClient();
 
-            const { error } = await supabase
-                .from('articles')
+            const { error } = await (supabase
+                .from('articles') as any)
                 .update({
                     title_ar: formData.title_ar,
                     excerpt_ar: formData.excerpt_ar,

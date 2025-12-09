@@ -12,7 +12,11 @@
 - **Password:** password123
 
 ### Doctor Account (Demo)
-- **Username:** noura@test.com
+- **Username:** mah@hotmail.com
+- **Password:** password123
+
+### Test Patient Account
+- **Username:** telemed_patient_final@test.com
 - **Password:** password123
 
 ## ✨ Features Summary

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import AdminSidebar from '@/components/admin-portal/AdminSidebar';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
 export default async function AdminPortalLayout({
     children,
@@ -21,7 +21,7 @@ export default async function AdminPortalLayout({
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .single() as any;
 
     if (!profile || profile.role !== 'admin') {
         // Not an admin - sign them out and redirect
@@ -36,10 +36,12 @@ export default async function AdminPortalLayout({
     // "Move from (admin)/..." to "app/(admin-portal)/..."
     // So we should just move the files and ensure this layout is used.
 
-    <div className="min-h-screen bg-gray-50 flex" dir="rtl">
-        <AdminSidebar />
-        <main className="flex-1 mr-64 p-8">
-            {children}
-        </main>
-    </div>
+    return (
+        <div className="min-h-screen bg-gray-50 flex" dir="rtl">
+            <AdminSidebar />
+            <main className="flex-1 mr-64 p-8">
+                {children}
+            </main>
+        </div>
+    );
 }

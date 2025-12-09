@@ -17,13 +17,27 @@ const navigation = [
 
 import { signOut } from '@/app/(auth)/actions';
 
+import Image from 'next/image';
+
 export default function DoctorSidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 right-0 bg-white border-l border-gray-200 pt-16">
+        <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 right-0 bg-white border-l border-gray-200">
+            <div className="flex h-16 flex-shrink-0 items-center px-4 mt-4 mb-2">
+                <Link href="/" className="flex items-center gap-2">
+                    <Image
+                        src="/logo.png"
+                        alt="Marham Saudi"
+                        width={180}
+                        height={45}
+                        className="h-12 w-auto object-contain"
+                        priority
+                    />
+                </Link>
+            </div>
             <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
-                <div className="flex-1 px-4 py-6 space-y-1">
+                <div className="flex-1 px-4 py-2 space-y-1">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href;
                         return (

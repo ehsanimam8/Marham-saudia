@@ -32,16 +32,16 @@ export async function getDoctorSchedule() {
     if (!user) return null;
 
     // Get doctor ID
-    const { data: doctor } = await supabase
-        .from('doctors')
+    const { data: doctor } = await (supabase
+        .from('doctors') as any)
         .select('id')
         .eq('profile_id', user.id)
         .single();
 
     if (!doctor) return null;
 
-    const { data: schedules, error } = await supabase
-        .from('doctor_schedules')
+    const { data: schedules, error } = await (supabase
+        .from('doctor_schedules') as any)
         .select('*')
         .eq('doctor_id', doctor.id);
 
@@ -58,7 +58,7 @@ export async function getDoctorSchedule() {
         uiSchedule[day] = { enabled: false, slots: [] };
     });
 
-    schedules.forEach((row) => {
+    schedules.forEach((row: any) => {
         const dayStr = INT_TO_DAY_MAP[row.day_of_week];
         if (!uiSchedule[dayStr]) return;
 
@@ -78,8 +78,8 @@ export async function saveDoctorSchedule(schedule: Record<string, any>) {
 
     if (!user) return { error: 'Unauthorized' };
 
-    const { data: doctor } = await supabase
-        .from('doctors')
+    const { data: doctor } = await (supabase
+        .from('doctors') as any)
         .select('id')
         .eq('profile_id', user.id)
         .single();
@@ -108,8 +108,8 @@ export async function saveDoctorSchedule(schedule: Record<string, any>) {
     // but we can sequentialize.
 
     // 1. Delete existing
-    const { error: deleteError } = await supabase
-        .from('doctor_schedules')
+    const { error: deleteError } = await (supabase
+        .from('doctor_schedules') as any)
         .delete()
         .eq('doctor_id', doctor.id);
 
@@ -119,17 +119,18 @@ export async function saveDoctorSchedule(schedule: Record<string, any>) {
 
     // 2. Insert new
     if (rowsToInsert.length > 0) {
-        const { error: insertError } = await supabase
-            .from('doctor_schedules')
+        console.log('Inserting schedules:', rowsToInsert);
+        const { error: insertError } = await (supabase
+            .from('doctor_schedules') as any)
             .insert(rowsToInsert);
 
         if (insertError) {
             console.error('Insert error', insertError);
-            return { error: 'Failed to save new schedule' };
+            return { error: 'Failed to save new schedule: ' + insertError.message };
         }
     }
 
-    revalidatePath('/doctor-portal/dashboard/schedule');
+    revalidatePath('/doctor-portal/schedule');
     return { success: true };
 }
 

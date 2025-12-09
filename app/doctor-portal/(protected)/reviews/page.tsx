@@ -24,11 +24,11 @@ export default async function ReviewsPage() {
             )
         `)
         .eq('doctor_id', doctor.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any;
 
     const totalReviews = reviews?.length || 0;
     const averageRating = totalReviews > 0
-        ? (reviews?.reduce((sum, r) => sum + r.rating, 0) || 0) / totalReviews
+        ? (reviews?.reduce((sum: number, r: any) => sum + r.rating, 0) || 0) / totalReviews
         : 0;
 
     return (

@@ -63,7 +63,7 @@ export default function Step4Review({ formData, onBack }: Step4Props) {
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto mb-6">
                     <CheckCircle className="w-10 h-10" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">تم استلام طلبك بنجاح!</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">تم استلام طلب التسجيل بنجاح!</h2>
                 <p className="text-gray-500 mb-8 max-w-md mx-auto">
                     شكراً لانضمامك إلينا. سنقوم بمراجعة مستنداتك وتفعيل حسابك خلال 24 ساعة. ستصلك رسالة تأكيد عبر البريد الإلكتروني.
                 </p>

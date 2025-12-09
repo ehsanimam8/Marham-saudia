@@ -24,7 +24,7 @@ export async function getConsultationData(appointmentId: string) {
       intake_form:consultation_intake_forms(*)
     `)
         .eq('id', appointmentId)
-        .single();
+        .single() as any;
 
     if (error || !appointment) {
         console.error("Error fetching consultation:", error);
@@ -37,7 +37,7 @@ export async function getConsultationData(appointmentId: string) {
 
     if (!isDoctor && !isPatient) {
         // Maybe admin?
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single() as any;
         if (profile?.role !== 'admin') {
             throw new Error('Unauthorized access to this consultation');
         }
@@ -45,8 +45,8 @@ export async function getConsultationData(appointmentId: string) {
 
     // If Doctor, fetch Medical Records (if consented)
     let medicalRecord = null;
-    let documents = [];
-    let pastConsultations = [];
+    let documents: any[] = [];
+    let pastConsultations: any[] = [];
 
     if (isDoctor && appointment.intake_form?.consent_share_medical_records) {
         // Fetch EMR
@@ -54,7 +54,7 @@ export async function getConsultationData(appointmentId: string) {
             .from('patient_medical_records')
             .select('*')
             .eq('patient_id', appointment.patient.profile.id) // Auth ID
-            .single();
+            .single() as any;
         medicalRecord = record;
 
         // Fetch Documents

@@ -27,7 +27,7 @@ export default async function PatientAppointmentsPage() {
         .from('patients')
         .select('id')
         .eq('profile_id', user.id)
-        .single();
+        .single() as any;
 
     if (patientError) {
         console.error('Error fetching patient record:', patientError);

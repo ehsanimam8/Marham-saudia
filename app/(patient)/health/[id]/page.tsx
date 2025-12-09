@@ -25,7 +25,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
         query = query.eq('slug', id);
     }
 
-    const { data: article } = await query.single();
+    const { data: article } = await query.single() as any;
 
     if (!article) {
         notFound();
@@ -35,10 +35,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
         <div className="min-h-screen bg-white" dir="rtl">
             {/* Header / Hero */}
             <div className="relative h-[400px] w-full bg-gray-900">
-                {article.image_url && (
+                {article.featured_image_url && (
                     <Image
-                        src={article.image_url}
-                        alt={article.title}
+                        src={article.featured_image_url}
+                        alt={article.title_ar}
                         fill
                         className="object-cover opacity-60"
                         priority
@@ -53,7 +53,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                             </span>
                         )}
                         <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                            {article.title}
+                            {article.title_ar}
                         </h1>
                         <div className="flex flex-wrap gap-6 text-gray-200 text-sm md:text-base items-center">
                             {article.doctors?.profiles?.full_name_ar && (
@@ -84,7 +84,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                           For security, 'article.content' is rendered directly here if trusted, 
                           but typically use a markdown parser. For MVP assuming safe HTML or plain text.
                         */}
-                        <div dangerouslySetInnerHTML={{ __html: article.content_html || article.content?.replace(/\n/g, '<br/>') }} />
+                        <div dangerouslySetInnerHTML={{ __html: article.content_ar?.replace(/\n/g, '<br/>') || '' }} />
                     </article>
 
                     <div className="mt-12 pt-8 border-t border-gray-100">

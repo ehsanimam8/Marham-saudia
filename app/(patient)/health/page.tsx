@@ -14,7 +14,7 @@ export default async function HealthPage() {
         .from('articles')
         .select('*')
         .eq('status', 'published')
-        .order('published_at', { ascending: false });
+        .order('published_at', { ascending: false }) as any;
 
     return (
         <div className="min-h-screen bg-gray-50 direction-rtl" dir="rtl">
@@ -30,14 +30,14 @@ export default async function HealthPage() {
             <div className="container mx-auto px-4 py-12">
                 {articles && articles.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {articles.map((article) => (
+                        {articles.map((article: any) => (
                             <Link href={`/health/${article.slug || article.id}`} key={article.id}>
                                 <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden cursor-pointer group">
                                     <div className="relative h-48 w-full bg-gray-200">
-                                        {article.image_url ? (
+                                        {article.featured_image_url ? (
                                             <Image
-                                                src={article.image_url}
-                                                alt={article.title}
+                                                src={article.featured_image_url}
+                                                alt={article.title_ar}
                                                 fill
                                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                                             />
@@ -49,7 +49,7 @@ export default async function HealthPage() {
                                     </div>
                                     <CardHeader>
                                         <CardTitle className="text-xl line-clamp-2 leading-relaxed text-teal-900">
-                                            {article.title}
+                                            {article.title_ar}
                                         </CardTitle>
                                         <div className="text-xs text-gray-500 mt-2 flex gap-2">
                                             <span>{article.published_at ? format(new Date(article.published_at), 'd MMMM yyyy', { locale: arSA }) : ''}</span>
@@ -58,7 +58,7 @@ export default async function HealthPage() {
                                     </CardHeader>
                                     <CardContent>
                                         <p className="text-gray-600 line-clamp-3 text-sm">
-                                            {article.excerpt || article.content?.substring(0, 150) + '...'}
+                                            {article.excerpt_ar || article.content_ar?.substring(0, 150) + '...'}
                                         </p>
                                         <span className="text-teal-600 text-sm font-medium mt-4 block group-hover:underline">
                                             قراءة المزيد ←

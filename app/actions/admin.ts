@@ -5,8 +5,8 @@ import { revalidatePath } from 'next/cache';
 
 export async function approveDoctor(doctorId: string) {
     const supabase = await createClient();
-    const { error } = await supabase
-        .from('doctors')
+    const { error } = await (supabase
+        .from('doctors') as any)
         .update({ status: 'approved' })
         .eq('id', doctorId);
 
@@ -16,8 +16,8 @@ export async function approveDoctor(doctorId: string) {
 
 export async function rejectDoctor(doctorId: string) {
     const supabase = await createClient();
-    const { error } = await supabase
-        .from('doctors')
+    const { error } = await (supabase
+        .from('doctors') as any)
         .update({ status: 'rejected' })
         .eq('id', doctorId);
 
@@ -27,8 +27,8 @@ export async function rejectDoctor(doctorId: string) {
 
 export async function publishArticle(articleId: string) {
     const supabase = await createClient();
-    const { error } = await supabase
-        .from('articles')
+    const { error } = await (supabase
+        .from('articles') as any)
         .update({ status: 'published', published_at: new Date().toISOString() })
         .eq('id', articleId);
 
@@ -40,16 +40,16 @@ export async function deleteDoctor(doctorId: string) {
     const supabase = await createClient();
 
     // 1. Delete Schedules First (Constraint)
-    const { error: scheduleError } = await supabase
-        .from('doctor_schedules')
+    const { error: scheduleError } = await (supabase
+        .from('doctor_schedules') as any)
         .delete()
         .eq('doctor_id', doctorId);
 
     if (scheduleError) console.error('Error deleting schedules:', scheduleError);
 
     // 2. Delete Doctor
-    const { error } = await supabase
-        .from('doctors')
+    const { error } = await (supabase
+        .from('doctors') as any)
         .delete()
         .eq('id', doctorId);
 
@@ -60,8 +60,8 @@ export async function deleteDoctor(doctorId: string) {
 export async function updateDoctor(doctorId: string, data: any) {
     const supabase = await createClient();
 
-    const { error } = await supabase
-        .from('doctors')
+    const { error } = await (supabase
+        .from('doctors') as any)
         .update(data)
         .eq('id', doctorId);
 
@@ -72,7 +72,7 @@ export async function updateDoctor(doctorId: string, data: any) {
 export async function createDoctor(data: any) {
     const supabase = await createClient();
 
-    const { error } = await supabase.rpc('create_doctor_account', {
+    const { error } = await (supabase.rpc as any)('create_doctor_account', {
         p_email: data.email,
         p_password: data.password,
         p_full_name_ar: data.full_name_ar,

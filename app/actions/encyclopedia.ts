@@ -15,8 +15,8 @@ export async function createMedicalCondition(formData: FormData) {
         throw new Error("Missing required fields");
     }
 
-    const { error } = await supabase
-        .from('medical_conditions')
+    const { error } = await (supabase
+        .from('medical_conditions') as any)
         .insert({
             name_ar,
             name_en,
@@ -39,8 +39,8 @@ export async function createMedicalCondition(formData: FormData) {
 export async function deleteMedicalCondition(id: string) {
     const supabase = await createClient();
 
-    const { error } = await supabase
-        .from('medical_conditions')
+    const { error } = await (supabase
+        .from('medical_conditions') as any)
         .delete()
         .eq('id', id);
 

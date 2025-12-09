@@ -17,11 +17,12 @@ export default async function DoctorPortalLayout({
     }
 
     // Verify user is a doctor
+    // Verify user is a doctor
     const { data: profile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, full_name_ar')
         .eq('id', user.id)
-        .single();
+        .single() as any;
 
     if (!profile || profile.role !== 'doctor') {
         // Not a doctor - sign them out and redirect
@@ -32,18 +33,19 @@ export default async function DoctorPortalLayout({
     // Check verification status
     const { data: doctorData } = await supabase
         .from('doctors')
-        .select('verification_status, full_name')
-        .eq('user_id', user.id)
-        .single();
+        .select('status')
+        .eq('profile_id', user.id)
+        .single() as any;
 
     if (!doctorData) {
         // redirect('/doctor-portal/login?error=no_doctor_record');
         // Allow access - maybe they need to complete profile?
         // But for now, let's redirect as per instructions
+        await supabase.auth.signOut();
         redirect('/doctor-portal/login?error=no_doctor_record');
     }
 
-    if (doctorData.verification_status === 'pending') {
+    if (doctorData.status === 'pending') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
                 <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
@@ -54,7 +56,7 @@ export default async function DoctorPortalLayout({
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">طلبك قيد المراجعة</h2>
                     <p className="text-gray-600 mb-6">
-                        شكراً لتسجيلك يا دكتورة {doctorData.full_name}. حسابك قيد المراجعة من قبل فريقنا وسنتواصل معك خلال 24-48 ساعة.
+                        شكراً لتسجيلك يا دكتورة {profile.full_name_ar}. حسابك قيد المراجعة من قبل فريقنا وسنتواصل معك خلال 24-48 ساعة.
                     </p>
                     <form action={async () => {
                         'use server';
@@ -73,7 +75,7 @@ export default async function DoctorPortalLayout({
         );
     }
 
-    if (doctorData.verification_status === 'rejected') {
+    if (doctorData.status === 'rejected') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
                 <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getDoctorProfile } from '@/lib/api/doctors';
 import { redirect } from 'next/navigation';
-import DoctorSettingsForm from '@/components/doctor/settings/DoctorSettingsForm';
+import DoctorSettingsForm from '@/components/doctor-portal/settings/DoctorSettingsForm';
 
 export default async function SettingsPage() {
     const supabase = await createClient();

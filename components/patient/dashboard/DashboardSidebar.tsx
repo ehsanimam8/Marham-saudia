@@ -26,6 +26,7 @@ export default function DashboardSidebar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
+                                translate="no"
                                 className={cn(
                                     'group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-colors',
                                     isActive

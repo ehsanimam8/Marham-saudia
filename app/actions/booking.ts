@@ -21,16 +21,16 @@ export async function bookAppointmentAction(data: any) {
     }
 
     // Get patient profile
-    const { data: patient } = await supabase
-        .from('patients')
+    const { data: patient } = await (supabase
+        .from('patients') as any)
         .select('id')
         .eq('profile_id', user.id)
         .single();
 
     if (!patient) {
         // Create patient profile if missing (auto-onboarding)
-        const { data: newPatient, error: createError } = await supabase
-            .from('patients')
+        const { data: newPatient, error: createError } = await (supabase
+            .from('patients') as any)
             .insert({ profile_id: user.id })
             .select()
             .single();
@@ -55,7 +55,7 @@ export async function bookAppointmentAction(data: any) {
         appointment_date: data.appointment_date,
         start_time: data.start_time,
         end_time: endTime,
-        consultation_type: 'video', // default for now
+        consultation_type: 'new', // default value
         price: data.price,
         status: 'scheduled',
         reason_ar: data.reason_ar,
@@ -63,10 +63,15 @@ export async function bookAppointmentAction(data: any) {
         payment_id: `mock_${Date.now()}` // MOCKED: Generate mock payment ID
     };
 
-    const { error } = await supabase.from('appointments').insert(appointmentPayload);
+    console.log('Inserting appointment:', appointmentPayload);
+    const { error } = await (supabase.from('appointments') as any).insert(appointmentPayload);
 
-    if (error) throw error;
+    if (error) {
+        console.error('Booking Error:', error);
+        throw new Error(error.message);
+    }
 
     revalidatePath('/dashboard/appointments');
+    revalidatePath('/dashboard');
     return { success: true };
 }

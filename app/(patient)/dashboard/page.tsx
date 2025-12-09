@@ -16,14 +16,14 @@ export default async function DashboardPage() {
     }
 
     // Check Role
-    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single() as any;
 
     if (profile?.role === 'doctor') {
         redirect('/doctor-portal/dashboard');
     }
 
     // Get Patient Record
-    const { data: patient } = await supabase.from('patients').select('id').eq('profile_id', user.id).single();
+    const { data: patient } = await supabase.from('patients').select('id').eq('profile_id', user.id).single() as any;
 
     if (!patient) {
         // Should ideally Create patient record or show error
@@ -31,7 +31,9 @@ export default async function DashboardPage() {
     }
 
     // Fetch Data
+    console.log('Fetching appointments for patient:', patient.id);
     const appointments = await getPatientAppointments(supabase, patient.id);
+    console.log('Retrieved appointments:', appointments);
 
     // Fetch Records Count
     const { count: recordsCount } = await supabase
@@ -40,15 +42,15 @@ export default async function DashboardPage() {
         .eq('patient_id', patient.id);
 
     // Calculate Stats
-    const now = new Date();
     const upcomingApps = appointments.filter((a: any) => {
-        const appDate = parseISO(`${a.appointment_date}T${a.start_time}`);
-        return isAfter(appDate, now) && a.status !== 'cancelled';
+        return a.status === 'scheduled';
     });
 
+    console.log('Upcoming Apps:', upcomingApps);
     const completedApps = appointments.filter((a: any) => a.status === 'completed');
 
     const nextApp = upcomingApps[0]; // Appointments are already sorted by date ASC in API
+    console.log('Next App:', nextApp);
 
     return (
         <div className="space-y-8">

@@ -125,3 +125,31 @@ export async function getPatientAppointments(supabase: any, patientId: string) {
 
     return data || [];
 }
+
+export async function getAppointmentById(supabase: any, appointmentId: string) {
+    const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+            *,
+            doctors (
+                id,
+                profile_photo_url,
+                specialty,
+                hospital,
+                profiles (full_name_ar, full_name_en)
+            ),
+            patients (
+                id,
+                profiles (full_name_ar)
+            )
+        `)
+        .eq('id', appointmentId)
+        .single();
+
+    if (error) {
+        console.error('Error fetching appointment:', error);
+        return null;
+    }
+
+    return data;
+}

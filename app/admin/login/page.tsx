@@ -42,7 +42,7 @@ function AdminLoginForm() {
                 .from('profiles')
                 .select('role')
                 .eq('id', authData.user.id)
-                .single();
+                .single() as any;
 
             if (profileError) throw profileError;
 

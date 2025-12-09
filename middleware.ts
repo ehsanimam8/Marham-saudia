@@ -83,14 +83,14 @@ export async function middleware(request: NextRequest) {
         // Admin accessing wrong portal
         if (role === 'admin') {
             if (!path.startsWith('/admin') && !path.startsWith('/consultation')) {
-                return NextResponse.redirect(new URL('/admin', request.url));
+                return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
         }
 
         // Logged in user on auth pages - redirect to dashboard
         if (isAuthRoute) {
             if (role === 'doctor') return NextResponse.redirect(new URL('/doctor-portal', request.url));
-            if (role === 'admin') return NextResponse.redirect(new URL('/admin', request.url));
+            if (role === 'admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
     }

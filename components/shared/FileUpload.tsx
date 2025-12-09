@@ -64,8 +64,8 @@ export function FileUpload({
             const category = detectCategory(file.name, file.type);
 
             // Save to medical_documents table
-            const { data: doc, error: dbError } = await supabase
-                .from('medical_documents')
+            const { data: doc, error: dbError } = await (supabase
+                .from('medical_documents') as any)
                 .insert({
                     patient_id: patientId,
                     document_type: category,

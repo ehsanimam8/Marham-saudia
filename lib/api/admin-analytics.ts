@@ -13,16 +13,16 @@ export async function getDetailedConsultationStats() {
     // 2. Quality Metrics (from Reviews)
     const { data: reviews } = await supabase
         .from('reviews')
-        .select('rating, empathy_rating, privacy_rating');
+        .select('rating, empathy_rating, privacy_rating') as any;
 
     let avgRating = 0;
     let avgEmpathy = 0;
     let fiveStarCount = 0;
 
     if (reviews && reviews.length > 0) {
-        const totalRating = reviews.reduce((acc, r) => acc + r.rating, 0);
-        const totalEmpathy = reviews.reduce((acc, r) => acc + (r.empathy_rating || 0), 0);
-        fiveStarCount = reviews.filter(r => r.rating === 5).length;
+        const totalRating = reviews.reduce((acc: number, r: any) => acc + r.rating, 0);
+        const totalEmpathy = reviews.reduce((acc: number, r: any) => acc + (r.empathy_rating || 0), 0);
+        fiveStarCount = reviews.filter((r: any) => r.rating === 5).length;
 
         avgRating = totalRating / reviews.length;
         avgEmpathy = totalEmpathy / reviews.length;
@@ -32,11 +32,11 @@ export async function getDetailedConsultationStats() {
     // How many cases were "Resolved" vs "Follow up"?
     const { data: outcomes } = await supabase
         .from('consultation_outcomes')
-        .select('outcome_status');
+        .select('outcome_status') as any;
 
     let resolvedCount = 0;
     if (outcomes) {
-        resolvedCount = outcomes.filter(o => o.outcome_status === 'resolved').length;
+        resolvedCount = outcomes.filter((o: any) => o.outcome_status === 'resolved').length;
     }
 
     // 4. Doctor Performance Leaderboard

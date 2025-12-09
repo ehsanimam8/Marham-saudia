@@ -19,12 +19,8 @@ export default async function IntakePage({
     }
 
     // Verify appointment ownership
-    const { data: appointment, error } = await supabase
-        .from('appointments')
-        .select('*, doctor:doctors(profile:profiles(full_name_ar))')
-        .eq('id', id)
-        .eq('patient_id', (await supabase.from('patients').select('id').eq('profile_id', user.id).single()).data?.id)
-        .single();
+    // Verify appointment ownership
+    // (Query moved below for optimization)
 
     // Note: The above query logic for patient_id depends on schema.
     // Existing schema: appointments.patient_id is FK to patients table.
@@ -36,7 +32,7 @@ export default async function IntakePage({
         .from('patients')
         .select('id')
         .eq('profile_id', user.id)
-        .single();
+        .single() as any;
 
     if (!patientRecord) {
         // Should not happen for logged in patient, but safety check
@@ -57,7 +53,7 @@ export default async function IntakePage({
         `)
         .eq('id', id)
         .eq('patient_id', patientRecord.id)
-        .single();
+        .single() as any;
 
     if (!validAppointment) {
         // Appointment not found or doesn't belong to patient

@@ -4,16 +4,43 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 export default function Header() {
     const pathname = usePathname();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Hide Header on Admin Pages
-    if (pathname?.startsWith('/admin')) return null;
+    // Hide Header on Admin and Doctor Pages
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/doctor-portal')) return null;
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const supabase = createClient();
+
+        async function getUser() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                setUser(user);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     const navigation = [
         { name: 'الرئيسية', href: '/' },
@@ -45,6 +72,7 @@ export default function Header() {
                             <Link
                                 key={item.name}
                                 href={item.href}
+                                translate="no"
                                 className="text-gray-700 hover:text-teal-600 transition-colors font-medium"
                             >
                                 {item.name}
@@ -54,12 +82,20 @@ export default function Header() {
 
                     {/* Desktop CTA */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Button asChild variant="outline">
-                            <Link href="/doctor-portal/register">انضمي كطبيبة</Link>
-                        </Button>
-                        <Button asChild className="bg-teal-600 hover:bg-teal-700">
-                            <Link href="/login">حسابي</Link>
-                        </Button>
+                        {!loading && (
+                            <>
+                                {!user && (
+                                    <Button asChild variant="outline">
+                                        <Link href="/doctor-portal/register">انضمي كطبيبة</Link>
+                                    </Button>
+                                )}
+                                <Button asChild className="bg-teal-600 hover:bg-teal-700">
+                                    <Link href={user ? "/dashboard" : "/login"} translate="no">
+                                        {user ? "لوحة التحكم" : "حسابي"}
+                                    </Link>
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -79,6 +115,7 @@ export default function Header() {
                                 <Link
                                     key={item.name}
                                     href={item.href}
+                                    translate="no"
                                     className="text-gray-700 hover:text-teal-600 transition-colors font-medium py-2"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
@@ -86,16 +123,22 @@ export default function Header() {
                                 </Link>
                             ))}
                             <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
-                                <Button asChild variant="outline" className="w-full">
-                                    <Link href="/doctor-portal/register" onClick={() => setMobileMenuOpen(false)}>
-                                        انضمي كطبيبة
-                                    </Link>
-                                </Button>
-                                <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
-                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                                        حسابي
-                                    </Link>
-                                </Button>
+                                {!loading && (
+                                    <>
+                                        {!user && (
+                                            <Button asChild variant="outline" className="w-full">
+                                                <Link href="/doctor-portal/register" onClick={() => setMobileMenuOpen(false)}>
+                                                    انضمي كطبيبة
+                                                </Link>
+                                            </Button>
+                                        )}
+                                        <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
+                                            <Link href={user ? "/dashboard" : "/login"} translate="no" onClick={() => setMobileMenuOpen(false)}>
+                                                {user ? "لوحة التحكم" : "حسابي"}
+                                            </Link>
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

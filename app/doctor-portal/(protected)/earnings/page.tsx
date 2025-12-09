@@ -29,13 +29,13 @@ export default async function EarningsPage() {
             )
         `)
         .eq('doctor_id', doctor.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any;
 
     // Calculate Totals
-    const totalEarnings = transactions?.reduce((sum, tx) => sum + Number(tx.doctor_earnings), 0) || 0;
+    const totalEarnings = transactions?.reduce((sum: number, tx: any) => sum + Number(tx.doctor_earnings), 0) || 0;
     const pendingPayout = transactions
-        ?.filter(tx => tx.payout_status === 'pending')
-        .reduce((sum, tx) => sum + Number(tx.doctor_earnings), 0) || 0;
+        ?.filter((tx: any) => tx.payout_status === 'pending')
+        .reduce((sum: number, tx: any) => sum + Number(tx.doctor_earnings), 0) || 0;
     const paidTotal = totalEarnings - pendingPayout;
 
     return (

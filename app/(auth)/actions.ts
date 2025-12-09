@@ -42,7 +42,7 @@ export async function login(prevState: any, formData: FormData) {
                 id: user.id,
                 full_name_ar: metaName, // defaulting to AR column for better support in this app
                 role: 'patient'
-            });
+            } as any);
 
             if (profileError) {
                 console.error('❌ Failed to create profile during login:', profileError);
@@ -51,7 +51,7 @@ export async function login(prevState: any, formData: FormData) {
             // Also ensure patient record exists if role is patient
             const { error: patientError } = await supabase.from('patients').insert({
                 profile_id: user.id
-            });
+            } as any);
 
             if (patientError) {
                 console.error('❌ Failed to create patient record during login:', patientError);
@@ -60,7 +60,7 @@ export async function login(prevState: any, formData: FormData) {
     }
 
     if (user) {
-        const { data: currentProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        const { data: currentProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single() as any;
 
         if (currentProfile?.role === 'doctor') {
             await supabase.auth.signOut();
@@ -146,7 +146,7 @@ export async function signup(prevState: any, formData: FormData) {
                 id: user.id,
                 full_name_ar: fullName,
                 role: 'patient'
-            });
+            } as any);
 
             if (profileError) {
                 console.error('❌ Profile creation error:', profileError);
@@ -157,7 +157,7 @@ export async function signup(prevState: any, formData: FormData) {
 
             const { error: patientError } = await supabase.from('patients').insert({
                 profile_id: user.id
-            });
+            } as any);
 
             if (patientError) {
                 console.error('❌ Patient record creation error:', patientError);
