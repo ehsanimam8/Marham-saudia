@@ -1,57 +1,187 @@
-# Verified Database Schema Knowledge
 
-This document tracks the verified structure of the Supabase database based on migration errors and successful queries. Use this as the source of truth over any theoretical design documents.
+# Schema Knowledge Base
 
-## Tables
+This document outlines the database schema for the Marham Saudi telemedicine platform, based on the migration files.
 
-### `profiles`
-The central identity table linked to `auth.users`.
-- `id` (UUID, Primary Key) - Matches `auth.users.id`.
-- `full_name_ar` (Text) - Arabic Full Name.
-- `full_name_en` (Text) - English Full Name.
-- `role` (Text) - Enum like 'doctor', 'patient'.
-- **MISSING/REMOVED:** `email`, `gender`, `phone_number`, `city`, `blood_type`, `date_of_birth`, `phone`.
+## Core Schema Structure
 
-### `doctors`
-Professional details for users with role 'doctor'.
-- `id` (UUID, Primary Key) - Unique Doctor ID.
-- `profile_id` (UUID, Foreign Key) - Links to `profiles.id`. **(NOT `user_id`)**
-- `status` (Text) - Verification status ('pending', 'approved', 'rejected'). **(NOT `verification_status`)**
-- `scfhs_license` (Text)
-- `specialty` (Text)
-- `sub_specialties` (Array of Text)
-- `hospital` (Text)
-- `consultation_price` (Decimal/Numeric)
-- `bio_ar` (Text)
-- `bio_en` (Text)
-- `rating` (Numeric)
-- `total_consultations` (Integer)
-- **MISSING:** `full_name` (Must fetch from `profiles`).
+### Enums
+- `user_role`: 'patient', 'doctor', 'admin'
+- `doctor_status`: 'pending', 'approved', 'rejected', 'suspended'
+- `appointment_status`: 'scheduled', 'completed', 'cancelled', 'no_show'
+- `consultation_type`: 'new', 'followup'
+- `payment_status`: 'pending', 'paid', 'refunded'
+- `article_status`: 'draft', 'published'
+- `payout_status`: 'pending', 'paid'
 
-### `patients`
-Medical details for users with role 'patient'.
-- `id` (UUID, Primary Key)
-- `profile_id` (UUID, Foreign Key) - Links to `profiles.id`.
-- `date_of_birth` (Date) - Exists in `patients` table.
-- **NOTE:** Extended medical data (blood type, height, etc.) is in `patient_medical_records` table (from Enhanced Telemed migration), NOT in `patients`.
+### Tables
 
-## Clarifications & Known Issues
-1. **Doctor Status:** The column is `status`, NOT `verification_status`. Some migration scripts might incorrectly use `verification_status`.
-2. **Doctor-User Link:** The link is `doctors.profile_id` -> `profiles.id` -> `auth.users.id`. There is no `user_id` column in `doctors`.
-3. **Patient Medical Data:** Split between `patients` (core demographics) and `patient_medical_records` (clinical data).
+#### 1. Profiles (`profiles`)
+Base table for all users, linked to `auth.users`.
+- `id` (UUID, PK, FK -> auth.users.id)
+- `role` (user_role)
+- `full_name_ar` (TEXT)
+- `full_name_en` (TEXT)
+- `phone` (TEXT)
+- `city` (TEXT)
+- `created_at`, `updated_at`
 
-### `articles`
-Content articles written by doctors.
-- `id` (UUID, Primary Key)
-- `doctor_id` (UUID, Foreign Key) - Links to `doctors.id`.
-- `title_ar` / `title_en`
-- `content_ar` / `content_en`
-- `slug`
-- `category`
-- `status`
-- `featured_image_url`
+#### 2. Doctors (`doctors`)
+Extension table for doctor-specific data.
+- `id` (UUID, PK)
+- `profile_id` (UUID, FK -> profiles.id)
+- `scfhs_license` (TEXT, Unique)
+- `specialty` (TEXT)
+- `sub_specialties` (TEXT[])
+- `hospital` (TEXT)
+- `qualifications` (JSONB)
+- `experience_years` (INTEGER)
+- `bio_ar`, `bio_en` (TEXT)
+- `profile_photo_url` (TEXT)
+- `consultation_price` (DECIMAL)
+- `rating` (DECIMAL)
+- `total_consultations` (INTEGER)
+- `status` (doctor_status)
+- `bank_iban` (TEXT)
 
-## Common Pitfalls & Fixes
-1. **Fetching Doctor Name:** Do NOT select `full_name` from `doctors`. Select `full_name_ar` from `profiles` via `doctor.profiles.full_name_ar`.
-2. **Checking Auth:** Link Auth ID -> `profiles.id`. Then `profiles.id` -> `doctors.profile_id`.
-3. **Status Check:** Use `doctors.status`, not `doctors.verification_status`.
+#### 3. Patients (`patients`)
+Extension table for patient-specific data.
+- `id` (UUID, PK)
+- `profile_id` (UUID, FK -> profiles.id)
+- `date_of_birth` (DATE)
+- `insurance_company` (TEXT)
+- `insurance_number` (TEXT)
+- `emergency_contact` (TEXT)
+
+#### 4. Appointments (`appointments`)
+- `id` (UUID, PK)
+- `patient_id` (UUID, FK -> patients.id)
+- `doctor_id` (UUID, FK -> doctors.id)
+- `appointment_date` (DATE)
+- `start_time` (TIME)
+- `end_time` (TIME)
+- `status` (appointment_status)
+- `consultation_type` (consultation_type)
+- `reason_ar`, `reason_en` (TEXT)
+- `price` (DECIMAL)
+- `payment_status` (payment_status)
+- `video_room_url` (TEXT)
+
+#### 5. Consultations (`consultations`)
+Medical records for a specific appointment.
+- `id` (UUID, PK)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `diagnosis` (TEXT)
+- `prescription` (JSONB)
+- `notes` (TEXT)
+- `recommendations` (TEXT[])
+- `next_followup_date` (DATE)
+- `duration_minutes` (INTEGER)
+- `recording_url` (TEXT)
+
+#### 6. Doctor Schedules (`doctor_schedules`)
+Availability slots.
+- `id` (UUID, PK)
+- `doctor_id` (UUID, FK -> doctors.id)
+- `day_of_week` (INTEGER, 0-6)
+- `start_time` (TIME)
+- `end_time` (TIME)
+- `is_available` (BOOLEAN)
+
+#### 7. Reviews (`reviews`)
+- `id` (UUID, PK)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `doctor_id` (UUID, FK -> doctors.id)
+- `patient_id` (UUID, FK -> patients.id)
+- `rating` (INTEGER, 1-5)
+- `review_text_ar`, `review_text_en` (TEXT)
+
+#### 8. Articles (`articles`)
+- `id` (UUID, PK)
+- `slug` (TEXT, Unique)
+- `title_ar`, `title_en` (TEXT)
+- `content_ar`, `content_en` (TEXT)
+- `excerpt_ar`, `excerpt_en` (TEXT)
+- `featured_image_url` (TEXT)
+- `category` (TEXT)
+- `keywords` (TEXT[])
+- `reviewed_by_doctor_id` (UUID, FK -> doctors.id)
+- `read_time_minutes` (INTEGER)
+- `views` (INTEGER)
+- `status` (article_status)
+- `published_at` (TIMESTAMPTZ)
+
+#### 9. Earnings (`earnings`)
+- `id` (UUID, PK)
+- `doctor_id` (UUID, FK -> doctors.id)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `amount` (DECIMAL)
+- `platform_fee` (DECIMAL)
+- `doctor_earnings` (DECIMAL)
+- `payout_status` (payout_status)
+
+### Enhanced Telemedicine Tables (New)
+
+#### 10. Patient Medical Records (`patient_medical_records`)
+EMR data.
+- `id` (UUID, PK)
+- `patient_id` (UUID, FK -> auth.users.id) **Note: This references Auth User ID directly, unlike `patients` table.**
+- `blood_type` (VARCHAR)
+- `height_cm`, `weight_kg`
+- `allergies`, `chronic_conditions`, `current_medications` (Arrays)
+- `past_surgeries`, `family_history` (JSONB)
+- `last_menstrual_period` (DATE)
+- `pregnancy_history` (JSONB)
+
+#### 11. Medical Documents (`medical_documents`)
+- `id` (UUID, PK)
+- `patient_id` (UUID, FK -> auth.users.id)
+- `document_type`, `title`, `description`
+- `file_url`, `file_name`, `file_size_bytes`, `file_type`
+- `uploaded_by` (UUID, FK -> auth.users.id)
+
+#### 12. Consultation Intake Forms (`consultation_intake_forms`)
+- `id` (UUID, PK)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `patient_id` (UUID, FK -> auth.users.id)
+- `chief_complaint` (TEXT)
+- `symptoms_duration`, `severity_level`
+- `current_symptoms` (JSONB)
+- `consent_share_medical_records` (BOOLEAN)
+- `uploaded_document_ids` (UUID[])
+- `is_complete` (BOOLEAN)
+
+#### 13. Consultation Notes (`consultation_notes`)
+- `id` (UUID, PK)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `doctor_id` (UUID, FK -> auth.users.id)
+- `patient_id` (UUID, FK -> auth.users.id)
+- `subjective_notes`, `objective_findings` (TEXT)
+- `diagnosis`, `differential_diagnosis`
+- `treatment_plan`, `lifestyle_recommendations`
+
+#### 14. Prescriptions (`prescriptions`)
+- `id` (UUID, PK)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `doctor_id` (UUID, FK -> auth.users.id)
+- `patient_id` (UUID, FK -> auth.users.id)
+- `consultation_note_id` (UUID, FK -> consultation_notes.id)
+- `prescription_number` (VARCHAR, Unique)
+- `medications` (JSONB)
+- `doctor_signature_url`, `prescription_pdf_url` (TEXT)
+- `status` (VARCHAR)
+
+#### 15. Consultation Session Logs (`consultation_session_logs`)
+- `id` (UUID, PK)
+- `appointment_id` (UUID, FK -> appointments.id)
+- `session_started_at`, `session_ended_at`
+- `video_room_id`
+
+## Triggers
+- `handle_new_user`: Fires on `auth.users` insert. Creates `profiles` and `patients` records.
+- `update_updated_at_column`: Automatically updates `updated_at` on modification.
+- `generate_prescription_number`: Auto-generates prescription ID (e.g., `PRX-20241209-0001`).
+
+## Known Issues (as of 2024-12-09)
+- **Trigger Failure**: The `handle_new_user` trigger sometimes fails with "Database error checking email" or similar when attempting to create `patients` records, likely due to schema mismatch or race conditions.
+- **Fix**: Run `supabase/migrations/fix_user_creation_comprehensive.sql` to patch the trigger with better error handling (`EXCEPTION WHEN OTHERS THEN RAISE WARNING`).
