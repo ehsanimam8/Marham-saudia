@@ -10,23 +10,14 @@ The code has been pushed to the `main` branch.
 - **Repository**: https://github.com/ehsanimam8/Marham-saudia
 - **Live URL**: https://marham-saudi-hdod333kt-ehsan-imams-projects.vercel.app
 
-### 🧑‍⚕️ Seeding Data (Action Required)
-We successfully created the seed scripts for 10 Doctors with the generated AI images. However, executing this remotely failed due to a Supabase database trigger issue (`on_auth_user_created`).
+### ✅ Seeding Data (Completed)
+We successfully seeded 10 verified doctors with their AI-generated images and schedules. 
+The database triggers have been patched using `supabase/migrations/20241210_final_seed_universal.sql`.
 
-**To finalize the seed data, please follow these 2 steps:**
-
-1.  **Fix the Database Trigger**:
-    - Open your [Supabase Dashboard](https://supabase.com/dashboard).
-    - Go to the **SQL Editor**.
-    - Open (or Copy/Paste) the content of: `supabase/migrations/fix_user_creation_comprehensive.sql`.
-    - Click **Run**.
-
-2.  **Run the Seed Script**:
-    - In your local terminal, run:
-      ```bash
-      npx tsx scripts/seed-production-doctors.ts
-      ```
-    - This will populate the 10 doctors, their profiles, and schedules.
+**To re-seed in the future:**
+```bash
+npx tsx scripts/seed-production-doctors.ts
+```
 
 ### 🔑 Verified Credentials (Production)
 
