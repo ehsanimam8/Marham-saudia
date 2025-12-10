@@ -44,7 +44,7 @@ export default function ConsultationJitsi({
                     disableModeratorIndicator: true,
                     startScreenSharing: true,
                     enableEmailInStats: false,
-                    prejoinPageEnabled: false, // Skip prejoin for smoother UX? Or keep it for device check.
+                    prejoinPageEnabled: true, // Enable prejoin to allow moderator login for testing
                     // Getting into room directly is usually better for custom UI flow if check was done before.
                     // Spec says "Test your camera" before join.
                     // Let's keep prejoinPageEnabled: false and rely on Jitsi UI inside.

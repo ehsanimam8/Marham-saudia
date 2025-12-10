@@ -92,6 +92,15 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
                         </ul>
                     </div>
 
+                    <div className="bg-yellow-50 p-4 rounded-xl text-right mb-8 text-sm text-yellow-800 border border-yellow-100 flex items-start gap-2">
+                        <span className="text-xl">⚠️</span>
+                        <div>
+                            <p className="font-bold">تنويه للمستخدم (نسخة تجريبية):</p>
+                            <p>نستخدم خادم Jitsi العام. قد يطلب منك "تسجيل الدخول كمشرف (WaitForModerator)" لبدء الغرفة.</p>
+                            <p className="mt-1 font-semibold underline cursor-pointer" onClick={() => window.open('https://meet.jit.si', '_blank')}>يمكن للطبيب تسجيل الدخول بحساب Google لبدء الجلسة.</p>
+                        </div>
+                    </div>
+
                     <Button
                         onClick={() => setStage('live')}
                         className="w-full bg-teal-600 hover:bg-teal-700 h-12 text-lg shadow-lg shadow-teal-200"
