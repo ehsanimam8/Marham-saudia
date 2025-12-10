@@ -51,7 +51,7 @@ function AdminLoginForm() {
                 throw new Error('غير مصرح لك بالدخول إلى لوحة التحكم');
             }
 
-            router.push('/admin-portal/dashboard');
+            router.push('/admin/dashboard');
             router.refresh();
 
         } catch (err: any) {
