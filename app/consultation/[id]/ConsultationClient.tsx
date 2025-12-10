@@ -40,7 +40,7 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
 
     const otherPartyName = isDoctor
         ? appointment.patient.profile.full_name_ar
-        : `د. ${appointment.doctor.profile.full_name_ar}`;
+        : appointment.doctor.profile.full_name_ar;
 
     const roomName = `marham-consultation-${appointmentId}`; // Obscure enough for MVP
 
@@ -130,7 +130,7 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
                     </div>
                     <span className="w-px h-6 bg-gray-200 hidden sm:block" />
                     <span className="text-sm font-medium text-gray-700 truncate max-w-[200px] sm:max-w-md">
-                        {isDoctor ? `استشارة مع ${otherPartyName}` : `د. ${otherPartyName}`}
+                        {isDoctor ? `استشارة مع ${otherPartyName}` : (otherPartyName.startsWith('د.') ? otherPartyName : `د. ${otherPartyName}`)}
                     </span>
                 </div>
 
@@ -156,7 +156,7 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
                         <span className="hidden sm:inline mr-1">مباشر</span>
                     </div>
                 </div>
-            </header>
+            </header >
 
             {/* Main Content Area */}
             <div className="flex-1 flex overflow-hidden relative">
@@ -169,33 +169,35 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
                         email={currentUser.email}
                         onReadyToClose={handleCallEnd}
                     />
-                </div>
+                </div >
 
                 {/* Sidebar (Doctor Only) */}
-                {isDoctor && (
-                    <aside
-                        className={`
+                {
+                    isDoctor && (
+                        <aside
+                            className={`
                             fixed inset-y-0 left-0 z-30 w-full sm:w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:border-r border-gray-200
                             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:hidden'}
                         `}
-                        style={{ paddingTop: '0px' }} // Header is separate
-                    >
-                        <PatientInfoSidebar
-                            patient={data.appointment.patient.profile}
-                            intakeForm={data.intakeForm}
-                            medicalRecord={data.medicalRecord}
-                            documents={data.documents}
-                        />
-                        {/* Mobile close button for sidebar */}
-                        <button
-                            onClick={() => setSidebarOpen(false)}
-                            className="md:hidden absolute top-4 right-4 p-2 bg-gray-100 rounded-full"
+                            style={{ paddingTop: '0px' }} // Header is separate
                         >
-                            <PanelRightClose className="w-5 h-5" />
-                        </button>
-                    </aside>
-                )}
-            </div>
-        </div>
+                            <PatientInfoSidebar
+                                patient={data.appointment.patient.profile}
+                                intakeForm={data.intakeForm}
+                                medicalRecord={data.medicalRecord}
+                                documents={data.documents}
+                            />
+                            {/* Mobile close button for sidebar */}
+                            <button
+                                onClick={() => setSidebarOpen(false)}
+                                className="md:hidden absolute top-4 right-4 p-2 bg-gray-100 rounded-full"
+                            >
+                                <PanelRightClose className="w-5 h-5" />
+                            </button>
+                        </aside>
+                    )
+                }
+            </div >
+        </div >
     );
 }

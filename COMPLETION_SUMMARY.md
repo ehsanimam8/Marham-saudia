@@ -33,3 +33,10 @@ npx tsx scripts/seed-production-doctors.ts
 
 ### 🖼️ Assets
 - All 10 Doctor images are located in `public/images/doctors/` and are referenced in the seed script.
+
+### 🎥 Integration Testing & Fixes (Session 12/10)
+- **Video Consultation**: Verified successful loading of the Jitsi video interface using a patient account (Browser Agent confirmed).
+- **PDF Prescriptions**: Added `fontkit` and `Amiri` font support to ensure Arabic text renders correctly in generated PDFs.
+- **Admin Portal**: Created missing pages (`/admin/articles`, `/admin/consultations`, `/admin/users`) to resolve 404 errors.
+- **Client Stability**: Fixed "Rendered fewer hooks" runtime error in Booking Wizard and corrected JSX syntax in Consultation Client.
+
