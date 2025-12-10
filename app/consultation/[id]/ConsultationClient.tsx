@@ -25,7 +25,7 @@ interface ConsultationClientProps {
 
 export default function ConsultationClient({ data, appointmentId }: ConsultationClientProps) {
     const router = useRouter();
-    const [callEnded, setCallEnded] = useState(false);
+    const [stage, setStage] = useState<'pre' | 'live' | 'post'>('pre');
     const [rating, setRating] = useState(0);
     const [hoveredStar, setHoveredStar] = useState(0);
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -42,24 +42,69 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
         ? appointment.patient.profile.full_name_ar
         : appointment.doctor.profile.full_name_ar;
 
-    const roomName = `marham-consultation-${appointmentId}`; // Obscure enough for MVP
+    const roomName = `marham-consultation-${appointmentId}`;
+    const doctorPhoto = appointment.doctor.profile_photo_url;
+    const patientPhoto = null; // We don't have patient photo in profile usually, can add if available
 
     const handleCallEnd = () => {
         if (isDoctor) {
-            // Redirect doctor to post-consultation workflow
             router.push(`/doctor-portal/appointments/${appointmentId}/post-consultation`);
         } else {
-            // Show rating for patient
-            setCallEnded(true);
+            setStage('post');
         }
     };
 
     const handleRatingSubmit = async () => {
-        // Submit rating logic here (can be added later)
         router.push('/patient/appointments');
     };
 
-    if (callEnded) {
+    // Pre-Consultation View (Waiting Room)
+    if (stage === 'pre') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
+                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center animate-in fade-in zoom-in-95 duration-300">
+                    <div className="w-24 h-24 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border-4 border-white overflow-hidden">
+                        {isDoctor ? (
+                            <div className="text-3xl">👨‍⚕️</div>
+                        ) : (
+                            doctorPhoto ? (
+                                <img src={doctorPhoto} alt={otherPartyName} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-3xl">👩‍⚕️</div>
+                            )
+                        )}
+                    </div>
+
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">غرفة الانتظار</h1>
+                    <p className="text-gray-500 mb-8">
+                        أنتِ على وشك بدء الاستشارة مع <span className="font-semibold text-gray-700">{otherPartyName}</span>.
+                    </p>
+
+                    <div className="bg-blue-50 p-4 rounded-xl text-right mb-8 text-sm text-blue-800 border border-blue-100">
+                        <h3 className="font-bold flex items-center gap-2 mb-2">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            تعليمات قبل الدخول:
+                        </h3>
+                        <ul className="list-disc list-inside space-y-1 opacity-80">
+                            <li>تأكدي من السماح للمتصفح باستخدام الكاميرا والميكروفون</li>
+                            <li>يفضل الجلوس في مكان هادئ وإضاءة جيدة</li>
+                            <li>في حال انقطاع الاتصال، يمكنك تحديث الصفحة</li>
+                        </ul>
+                    </div>
+
+                    <Button
+                        onClick={() => setStage('live')}
+                        className="w-full bg-teal-600 hover:bg-teal-700 h-12 text-lg shadow-lg shadow-teal-200"
+                    >
+                        دخول العيادة الآن
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    // Post-Consultation View (Rating)
+    if (stage === 'post') {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center animate-in fade-in zoom-in-95 duration-300">
@@ -119,6 +164,7 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
         );
     }
 
+    // Live Consultation View
     return (
         <div className="h-screen flex flex-col bg-gray-900 overflow-hidden" dir="rtl">
             {/* Header */}

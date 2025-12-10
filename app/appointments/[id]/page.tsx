@@ -14,7 +14,7 @@ export default async function AppointmentDetailsPage({ params }: { params: Promi
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect(`/login?returnUrl=/appointments/${id}`);
+        redirect(`/login?next=/appointments/${id}`);
     }
 
     const appointment = await getAppointmentById(supabase, id);
@@ -45,17 +45,17 @@ export default async function AppointmentDetailsPage({ params }: { params: Promi
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     {/* Header Status Strip */}
                     <div className={`px-8 py-4 flex items-center justify-between ${appointment.status === 'scheduled' ? 'bg-teal-50 border-b border-teal-100' :
-                            appointment.status === 'completed' ? 'bg-green-50 border-b border-green-100' :
-                                'bg-gray-50 border-b border-gray-200'
+                        appointment.status === 'completed' ? 'bg-green-50 border-b border-green-100' :
+                            'bg-gray-50 border-b border-gray-200'
                         }`}>
                         <div className="flex items-center gap-2">
                             <span className={`w-2.5 h-2.5 rounded-full ${appointment.status === 'scheduled' ? 'bg-teal-500' :
-                                    appointment.status === 'completed' ? 'bg-green-500' :
-                                        'bg-gray-500'
+                                appointment.status === 'completed' ? 'bg-green-500' :
+                                    'bg-gray-500'
                                 }`} />
                             <span className={`font-medium ${appointment.status === 'scheduled' ? 'text-teal-700' :
-                                    appointment.status === 'completed' ? 'text-green-700' :
-                                        'text-gray-700'
+                                appointment.status === 'completed' ? 'text-green-700' :
+                                    'text-gray-700'
                                 }`}>
                                 {appointment.status === 'scheduled' ? 'موعد قادم' :
                                     appointment.status === 'completed' ? 'مكتمل' : 'ملغي'}

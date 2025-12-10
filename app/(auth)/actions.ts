@@ -176,7 +176,7 @@ export async function signup(prevState: any, formData: FormData) {
     // Return success with redirect URL instead of calling redirect()
     return {
         success: true,
-        redirectTo: next && next.startsWith('/') ? next : '/'
+        redirectTo: next && next.startsWith('/') ? next : '/dashboard'
     };
 }
 

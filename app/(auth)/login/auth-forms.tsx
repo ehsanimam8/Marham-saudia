@@ -17,7 +17,7 @@ export default function AuthForms({ next }: { next?: string }) {
     // Handle successful login redirect
     useEffect(() => {
         if (loginState?.success) {
-            router.push(loginState.redirectTo || '/');
+            router.push(loginState.redirectTo || '/dashboard');
             router.refresh();
         }
     }, [loginState, router]);
@@ -25,7 +25,7 @@ export default function AuthForms({ next }: { next?: string }) {
     // Handle successful signup redirect
     useEffect(() => {
         if (signupState?.success) {
-            router.push(signupState.redirectTo || '/');
+            router.push(signupState.redirectTo || '/dashboard');
             router.refresh();
         }
     }, [signupState, router]);

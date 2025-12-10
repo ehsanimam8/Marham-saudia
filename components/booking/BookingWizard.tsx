@@ -50,7 +50,7 @@ export default function BookingWizard({ doctor }: { doctor: any }) {
 
             if (!user) {
                 toast.error('يجب تسجيل الدخول لحجز موعد');
-                router.push(`/login?returnUrl=/book/${doctor.id}`);
+                router.push(`/login?next=/book/${doctor.id}`);
                 return;
             }
             setStep(2);
