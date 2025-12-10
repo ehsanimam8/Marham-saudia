@@ -17,8 +17,9 @@ interface TimeSlotPickerProps {
 
 const hours = Array.from({ length: 24 }, (_, i) => {
     const hour = i % 12 || 12;
+    const paddedHour = hour.toString().padStart(2, '0');
     const ampm = i < 12 ? 'AM' : 'PM';
-    return `${hour}:00 ${ampm}`;
+    return `${paddedHour}:00 ${ampm}`;
 });
 
 export default function TimeSlotPicker({ slot, onUpdate, onRemove }: TimeSlotPickerProps) {

@@ -69,13 +69,18 @@ export default function PreConsultationWizard({
                     if (uploadError) throw uploadError;
 
                     // Create record in medical_documents
+                    // Get user once
+                    const user = (await supabase.auth.getUser()).data.user;
+                    if (!user) throw new Error('User not found');
+
+                    // Create record in medical_documents
                     const { data: docData, error: dbError } = await (supabase
                         .from('medical_documents') as any)
                         .insert({
-                            patient_id: (await supabase.auth.getUser()).data.user?.id,
+                            patient_id: user.id,
                             document_name: file.name,
                             document_url: fileName,
-                            document_type: 'lab_report', // Generic type
+                            document_type: 'lab_report',
                             upload_date: new Date().toISOString()
                         })
                         .select()
@@ -103,8 +108,8 @@ export default function PreConsultationWizard({
                 onComplete();
             }
         } catch (error: any) {
-            console.error(error);
-            toast.error('حدث خطأ أثناء الحفظ');
+            console.error('Wizard Error:', JSON.stringify(error, null, 2));
+            toast.error('حدث خطأ أثناء الحفظ: ' + (error.message || 'Error'));
         } finally {
             setSubmitting(false);
             setUploading(false);

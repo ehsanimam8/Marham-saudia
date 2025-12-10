@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 const sidebarItems = [
     {
         title: 'لوحة التحكم',
-        href: '/admin',
+        href: '/admin/dashboard',
         icon: LayoutDashboard
     },
     {

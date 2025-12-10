@@ -93,11 +93,13 @@ ALTER TABLE public.medical_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.consultation_notes ENABLE ROW LEVEL SECURITY;
 
 -- Policies for Patient Medical Records
+DROP POLICY IF EXISTS "Patients can view/edit own records" ON public.patient_medical_records;
 CREATE POLICY "Patients can view/edit own records" 
 ON public.patient_medical_records 
 FOR ALL 
 USING (auth.uid() = patient_id);
 
+DROP POLICY IF EXISTS "Doctors can view patient records if consented" ON public.patient_medical_records;
 CREATE POLICY "Doctors can view patient records if consented" 
 ON public.patient_medical_records 
 FOR SELECT 
@@ -112,43 +114,51 @@ USING (
 );
 
 -- Policies for Intake Forms
+DROP POLICY IF EXISTS "Patients manage own intake forms" ON public.consultation_intake_forms;
 CREATE POLICY "Patients manage own intake forms" 
 ON public.consultation_intake_forms 
 FOR ALL 
 USING (auth.uid() = patient_id);
 
+DROP POLICY IF EXISTS "Doctors view intake forms for their appointments" ON public.consultation_intake_forms;
 CREATE POLICY "Doctors view intake forms for their appointments" 
 ON public.consultation_intake_forms 
 FOR SELECT 
 USING (true); -- Simplification for MVP. Ideally join with appointments table to check doctor_id.
 
 -- Policies for Medical Documents
+DROP POLICY IF EXISTS "Patients manage own documents" ON public.medical_documents;
 CREATE POLICY "Patients manage own documents" 
 ON public.medical_documents 
 FOR ALL 
 USING (auth.uid() = patient_id);
 
+DROP POLICY IF EXISTS "Doctors view documents" ON public.medical_documents;
 CREATE POLICY "Doctors view documents" 
 ON public.medical_documents 
 FOR SELECT 
 USING (true); -- Simplified.
 
 -- Policies for Consultation Notes
+DROP POLICY IF EXISTS "Doctors manage their notes" ON public.consultation_notes;
 CREATE POLICY "Doctors manage their notes"
 ON public.consultation_notes
 FOR ALL
 USING (auth.uid() = doctor_id);
 
+DROP POLICY IF EXISTS "Patients view their SOAP notes" ON public.consultation_notes;
 CREATE POLICY "Patients view their SOAP notes"
 ON public.consultation_notes
 FOR SELECT
 USING (auth.uid() = patient_id);
 
 -- Storage Policies
+DROP POLICY IF EXISTS "Public Access Medical Files" ON storage.objects;
 CREATE POLICY "Public Access Medical Files"
 ON storage.objects FOR SELECT
 USING ( bucket_id = 'medical-files' );
 
+DROP POLICY IF EXISTS "Authenticated users can upload medical files" ON storage.objects;
 CREATE POLICY "Authenticated users can upload medical files"
 ON storage.objects FOR INSERT
 WITH CHECK ( bucket_id = 'medical-files' AND auth.role() = 'authenticated' );
