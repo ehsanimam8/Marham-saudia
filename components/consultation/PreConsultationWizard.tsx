@@ -9,6 +9,7 @@ import { FileText, Upload, X, Loader2, ArrowLeft, ArrowRight } from 'lucide-reac
 import { createClient } from '@/lib/supabase/client';
 import { submitIntakeForm } from '@/app/actions/intake';
 import { toast } from 'sonner';
+import { saveMedicalDocument } from '@/app/actions/documents';
 
 interface PreConsultationWizardProps {
     appointmentId: string;
@@ -68,25 +69,14 @@ export default function PreConsultationWizard({
 
                     if (uploadError) throw uploadError;
 
-                    // Create record in medical_documents
-                    // Get user once
-                    const user = (await supabase.auth.getUser()).data.user;
-                    if (!user) throw new Error('User not found');
+                    // Create record in medical_documents via Server Action (handles schema differences)
+                    const docData = await saveMedicalDocument({
+                        fileName: file.name,
+                        filePath: fileName,
+                        fileSize: file.size,
+                        fileType: file.type
+                    });
 
-                    // Create record in medical_documents
-                    const { data: docData, error: dbError } = await (supabase
-                        .from('medical_documents') as any)
-                        .insert({
-                            patient_id: user.id,
-                            document_name: file.name,
-                            document_url: fileName,
-                            document_type: 'lab_report',
-                            upload_date: new Date().toISOString()
-                        })
-                        .select()
-                        .single();
-
-                    if (dbError) throw dbError;
                     if (docData) uploadedIds.push(docData.id);
                 }
                 setUploading(false);

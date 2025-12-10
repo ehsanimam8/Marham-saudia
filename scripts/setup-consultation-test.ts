@@ -53,6 +53,7 @@ async function main() {
         if (pError) throw pError;
         patientRecord = newRecord;
     }
+    if (!patientRecord) throw new Error("Could not initialize patient record");
     console.log("Patient Record ID:", patientRecord.id);
 
 

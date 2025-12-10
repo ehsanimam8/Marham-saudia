@@ -9,7 +9,7 @@ import Footer from '@/components/patient/home/Footer';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white" suppressHydrationWarning>
       <Hero />
       <TrustIndicators />
       <HowItWorks />
