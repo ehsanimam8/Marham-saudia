@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Star, Loader2, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import PatientInfoSidebar from '@/components/consultation/PatientInfoSidebar';
+import PreConsultationWizard from '@/components/consultation/PreConsultationWizard';
 
 const ConsultationJitsi = dynamic(() => import('@/components/consultation/JitsiMeeting'), {
     ssr: false,
@@ -25,13 +26,20 @@ interface ConsultationClientProps {
 
 export default function ConsultationClient({ data, appointmentId }: ConsultationClientProps) {
     const router = useRouter();
-    const [stage, setStage] = useState<'pre' | 'live' | 'post'>('pre');
+    // Decide initial stage:
+    // If Doctor -> 'pre' (Waiting Room)
+    // If Patient -> Check if intake is done? If yes -> 'pre', else -> 'wizard'
+    const { userRole, currentUser, appointment, intakeForm, medicalRecord, documents } = data;
+    const isDoctor = userRole === 'doctor';
+
+    // Initial stage logic
+    const [stage, setStage] = useState<'wizard' | 'pre' | 'live' | 'post'>(
+        isDoctor ? 'pre' : (intakeForm?.is_complete ? 'pre' : 'wizard')
+    );
+
     const [rating, setRating] = useState(0);
     const [hoveredStar, setHoveredStar] = useState(0);
     const [sidebarOpen, setSidebarOpen] = useState(true);
-
-    const { userRole, currentUser, appointment } = data;
-    const isDoctor = userRole === 'doctor';
 
     // Determine display names
     const myName = isDoctor
@@ -44,7 +52,6 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
 
     const roomName = `marham-consultation-${appointmentId}`;
     const doctorPhoto = appointment.doctor.profile_photo_url;
-    const patientPhoto = null; // We don't have patient photo in profile usually, can add if available
 
     const handleCallEnd = () => {
         if (isDoctor) {
@@ -58,10 +65,25 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
         router.push('/patient/appointments');
     };
 
-    // Pre-Consultation View (Waiting Room)
+    // 1. Wizard Stage (Patient Only)
+    if (stage === 'wizard') {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 notranslate" dir="rtl" translate="no">
+                <PreConsultationWizard
+                    appointmentId={appointmentId}
+                    doctorName={otherPartyName}
+                    existingHistory={medicalRecord}
+                    pastDocuments={documents}
+                    onComplete={() => setStage('pre')}
+                />
+            </div>
+        );
+    }
+
+    // 2. Pre-Consultation View (Waiting Room)
     if (stage === 'pre') {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 notranslate" dir="rtl" translate="no">
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center animate-in fade-in zoom-in-95 duration-300">
                     <div className="w-24 h-24 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border-4 border-white overflow-hidden">
                         {isDoctor ? (
@@ -112,10 +134,10 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
         );
     }
 
-    // Post-Consultation View (Rating)
+    // 3. Post-Consultation View (Rating)
     if (stage === 'post') {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 notranslate" dir="rtl" translate="no">
                 <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center animate-in fade-in zoom-in-95 duration-300">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 shadow-sm border-4 border-white">
                         <CheckCircle className="w-10 h-10" />
@@ -173,7 +195,7 @@ export default function ConsultationClient({ data, appointmentId }: Consultation
         );
     }
 
-    // Live Consultation View
+    // 4. Live Consultation View
     return (
         <div className="h-screen flex flex-col bg-gray-900 overflow-hidden" dir="rtl">
             {/* Header */}
