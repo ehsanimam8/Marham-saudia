@@ -14,14 +14,13 @@ export default function Header() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Hide Header on Admin and Doctor Pages
-    if (pathname?.startsWith('/admin') || pathname?.startsWith('/doctor-portal')) return null;
-
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    // Hooks must be called before any conditional return
     useEffect(() => {
-        const supabase = createClient();
+        if (pathname?.startsWith('/admin') || pathname?.startsWith('/doctor-portal')) return;
 
+        const supabase = createClient();
         async function getUser() {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
@@ -40,7 +39,12 @@ export default function Header() {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [pathname]);
+
+    // Hide Header on Admin and Doctor Pages
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/doctor-portal')) return null;
+
+
 
     const navigation = [
         { name: 'الرئيسية', href: '/' },
@@ -51,7 +55,7 @@ export default function Header() {
     ];
 
     return (
-        <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <header className="bg-white border-b border-gray-100 sticky top-0 z-50 notranslate" translate="no">
             <nav className="container mx-auto px-4">
                 <div className="flex items-center justify-between py-3">
                     {/* Logo */}
@@ -72,7 +76,6 @@ export default function Header() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                translate="no"
                                 className="text-gray-700 hover:text-teal-600 transition-colors font-medium"
                             >
                                 {item.name}
@@ -90,7 +93,7 @@ export default function Header() {
                                     </Button>
                                 )}
                                 <Button asChild className="bg-teal-600 hover:bg-teal-700">
-                                    <Link href={user ? "/dashboard" : "/login"} translate="no">
+                                    <Link href={user ? "/dashboard" : "/login"}>
                                         {user ? "لوحة التحكم" : "حسابي"}
                                     </Link>
                                 </Button>
@@ -115,7 +118,6 @@ export default function Header() {
                                 <Link
                                     key={item.name}
                                     href={item.href}
-                                    translate="no"
                                     className="text-gray-700 hover:text-teal-600 transition-colors font-medium py-2"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
@@ -133,7 +135,7 @@ export default function Header() {
                                             </Button>
                                         )}
                                         <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
-                                            <Link href={user ? "/dashboard" : "/login"} translate="no" onClick={() => setMobileMenuOpen(false)}>
+                                            <Link href={user ? "/dashboard" : "/login"} onClick={() => setMobileMenuOpen(false)}>
                                                 {user ? "لوحة التحكم" : "حسابي"}
                                             </Link>
                                         </Button>
