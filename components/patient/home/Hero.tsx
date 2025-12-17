@@ -20,12 +20,12 @@ export default function Hero() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                         <Button asChild size="lg" className="bg-white text-teal-700 hover:bg-teal-50 font-bold text-lg px-8 shadow-lg">
-                            <Link href="/doctors">
+                            <Link href="/doctors" suppressHydrationWarning>
                                 احجزي استشارة الآن
                             </Link>
                         </Button>
                         <Button asChild variant="outline" size="lg" className="bg-transparent border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm">
-                            <Link href="/doctors">
+                            <Link href="/doctors" suppressHydrationWarning>
                                 تصفح الطبيبات
                             </Link>
                         </Button>

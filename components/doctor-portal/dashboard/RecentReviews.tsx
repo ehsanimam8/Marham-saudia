@@ -18,7 +18,7 @@ export default function RecentReviews({ reviews }: RecentReviewsProps) {
     }
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6" suppressHydrationWarning>
             <div className="flex items-center justify-between mb-6">
                 <h3 className="font-bold text-lg text-gray-900">أحدث التقييمات</h3>
                 <span className="text-sm text-gray-500">آخر 7 أيام</span>

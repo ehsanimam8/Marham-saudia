@@ -47,6 +47,9 @@ export async function middleware(request: NextRequest) {
 
     // Not logged in - redirect to appropriate login
     if (!user && !isPublicRoute && !isAuthRoute) {
+        if (path.startsWith('/api')) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         if (path.startsWith('/doctor-portal')) {
             return NextResponse.redirect(new URL('/doctor-portal/login', request.url));
         }
@@ -68,7 +71,7 @@ export async function middleware(request: NextRequest) {
 
         // Doctor accessing wrong portal
         if (role === 'doctor') {
-            if (!path.startsWith('/doctor-portal') && !path.startsWith('/consultation')) {
+            if (!path.startsWith('/doctor-portal') && !path.startsWith('/consultation') && !path.startsWith('/api')) {
                 return NextResponse.redirect(new URL('/doctor-portal', request.url));
             }
         }
@@ -82,7 +85,7 @@ export async function middleware(request: NextRequest) {
 
         // Admin accessing wrong portal
         if (role === 'admin') {
-            if (!path.startsWith('/admin') && !path.startsWith('/consultation')) {
+            if (!path.startsWith('/admin') && !path.startsWith('/consultation') && !path.startsWith('/api')) {
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
         }

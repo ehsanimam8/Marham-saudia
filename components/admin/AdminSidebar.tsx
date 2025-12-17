@@ -39,6 +39,11 @@ const sidebarItems = [
         icon: FileText
     },
     {
+        title: 'البيانات الطبية',
+        href: '/admin/medical-data',
+        icon: FileText // Using FileText or Database if imported
+    },
+    {
         title: 'إعدادات',
         href: '/admin/settings',
         icon: Settings

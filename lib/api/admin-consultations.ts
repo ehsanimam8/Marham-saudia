@@ -8,67 +8,42 @@ export async function getAdminConsultations() {
     const { data, error } = await supabase
         .from('appointments')
         .select(`
-            id,
-            appointment_date,
-            start_time,
-            end_time,
-            status,
-            type,
-            notes,
-            created_at,
-            doctor:doctor_id (
+            *,
+            doctor:doctors (
                 id,
-                specialty,
-                hospital,
-                profiles (
-                   full_name_ar,
-                   full_name_en
-                )
+                profile:profiles(full_name_ar, full_name_en, avatar_url),
+                specialty
             ),
-            patient:patient_id (
+            patient:patients (
                 id,
-                profiles (
-                   full_name_ar,
-                   full_name_en,
-                   email
-                )
+                profile:profiles(full_name_ar, full_name_en, avatar_url)
             )
         `)
-        .order('appointment_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error('Error fetching admin consultations:', error);
         return [];
     }
 
-    return data;
+    return data || [];
 }
 
+/**
+ * Get stats specifically for the consultations page
+ * (This is a simplified version of what might be in admin-analytics)
+ */
 export async function getConsultationStats() {
     const supabase = await createClient();
 
-    // In a real app we'd use robust aggregation queries or RPCs.
-    // For MVP, we fetch lightweight count or raw data for small datasets.
-
-    // Total Consultations
-    const { count: total } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true });
-
-    // Positive (Completed)
-    const { count: completed } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'completed');
-
-    // 5 Stars Reviews (Assuming reviews table linked to appointments or doctors)
-    // We haven't built a review table linked to specific appointments yet, 
-    // but we can query doctor reviews if we implement that.
+    // Just some basic counts for now
+    const { count: total } = await supabase.from('appointments').select('*', { count: 'exact', head: true });
+    const { count: completed } = await supabase.from('appointments').select('*', { count: 'exact', head: true }).eq('status', 'completed');
+    const { count: cancelled } = await supabase.from('appointments').select('*', { count: 'exact', head: true }).eq('status', 'cancelled');
 
     return {
         total: total || 0,
         completed: completed || 0,
-        positivePercentage: total ? Math.round(((completed || 0) / total) * 100) : 0,
-        averageRating: 4.8 // Mock for now until Reviews table is strictly linked
+        cancelled: cancelled || 0
     };
 }

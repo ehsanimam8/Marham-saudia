@@ -39,7 +39,7 @@ export default async function FeaturedDoctors() {
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">طبيبات متميزات</h2>
                         <p className="text-gray-500">نخبة من الطبيبات السعوديات في خدمتك</p>
                     </div>
-                    <Link href="/doctors" className="text-teal-600 hover:text-teal-700 font-semibold hidden md:block">
+                    <Link href="/doctors" className="text-teal-600 hover:text-teal-700 font-semibold hidden md:block" suppressHydrationWarning>
                         عرض جميع الطبيبات ←
                     </Link>
                 </div>
@@ -50,6 +50,7 @@ export default async function FeaturedDoctors() {
                             key={doctor.id}
                             href={`/doctors/${doctor.id}`}
                             className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group"
+                            suppressHydrationWarning
                         >
                             <div className="h-48 bg-gradient-to-br from-teal-50 to-pink-50 relative overflow-hidden">
                                 {doctor.profile_photo_url ? (
@@ -95,7 +96,7 @@ export default async function FeaturedDoctors() {
                 </div>
 
                 <div className="mt-8 text-center md:hidden">
-                    <Link href="/doctors">
+                    <Link href="/doctors" suppressHydrationWarning>
                         <Button variant="outline" className="w-full">
                             عرض جميع الطبيبات
                         </Button>

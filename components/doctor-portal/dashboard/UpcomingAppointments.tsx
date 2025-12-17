@@ -21,7 +21,7 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
     }
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6" suppressHydrationWarning>
             <div className="flex items-center justify-between mb-6">
                 <h3 className="font-bold text-lg text-gray-900">المواعيد القادمة</h3>
                 <Button variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
@@ -46,7 +46,8 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
                                         {apt.start_time}
                                     </span>
                                     <span className="flex items-center gap-1">
-                                        {apt.video_room_url ? (
+                                        {/* Fallback to showing video icon if type is video, even if URL not ready yet */}
+                                        {apt.consultation_type !== 'in_person' ? (
                                             <>
                                                 <Video className="w-3 h-3" />
                                                 فيديو
@@ -63,9 +64,9 @@ export default function UpcomingAppointments({ appointments }: UpcomingAppointme
                         </div>
 
                         <div className="flex items-center gap-2">
-                            {apt.video_room_url && (
+                            {apt.consultation_type !== 'in_person' && (
                                 <Button asChild size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
-                                    <a href={`/consultation/${apt.id}`} target="_blank" rel="noopener noreferrer">
+                                    <a href={`/doctor-portal/consultation/${apt.id}/details`}>
                                         دخول
                                     </a>
                                 </Button>

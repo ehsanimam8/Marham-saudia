@@ -59,7 +59,7 @@ export default function Header() {
             <nav className="container mx-auto px-4">
                 <div className="flex items-center justify-between py-3">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2">
+                    <Link href="/" className="flex items-center gap-2" suppressHydrationWarning>
                         <Image
                             src="/logo.png"
                             alt="Marham Saudi"
@@ -77,6 +77,7 @@ export default function Header() {
                                 key={item.name}
                                 href={item.href}
                                 className="text-gray-700 hover:text-teal-600 transition-colors font-medium"
+                                suppressHydrationWarning
                             >
                                 {item.name}
                             </Link>
@@ -89,11 +90,11 @@ export default function Header() {
                             <>
                                 {!user && (
                                     <Button asChild variant="outline">
-                                        <Link href="/doctor-portal/register">انضمي كطبيبة</Link>
+                                        <Link href="/doctor-portal/register" suppressHydrationWarning>انضمي كطبيبة</Link>
                                     </Button>
                                 )}
                                 <Button asChild className="bg-teal-600 hover:bg-teal-700">
-                                    <Link href={user ? "/dashboard" : "/login"}>
+                                    <Link href={user ? "/dashboard" : "/login"} suppressHydrationWarning>
                                         {user ? "لوحة التحكم" : "حسابي"}
                                     </Link>
                                 </Button>
@@ -120,6 +121,7 @@ export default function Header() {
                                     href={item.href}
                                     className="text-gray-700 hover:text-teal-600 transition-colors font-medium py-2"
                                     onClick={() => setMobileMenuOpen(false)}
+                                    suppressHydrationWarning
                                 >
                                     {item.name}
                                 </Link>
@@ -129,13 +131,13 @@ export default function Header() {
                                     <>
                                         {!user && (
                                             <Button asChild variant="outline" className="w-full">
-                                                <Link href="/doctor-portal/register" onClick={() => setMobileMenuOpen(false)}>
+                                                <Link href="/doctor-portal/register" onClick={() => setMobileMenuOpen(false)} suppressHydrationWarning>
                                                     انضمي كطبيبة
                                                 </Link>
                                             </Button>
                                         )}
                                         <Button asChild className="w-full bg-teal-600 hover:bg-teal-700">
-                                            <Link href={user ? "/dashboard" : "/login"} onClick={() => setMobileMenuOpen(false)}>
+                                            <Link href={user ? "/dashboard" : "/login"} onClick={() => setMobileMenuOpen(false)} suppressHydrationWarning>
                                                 {user ? "لوحة التحكم" : "حسابي"}
                                             </Link>
                                         </Button>

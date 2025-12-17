@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getDoctorProfile } from '@/lib/api/doctors';
 import { redirect } from 'next/navigation';
-import { Calendar, Clock, Video, User } from 'lucide-react';
+import { Calendar, Clock, Video, User, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -96,11 +96,20 @@ export default async function AppointmentsPage() {
                                         <td className="px-6 py-4 text-center">
                                             {apt.status === 'scheduled' && (
                                                 <Link
-                                                    href={`/consultation/${apt.id}`}
+                                                    href={`/doctor-portal/consultation/${apt.id}/details`}
                                                     className="inline-flex items-center gap-1 text-xs bg-teal-600 text-white px-3 py-1.5 rounded-full hover:bg-teal-700 transition-colors"
                                                 >
                                                     <Video className="w-3 h-3" />
                                                     دخول
+                                                </Link>
+                                            )}
+                                            {apt.status === 'completed' && (
+                                                <Link
+                                                    href={`/doctor-portal/consultation/${apt.id}/details`}
+                                                    className="inline-flex items-center gap-1 text-xs bg-blue-600 text-white px-3 py-1.5 rounded-full hover:bg-blue-700 transition-colors"
+                                                >
+                                                    <FileText className="w-3 h-3" />
+                                                    الملخص
                                                 </Link>
                                             )}
                                         </td>

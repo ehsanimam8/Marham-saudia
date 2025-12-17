@@ -29,11 +29,11 @@ export default function Footer() {
                     <div>
                         <h3 className="text-white font-bold mb-6">روابط سريعة</h3>
                         <ul className="space-y-4">
-                            <li><Link href="/about" className="hover:text-teal-400 transition-colors">عن مرهم</Link></li>
-                            <li><Link href="/doctors" className="hover:text-teal-400 transition-colors">ابحثي عن طبيبة</Link></li>
-                            <li><Link href="/how-it-works" className="hover:text-teal-400 transition-colors">كيف يعمل الموقع</Link></li>
-                            <li><Link href="/pricing" className="hover:text-teal-400 transition-colors">الأسعار والباقات</Link></li>
-                            <li><Link href="/doctor-portal/register" className="hover:text-teal-400 transition-colors">انضمي كطبيبة</Link></li>
+                            <li><Link href="/about" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>عن مرهم</Link></li>
+                            <li><Link href="/doctors" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>ابحثي عن طبيبة</Link></li>
+                            <li><Link href="/how-it-works" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>كيف يعمل الموقع</Link></li>
+                            <li><Link href="/pricing" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>الأسعار والباقات</Link></li>
+                            <li><Link href="/doctor-portal/register" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>انضمي كطبيبة</Link></li>
                         </ul>
                     </div>
 
@@ -41,11 +41,11 @@ export default function Footer() {
                     <div>
                         <h3 className="text-white font-bold mb-6">التخصصات</h3>
                         <ul className="space-y-4">
-                            <li><Link href="/doctors?specialty=obgyn" className="hover:text-teal-400 transition-colors">أمراض النساء والولادة</Link></li>
-                            <li><Link href="/doctors?specialty=fertility" className="hover:text-teal-400 transition-colors">الخصوبة وعلاج العقم</Link></li>
-                            <li><Link href="/doctors?specialty=pcos" className="hover:text-teal-400 transition-colors">علاج تكيس المبايض</Link></li>
-                            <li><Link href="/doctors?specialty=pregnancy" className="hover:text-teal-400 transition-colors">متابعة الحمل</Link></li>
-                            <li><Link href="/doctors?specialty=mental-health" className="hover:text-teal-400 transition-colors">الصحة النفسية</Link></li>
+                            <li><Link href="/doctors?specialty=obgyn" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>أمراض النساء والولادة</Link></li>
+                            <li><Link href="/doctors?specialty=fertility" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>الخصوبة وعلاج العقم</Link></li>
+                            <li><Link href="/doctors?specialty=pcos" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>علاج تكيس المبايض</Link></li>
+                            <li><Link href="/doctors?specialty=pregnancy" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>متابعة الحمل</Link></li>
+                            <li><Link href="/doctors?specialty=mental-health" className="hover:text-teal-400 transition-colors" suppressHydrationWarning>الصحة النفسية</Link></li>
                         </ul>
                     </div>
 
@@ -72,8 +72,8 @@ export default function Footer() {
                 <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
                     <p>© 2024 مرهم. جميع الحقوق محفوظة.</p>
                     <div className="flex gap-6">
-                        <Link href="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
-                        <Link href="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
+                        <Link href="/privacy" className="hover:text-white transition-colors" suppressHydrationWarning>سياسة الخصوصية</Link>
+                        <Link href="/terms" className="hover:text-white transition-colors" suppressHydrationWarning>الشروط والأحكام</Link>
                     </div>
                 </div>
             </div>

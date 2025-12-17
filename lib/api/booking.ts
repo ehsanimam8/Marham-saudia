@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { addMinutes, format, parse, isBefore, isEqual, addDays, getDay } from 'date-fns';
+import { addMinutes, format, parse, isBefore, getDay } from 'date-fns';
 
 export async function getAvailableSlots(
     supabase: SupabaseClient,

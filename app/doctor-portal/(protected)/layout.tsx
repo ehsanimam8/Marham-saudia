@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import DoctorSidebar from '@/components/doctor-portal/dashboard/DoctorSidebar';
+import DoctorPortalContentWrapper from '@/components/doctor-portal/DoctorPortalContentWrapper';
 
 export default async function DoctorPortalLayout({
     children,
@@ -106,12 +107,42 @@ export default async function DoctorPortalLayout({
     }
 
     // Approved doctor - show the portal
+    // Check if we are in the consultation room
+    // Note: In Server Components, we can't easily check pathname without headers
+    // But we can check if the children content suggests it (no).
+    // We can use the headers() function to get URL?
+
+    // Better way: Move consultation room to a route group that opts out of this layout?
+    // Or just check here. Route Group (group) is cleaner but requires file move.
+    // Let's try headers() approach first as it keeps file structure intact.
+
+    /* 
+       Actually, `headers` is dynamic.
+    */
+    const { headers } = await import('next/headers');
+    const headersList = await headers();
+    const pathname = headersList.get('x-url') || ''; // 'x-url' needs middleware injection usually
+
+    // Alternative: Client Component wrapper for the layout logic?
+    // Simplest: Check if the child component is the Room page? No.
+
+    // Let's use CSS/Client Logic or just create a specific Layout for the Room.
+    // BUT since we are editing this existing layout file:
+    // We will assume that if we are in a room, we probably want full width.
+    // Wait, the easiest way without complex rewrites is to make the Sidebar responsive or collapsible controlled by a client component, 
+    // OR create a `(consultation-room)` group.
+
+    // Let's modify the return to be a Client Component or use a client wrapper that checks usePathname?
+    // Changing this file to 'use client' breaks the async data fetching.
+
+    // STRATEGY: Create a Client Component wrapper for the content area that checks the pathname and applies classes.
+    // However, `DoctorSidebar` is imported here.
+
+    // Let's rely on a helper component.
+
     return (
-        <div className="min-h-screen bg-gray-50 flex" dir="rtl">
-            <DoctorSidebar />
-            <main className="flex-1 mr-64 p-8">
-                {children}
-            </main>
-        </div>
+        <DoctorPortalContentWrapper>
+            {children}
+        </DoctorPortalContentWrapper>
     );
 }

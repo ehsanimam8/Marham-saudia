@@ -55,6 +55,7 @@ export default function SpecialtiesGrid() {
                             key={index}
                             href={item.href}
                             className="group bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center border border-transparent hover:border-teal-100 hover:-translate-y-1"
+                            suppressHydrationWarning
                         >
                             <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center text-teal-600 mb-4 group-hover:bg-teal-600 group-hover:text-white transition-colors">
                                 <item.icon className="w-6 h-6" />

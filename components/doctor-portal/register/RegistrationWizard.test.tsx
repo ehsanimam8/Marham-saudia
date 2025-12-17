@@ -25,19 +25,21 @@ vi.mock('sonner', () => ({
 import { registerDoctor } from '@/app/actions/auth';
 
 // Mock UI Select to avoid Radix UI pointer event issues in test
-vi.mock('@/components/ui/select', () => {
+vi.mock('@/components/ui/select', async (importOriginal) => {
+    const React = await import('react');
+    const MockSelectContext = React.createContext<(value: string) => void>(() => { });
+
     const MockSelect = ({ onValueChange, children }: any) => {
-        return <div data-testid="mock-select" onClick={(e: any) => {
-            // Basic delegation to children if needed, but simpler to just mock the parts
-            // We can attach the onValueChange handler to the dataset of the root or something
-            // but easier is to use a context-like pattern if we were writing a full mock.
-            // For this test, let's just expose a way to trigger value change or make Items clickable.
-            // We'll attach onValueChange to the children by cloning? No, too complex.
-            // We will try to find the items and click them.
-        }} data-on-value-change={onValueChange}>{children}</div>;
+        return <div data-testid="mock-select" data-on-value-change={onValueChange}>{children}</div>;
     };
     return {
-        Select: ({ onValueChange, children }: any) => <div data-testid="select-root"><MockSelectContext.Provider value={onValueChange}>{children}</MockSelectContext.Provider></div>,
+        Select: ({ onValueChange, children }: any) => (
+            <div data-testid="select-root">
+                <MockSelectContext.Provider value={onValueChange}>
+                    {children}
+                </MockSelectContext.Provider>
+            </div>
+        ),
         SelectTrigger: ({ children, onClick }: any) => <button role="combobox" onClick={onClick}>{children}</button>,
         SelectContent: ({ children }: any) => <div role="listbox">{children}</div>,
         SelectItem: ({ value, children }: any) => {
@@ -57,7 +59,6 @@ vi.mock('@/components/ui/select', () => {
 });
 
 import React from 'react';
-const MockSelectContext = React.createContext<(value: string) => void>(() => { });
 
 // Helper to fill Step 1
 async function fillStep1(user: any) {
