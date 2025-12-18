@@ -140,8 +140,12 @@ export async function generatePatientStories(sessionId: string) {
 
         return { success: true, data: result };
 
-    } catch (error) {
-        console.error('AI Generation/Parsing failed:', error);
+    } catch (error: any) {
+        if (error?.message?.includes('429')) {
+            console.warn("AI Analysis: Rate limit hit, skipping insights.");
+        } else {
+            console.error('AI Generation/Parsing failed:', error);
+        }
         return { success: false, error: 'Failed to generate insights' };
     }
 }

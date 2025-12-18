@@ -25,8 +25,12 @@ export async function generateContent(prompt: string) {
         const result = await model.generateContent(prompt);
         const response = await result.response;
         return response.text();
-    } catch (error) {
-        console.error("Error generating content with Gemini:", error);
+    } catch (error: any) {
+        if (error?.message?.includes('429')) {
+            console.warn("Gemini API Rate Limit (429) hit.");
+        } else {
+            console.error("Error generating content with Gemini:", error);
+        }
         throw error;
     }
 }
