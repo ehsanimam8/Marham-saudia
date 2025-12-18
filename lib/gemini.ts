@@ -7,7 +7,7 @@ let model: any = null;
 
 if (apiKey) {
     genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    model = genAI.getGenerativeModel({ model: "gemini-pro" });
 }
 
 export async function generateContent(prompt: string) {
@@ -18,7 +18,7 @@ export async function generateContent(prompt: string) {
         }
         // Re-init if for some reason it wasn't
         genAI = new GoogleGenerativeAI(apiKey);
-        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        model = genAI.getGenerativeModel({ model: "gemini-pro" });
     }
 
     try {
