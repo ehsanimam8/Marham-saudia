@@ -43,8 +43,13 @@ export default async function ResultsPage(props: {
         if (aiResult.success) {
             aiInsights = aiResult.data;
         }
-    } catch (e) {
-        console.error("AI Insights failed", e);
+    } catch (e: any) {
+        // Handle Quota/Rate Limit Exceeded gracefully
+        if (e?.message?.includes('429') || e?.message?.includes('Quota exceeded')) {
+            console.warn("AI Insights Skipped: Rate limit/Quota exceeded.");
+        } else {
+            console.error("AI Insights failed", e);
+        }
     }
 
     // Fetch relevant content if primary concern exists
