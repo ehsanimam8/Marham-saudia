@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     // Public routes (no auth required)
-    const publicRoutes = ['/', '/doctors', '/health', '/about', '/contact', '/how-it-works', '/articles'];
+    const publicRoutes = ['/', '/doctors', '/health', '/about', '/contact', '/how-it-works', '/articles', '/onboarding'];
     // Also static assets usually handled by config, but good to be safe if manual check
     const authRoutes = ['/login', '/register', '/doctor-portal/login', '/doctor-portal/register', '/admin/login'];
 

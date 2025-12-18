@@ -138,13 +138,24 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
         );
     }
 
-    // Parse options if JSON string
-    let options = [];
-    if (currentQuestion.options) {
-        options = typeof currentQuestion.options === 'string'
-            ? JSON.parse(currentQuestion.options).options
-            : currentQuestion.options.options || currentQuestion.options;
-    }
+    // Use correct property 'type' from FollowupQuestion interface
+    // Also handle legacy 'question_type' if it somehow slips through (though likely 'type' is what we have)
+    const questionType = currentQuestion.type || (currentQuestion as any).question_type;
+
+    // determine options based on language (default to EN for now, can be props driven)
+    // The server action returns options_en / options_ar
+    const rawOptions = currentQuestion.options_en || currentQuestion.options_ar || [];
+
+    // Normalize options to { label, value }
+    const normalizedOptions = rawOptions.map((opt: any) => {
+        if (typeof opt === 'string') {
+            return { label: opt, value: opt };
+        }
+        return {
+            label: opt.label_en || opt.value || 'Option',
+            value: opt.value
+        };
+    });
 
     return (
         <div className="w-full max-w-md mx-auto flex flex-col min-h-[80vh]">
@@ -161,7 +172,7 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                 </h1>
 
                 <div className="space-y-4">
-                    {currentQuestion.question_type === 'yes_no' && (
+                    {(questionType === 'boolean' || questionType === 'yes_no') && (
                         <RadioGroup
                             value={answers[currentQuestion.id]}
                             onValueChange={handleAnswer}
@@ -184,20 +195,20 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                         </RadioGroup>
                     )}
 
-                    {currentQuestion.question_type === 'multiple_choice' && (
+                    {questionType === 'multiple_choice' && (
                         <RadioGroup
                             value={answers[currentQuestion.id]}
                             onValueChange={handleAnswer}
                             className="space-y-3"
                         >
-                            {options?.map((opt: any) => (
+                            {normalizedOptions.map((opt: any) => (
                                 <div key={opt.value} className={cn(
                                     "flex items-center space-x-3 border-2 rounded-xl p-4 cursor-pointer transition-all",
                                     answers[currentQuestion.id] === opt.value ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
                                 )}>
                                     <RadioGroupItem value={opt.value} id={opt.value} />
                                     <Label htmlFor={opt.value} className="flex-1 cursor-pointer font-medium">
-                                        {opt.label_en || opt.value}
+                                        {opt.label}
                                     </Label>
                                 </div>
                             ))}

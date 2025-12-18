@@ -6,11 +6,15 @@ import FeaturedDoctors from '@/components/patient/home/FeaturedDoctors';
 import ArticlesPreview from '@/components/patient/home/ArticlesPreview';
 import WhyMarham from '@/components/patient/home/WhyMarham';
 import Footer from '@/components/patient/home/Footer';
+import StartOnboardingBanner from '@/components/onboarding/v5/StartOnboardingBanner';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white" suppressHydrationWarning>
       <Hero />
+      <div className="container mx-auto px-4 mt-8 relative z-20 mb-12">
+        <StartOnboardingBanner className="rounded-3xl shadow-2xl" />
+      </div>
       <TrustIndicators />
       <HowItWorks />
       <SpecialtiesGrid />

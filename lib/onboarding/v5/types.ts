@@ -161,11 +161,14 @@ export interface BodyPart {
     id: string;
     nameAr: string;
     nameEn: string;
+    descriptionAr?: string;
+    descriptionEn?: string;
+    icon?: string; // Lucide name or URL
     svgPath: string;  // SVG path data for clickable area
     concerns: Concern[];
     requiresAgeCheck: boolean;
     estimatedQuestions: number;
-    categories: MainCategory[]; // New field
+    categories: string[]; // Changed from MainCategory[] to support dynamic DB IDs
 }
 
 export interface Concern {
@@ -193,8 +196,8 @@ export interface FollowupQuestion {
     question_ar: string;
     question_en: string;
     type: 'boolean' | 'multiple_choice' | 'text';
-    options_ar?: string[];
-    options_en?: string[];
+    options_ar?: any[];
+    options_en?: any[];
 }
 
 export interface PriorityOption {

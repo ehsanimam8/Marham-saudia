@@ -17,9 +17,10 @@ interface SymptomsClientProps {
     concernDetails: any;
     symptoms: any[];
     sessionData: any;
+    category?: string;
 }
 
-export default function SymptomsClient({ sessionId, concernDetails, symptoms, sessionData }: SymptomsClientProps) {
+export default function SymptomsClient({ sessionId, concernDetails, symptoms, sessionData, category }: SymptomsClientProps) {
     const router = useRouter();
     const [submitting, setSubmitting] = useState(false);
     const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -103,22 +104,138 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
         }
     };
 
+    const isBeauty = category === 'beauty' || category === 'cosmetic';
+
+    // Mock images for beauty enhancements (In production, these would be real assets)
+    // Keys match keywords in concern name (lowercase)
+    // Mock images for beauty enhancements (In production, these would be real assets)
+    // Keys match keywords in concern name (lowercase)
+    const BEAUTY_ENHANCEMENTS: Record<string, { id: string; name: string; description?: string; image: string }[]> = {
+        'lip': [
+            {
+                id: 'shape_natural',
+                name: 'Natural Definition',
+                description: 'Subtle enhancement of your natural shape',
+                image: '/images/enhancements/lip_natural.png'
+            },
+            {
+                id: 'shape_russian',
+                name: 'Russian Lips',
+                description: 'Height and heart-shape emphasis',
+                image: '/images/enhancements/lip_russian.png'
+            },
+            {
+                id: 'shape_volume',
+                name: 'Full Volume',
+                description: 'Overall plumping for a glamorous look',
+                image: '/images/enhancements/lip_volume.png'
+            },
+            {
+                id: 'shape_correction',
+                name: 'Symmetry Correction',
+                description: 'Balancing uneven contours',
+                image: '/images/enhancements/lip_symmetry.png'
+            },
+        ],
+        'breast': [
+            {
+                id: 'shape_natural_enhanced',
+                name: 'Natural Enhancement',
+                description: 'Subtle volume increase maintaining natural slope',
+                image: '/images/enhancements/breast_natural_clothed.png'
+            },
+            {
+                id: 'shape_lift',
+                name: 'Rejuvenated Lift',
+                description: 'Restoring youthful position and firmness',
+                image: '/images/enhancements/breast_lift_clothed.png'
+            },
+            {
+                id: 'shape_implant_look',
+                name: 'High Profile',
+                description: 'Full upper pole and rounded aesthetic',
+                image: '/images/enhancements/breast_implant_clothed.png'
+            },
+            {
+                id: 'shape_reduction',
+                name: 'Comfort Reduction',
+                description: 'Proportional, lighter, and athletic contour',
+                image: '/images/enhancements/breast_reduction_clothed.png'
+            }
+        ]
+    };
+    // Map 'chest' or other terms to 'breast' if needed via the key search logic
+    // The key search below checks 'concernDetails.name_en' includes 'breast' or 'chest' etc.
+    // If we want 'chest' to trigger 'breast' options, we can add 'chest' key or ensure lookup handles it.
+    BEAUTY_ENHANCEMENTS['chest'] = BEAUTY_ENHANCEMENTS['breast'];
+
+    // Determine if we have custom visual options for this concern
+    const visualOptionsKey = Object.keys(BEAUTY_ENHANCEMENTS).find(key =>
+        concernDetails?.name_en?.toLowerCase().includes(key) ||
+        concernDetails?.name_ar?.includes(key)
+    );
+
+    const visualOptions = visualOptionsKey ? BEAUTY_ENHANCEMENTS[visualOptionsKey] : null;
+
     return (
         <div className="w-full max-w-md mx-auto flex flex-col min-h-[80vh]">
             <ProgressBar currentStep={3} totalSteps={6} className="mb-8" />
 
             <div className="flex-1">
                 <h1 className="text-2xl font-bold mb-2 text-primary text-center">
-                    {concernDetails?.name_en || 'Symptoms Check'}
+                    {concernDetails?.name_en || (isBeauty ? 'Desired Improvements' : 'Symptoms Check')}
                 </h1>
                 <p className="text-center text-muted-foreground mb-8">
-                    {concernDetails?.description_en || 'Select all symptoms that apply to you'}
+                    {concernDetails?.description_en || (isBeauty ? 'Build your ideal treatment plan' : 'Select all symptoms that apply to you')}
                 </p>
 
                 <div className="space-y-3 mb-8">
-                    {symptoms.length === 0 ? (
+                    {visualOptions ? (
+                        <div className="grid grid-cols-2 gap-4">
+                            {visualOptions.map((option) => (
+                                <div
+                                    key={option.id}
+                                    onClick={() => toggleSymptom(option.id)}
+                                    className={cn(
+                                        "relative overflow-hidden rounded-2xl border-2 transition-all cursor-pointer group",
+                                        selectedSymptoms.includes(option.id)
+                                            ? "border-primary ring-2 ring-primary/20 ring-offset-2"
+                                            : "border-transparent shadow-sm hover:border-slate-200"
+                                    )}
+                                >
+                                    <div className="aspect-[4/3] relative bg-slate-100">
+                                        <div className="absolute inset-0 bg-slate-200 animate-pulse" /> {/* Placeholder while loading */}
+                                        <img
+                                            src={option.image}
+                                            alt={option.name}
+                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            loading="lazy"
+                                        />
+                                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
+                                            <h3 className="font-bold text-white text-sm">{option.name}</h3>
+                                            {option.description && (
+                                                <p className="text-white/80 text-xs line-clamp-1">{option.description}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Selection Indicator */}
+                                        <div className={cn(
+                                            "absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center transition-colors",
+                                            selectedSymptoms.includes(option.id)
+                                                ? "bg-primary border-primary"
+                                                : "bg-black/30 backdrop-blur-sm"
+                                        )}>
+                                            {selectedSymptoms.includes(option.id) && (
+                                                <div className="w-2.5 h-2.5 bg-white rounded-full" />
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : symptoms.length === 0 ? (
                         <div className="text-center p-8 bg-slate-50 rounded-lg">
-                            <p>No specific symptoms listed for this concern. You can skip or describe below.</p>
+                            <p>{isBeauty ? 'No specific options listed. You can describe your goals below.' : 'No specific symptoms listed for this concern. You can skip or describe below.'}</p>
                         </div>
                     ) : (
                         symptoms.map((symptom) => (
@@ -132,7 +249,7 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                                         : "border-transparent bg-white shadow-sm hover:border-slate-200"
                                 )}
                             >
-                                <span className="text-2xl">{symptom.icon || '⚕️'}</span>
+                                <span className="text-2xl">{symptom.icon || (isBeauty ? '✨' : '⚕️')}</span>
                                 <div>
                                     <h3 className="font-medium text-slate-900">{symptom.name_en}</h3>
                                     {symptom.description_en && (
@@ -158,9 +275,11 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
 
                 {/* VISUAL SYMPTOMS / UPLOAD SECTION */}
                 <div className="mb-8 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="font-semibold text-slate-900 mb-2">Visual Indicators?</h3>
+                    <h3 className="font-semibold text-slate-900 mb-2">{isBeauty ? 'Current Photo (Optional)' : 'Visual Indicators?'}</h3>
                     <p className="text-sm text-slate-500 mb-4">
-                        If you have visible symptoms (like redness, swelling, or a rash), uploading a photo helps our doctors triaging.
+                        {isBeauty
+                            ? 'Upload a photo of the area you want to enhance to help us suggest the best procedure.'
+                            : 'If you have visible symptoms (like redness, swelling, or a rash), uploading a photo helps our doctors triaging.'}
                     </p>
 
                     {uploadedImage ? (

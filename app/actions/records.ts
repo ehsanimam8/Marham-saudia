@@ -63,6 +63,8 @@ export async function uploadMedicalRecord(formData: FormData) {
     return { success: true };
 }
 
+// ... existing imports
+
 export async function getPatientRecords() {
     const supabase = await createClient();
 
@@ -77,28 +79,70 @@ export async function getPatientRecords() {
 
     if (!patient) return [];
 
-    const { data, error } = await (supabase
+    // 1. Fetch from 'patient_records' (Dashboard uploads)
+    const { data: manualRecords, error: rError } = await (supabase
         .from('patient_records') as any)
         .select('*')
-        .eq('patient_id', patient.id)
-        .order('record_date', { ascending: false });
+        .eq('patient_id', patient.id);
 
-    if (error) {
-        console.error(error);
-        return [];
-    }
+    // 2. Fetch from 'medical_documents' (Chat uploads / Onboarding uploads)
+    const { data: chatDocs, error: dError } = await (supabase
+        .from('medical_documents') as any)
+        .select('*')
+        .eq('patient_id', patient.id);
 
-    // Generate signed URLs for display
-    const recordsWithUrls = await Promise.all(data.map(async (record: any) => {
-        const { data: signed } = await supabase.storage
-            .from('patient_records')
-            .createSignedUrl(record.file_path, 3600); // 1 hour link
+    // Log errors but don't fail completeflow
+    if (rError) console.error("Error fetching patient_records", rError);
+    if (dError) console.error("Error fetching medical_documents", dError);
 
-        return {
-            ...record,
-            signedUrl: signed?.signedUrl
-        };
+    const records1 = manualRecords || [];
+    const docs2 = chatDocs || [];
+
+    // Normalize and Combine
+    // We want a uniform shape for the frontend
+    const combined = [
+        ...records1.map((r: any) => ({
+            id: r.id,
+            name: r.file_name || 'Medical Record',
+            type: r.record_type || 'report',
+            date: r.record_date || r.created_at,
+            url: null, // to be signed
+            filePath: r.file_path,
+            bucket: 'patient_records',
+            source: 'dashboard'
+        })),
+        ...docs2.map((d: any) => {
+            const rawUrl = d.document_url || d.file_url;
+            const isUrl = rawUrl && (rawUrl.startsWith('http') || rawUrl.startsWith('https'));
+            return {
+                id: d.id,
+                name: d.document_name || d.file_name || 'Consultation Document',
+                type: d.document_type || 'report',
+                date: d.uploaded_at || d.created_at,
+                url: isUrl ? rawUrl : null,
+                filePath: isUrl ? null : rawUrl,
+                bucket: 'medical-records',
+                source: 'chat'
+            };
+        })
+    ];
+
+    // Sort by date desc
+    combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Generate signed URLs for private bucket items
+    const finalRecords = await Promise.all(combined.map(async (record) => {
+        let finalUrl = record.url;
+        if (record.filePath && record.bucket) {
+            const { data: signed } = await supabase.storage
+                .from(record.bucket)
+                .createSignedUrl(record.filePath, 3600);
+            if (signed?.signedUrl) {
+                finalUrl = signed.signedUrl;
+            }
+        }
+        return { ...record, signedUrl: finalUrl, url: finalUrl };
     }));
 
-    return recordsWithUrls;
+    return finalRecords;
 }

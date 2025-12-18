@@ -13,13 +13,13 @@ export default function Footer() {
                             أول منصة صحية نسائية في المملكة العربية السعودية. نربطك بأفضل الطبيبات السعوديات لاستشارات خاصة وآمنة من منزلك.
                         </p>
                         <div className="flex gap-4">
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors">
+                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors" suppressHydrationWarning>
                                 <Twitter className="w-5 h-5" />
                             </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors">
+                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors" suppressHydrationWarning>
                                 <Instagram className="w-5 h-5" />
                             </a>
-                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors">
+                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-teal-600 transition-colors" suppressHydrationWarning>
                                 <Linkedin className="w-5 h-5" />
                             </a>
                         </div>

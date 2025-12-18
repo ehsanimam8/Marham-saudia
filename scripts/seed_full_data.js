@@ -59,13 +59,13 @@ function generateQuestionsForConcern(concern) {
             question_en: `How long have you had ${concern.name_en}?`,
             question_ar: `منذ متى تعانين من ${concern.name_ar}؟`,
             question_type: 'multiple_choice',
-            options_json: JSON.stringify({
+            options: {
                 options: [
                     { value: 'days', label_en: 'A few days', label_ar: 'بضعة أيام' },
                     { value: 'weeks', label_en: 'A few weeks', label_ar: 'بضعة أسابيع' },
                     { value: 'months', label_en: 'Months', label_ar: 'أشهر' }
                 ]
-            }),
+            },
             display_order: 1,
             affects_urgency: true,
             affects_doctor_matching: false
@@ -76,7 +76,7 @@ function generateQuestionsForConcern(concern) {
             question_en: `Have you seen a doctor regarding ${concern.name_en} before?`,
             question_ar: `هل مراجعة طبيبة بخصوص ${concern.name_ar} من قبل؟`,
             question_type: 'yes_no',
-            options_json: null,
+            options: null,
             display_order: 2,
             affects_urgency: false,
             affects_doctor_matching: true

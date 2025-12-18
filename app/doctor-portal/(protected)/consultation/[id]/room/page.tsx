@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, memo } from 'react';
 import { useRouter } from 'next/navigation';
-import DailyVideoRoom from '@/components/video/DailyVideoRoom';
+import DailyVideoRoomComponent from '@/components/video/DailyVideoRoom';
+
+const DailyVideoRoom = memo(DailyVideoRoomComponent); // Memoize to prevent re-renders on tab switch
 import { Loader2, FileText, CheckSquare, X, Paperclip, MessageCircle } from 'lucide-react';
 import ConsultationChat from '@/components/consultation/ConsultationChat';
 

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getOnboardingSession, getConcernDetails, getSymptoms } from '@/app/actions/onboarding_v5';
+import { getOnboardingSession, getConcernDetails, getSymptoms, getBodyPartDetails } from '@/app/actions/onboarding_v5';
 import SymptomsClient from '@/components/onboarding/v5/QuestionFlow/SymptomsClient';
 import { redirect } from 'next/navigation';
 
@@ -44,9 +44,10 @@ export default async function SymptomsPage({ searchParams }: PageProps) {
     const concernId = session.primary_concern;
 
     // Parallel fetch details
-    const [concernDetails, symptoms] = await Promise.all([
+    const [concernDetails, symptoms, bodyPartDetails] = await Promise.all([
         getConcernDetails(concernId),
-        getSymptoms(concernId)
+        getSymptoms(concernId),
+        session.body_part ? getBodyPartDetails(session.body_part) : Promise.resolve(null)
     ]);
 
     return (
@@ -57,6 +58,7 @@ export default async function SymptomsPage({ searchParams }: PageProps) {
                     concernDetails={concernDetails}
                     symptoms={symptoms}
                     sessionData={session}
+                    category={bodyPartDetails?.category}
                 />
             </Suspense>
         </div>

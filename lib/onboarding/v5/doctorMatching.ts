@@ -51,6 +51,7 @@ export async function matchDoctorsToSession(
     // 5. Save matched doctor IDs to session
     await supabase
         .from('onboarding_sessions')
+
         // @ts-expect-error - Table types update might not include matched_doctor_ids yet
         .update({
             matched_doctor_ids: topMatches.map(m => m.doctor.id)
