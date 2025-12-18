@@ -183,10 +183,10 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
 
             <div className="flex-1">
                 <h1 className="text-2xl font-bold mb-2 text-primary text-center">
-                    {concernDetails?.name_en || (isBeauty ? 'Desired Improvements' : 'Symptoms Check')}
+                    {concernDetails?.name_en || (isBeauty ? 'Select Your Ideal Result' : 'Symptoms Check')}
                 </h1>
                 <p className="text-center text-muted-foreground mb-8">
-                    {concernDetails?.description_en || (isBeauty ? 'Build your ideal treatment plan' : 'Select all symptoms that apply to you')}
+                    {concernDetails?.description_en || (isBeauty ? 'Choose the look you want to achieve' : 'Select all symptoms that apply to you')}
                 </p>
 
                 <div className="space-y-3 mb-8">
