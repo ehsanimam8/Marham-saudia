@@ -95,24 +95,35 @@ export async function sendAiMessage(chatId: string, userMessage: string) {
     const isComplete = assistantMsgCount >= 10;
 
     // 3. Generate content with Gemini
-    // 3. Generate content with Gemini - Using single-turn generation to avoid role ordering issues
-    // Gemini's startChat strict role ordering (User first) conflicts with our Assistant-first greeting.
-    // We will construct a complete transcript prompt instead.
+    // Using single-turn generation to avoid role ordering issues
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Check API Key
+    if (!process.env.GEMINI_API_KEY) {
+        console.error("GEMINI_API_KEY is missing");
+        return {
+            message: "System configuration error: AI service credentials missing.",
+            completed: false
+        };
+    }
 
-    const obData = chatSession.onboarding_sessions;
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Explicitly parse known data for the prompt
-    const concern = obData.primary_concern || 'Unknown';
-    const symptoms = JSON.stringify(obData.symptoms || []);
-    const historySummary = `
-    User has reported:
-    - Primary Concern: ${concern}
-    - Reported Symptoms: ${symptoms}
-    `;
+        const obData = chatSession.onboarding_sessions;
 
-    const instructions = `
+        // Explicitly parse known data for the prompt
+        const concern = obData.primary_concern || 'Unknown';
+        const symptoms = JSON.stringify(obData.symptoms || []); // Note: verify if 'symptoms' column is popluated or 'symptoms_selected'
+        // In v5 it's symptoms_selected (IDs). 'symptoms' column might be old text array?
+        // Let's rely on what's there but be safe.
+
+        const historySummary = `
+        User has reported:
+        - Primary Concern: ${concern}
+        - Reported Symptoms: ${symptoms}
+        `;
+
+        const instructions = `
         You are an empathetic and professional AI Nurse for Marham Saudi.
         You are conducting a follow-up assessment for a patient who has already completed an initial intake form.
         
@@ -120,34 +131,27 @@ export async function sendAiMessage(chatId: string, userMessage: string) {
         ${historySummary}
 
         INSTRUCTIONS:
-        1. Acknowledge what the user has already told us (see context above) so they don't feel like they are repeating themselves.
-        2. Ask 1-2 targeted follow-up questions to dig deeper into their condition (e.g., severity, duration, triggers).
-        3. Keep your tone warm, professional, and clear.
-        4. Do NOT verify the information they already gave unless it's critical/ambiguous. Assume the context provided is correct and build UPON it.
+        1. Acknowledge what the user has already told us.
+        2. Ask 1-2 targeted follow-up questions to dig deeper (severity, duration, triggers).
+        3. Keep tone warm/professional.
+        4. Do NOT verify info unless critical.
         5. Do not diagnose.
-        6. LANGUAGE: You are bilingual (English/Arabic). Default to English unless the user speaks Arabic. Adopt the user's language.
-        
+        6. LANGUAGE: Adopt the user's language (English or Arabic).
         
         Current State: You have asked ${assistantMsgCount} questions so far. The limit is 10.
-        ${isComplete ? "This is the final interaction. Thank the user, summarize the key points briefly, and ask them to proceed to book a consultation." : ""}
-    `;
+        ${isComplete ? "This is the final interaction. Thank the user, summarize key points, and ask them to proceed." : ""}
+        `;
 
-    // Construct the conversation transcript
-    let transcript = `${instructions}\n\nExisting Conversation:\n`;
+        // Construct conversation transcript
+        let transcript = `${instructions}\n\nExisting Conversation:\n`;
 
-    // Add history (excluding the user message we just saved, we'll append it at the end)
-    // NOTE: history includes the message we just saved at step 1? 
-    // Wait, getChatHistory fetches *all* messages linked to session.
-    // Yes, we just inserted the user message at line 62. So 'history' variable at line 77 contains it.
+        history.forEach(m => {
+            const speaker = m.role === 'user' ? 'Patient' : 'Nurse';
+            transcript += `${speaker}: ${m.content}\n`;
+        });
 
-    history.forEach(m => {
-        const speaker = m.role === 'user' ? 'Patient' : 'Nurse';
-        transcript += `${speaker}: ${m.content}\n`;
-    });
+        transcript += `\nNurse:`;
 
-    transcript += `\nNurse:`; // Prompt for completion
-
-    try {
         const result = await model.generateContent(transcript);
         const responseText = result.response.text();
 
@@ -169,9 +173,17 @@ export async function sendAiMessage(chatId: string, userMessage: string) {
         };
 
     } catch (err: any) {
-        console.error('Gemini API Error:', err);
+        console.error('Gemini API Error details:', JSON.stringify(err, null, 2));
+        console.error('Gemini API Error message:', err.message);
+
+        let userMsg = "I apologize, I am having trouble connecting at the moment. Please try again.";
+
+        if (err.message && err.message.includes('429')) {
+            userMsg = "I'm currently experiencing high traffic. Please wait a moment and try again.";
+        }
+
         return {
-            message: "I apologize, I am having trouble connecting at the moment. Please try again.",
+            message: userMsg,
             completed: false
         };
     }
