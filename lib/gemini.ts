@@ -10,6 +10,9 @@ if (apiKey) {
     model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 }
 
+const MAX_RETRIES = 3;
+const BASE_DELAY = 1000;
+
 export async function generateContent(prompt: string) {
     if (!model) {
         if (!apiKey) {
@@ -21,16 +24,33 @@ export async function generateContent(prompt: string) {
         model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     }
 
-    try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
-    } catch (error: any) {
-        if (error?.message?.includes('429')) {
-            console.warn("Gemini API Rate Limit (429) hit.");
-        } else {
-            console.error("Error generating content with Gemini:", error);
+    let lastError;
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return response.text();
+        } catch (error: any) {
+            lastError = error;
+            const isRateLimit = error?.message?.includes('429');
+            const isOverloaded = error?.message?.includes('503');
+
+            if (isRateLimit || isOverloaded) {
+                if (attempt < MAX_RETRIES) {
+                    const delay = BASE_DELAY * Math.pow(2, attempt); // 1s, 2s, 4s
+                    console.warn(`Gemini API Busy (429/503). Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+            }
+            break;
         }
-        throw error;
     }
+
+    if (lastError?.message?.includes('429')) {
+        console.warn("Gemini API Rate Limit (429) hit. Max retries exceeded.");
+    } else {
+        console.error("Error generating content with Gemini:", lastError);
+    }
+    throw lastError;
 }

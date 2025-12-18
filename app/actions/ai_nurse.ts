@@ -3,6 +3,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateContent } from '@/lib/gemini';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -46,8 +47,6 @@ export async function startAiChat(sessionId: string) {
     }
 
     const initialMessage = `Hello, I'm the AI Nurse. I can see you're experiencing ${concernText}${symptomText}. I've reviewed your details. To help the doctor, could you tell me more about how this started?`;
-
-
 
     await supabase.from('ai_chat_messages').insert({
         chat_session_id: newChat.id,
@@ -95,27 +94,12 @@ export async function sendAiMessage(chatId: string, userMessage: string) {
     const isComplete = assistantMsgCount >= 10;
 
     // 3. Generate content with Gemini
-    // Using single-turn generation to avoid role ordering issues
-
-    // Check API Key
-    if (!process.env.GEMINI_API_KEY) {
-        console.error("GEMINI_API_KEY is missing");
-        return {
-            message: "System configuration error: AI service credentials missing.",
-            completed: false
-        };
-    }
-
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
         const obData = chatSession.onboarding_sessions;
 
         // Explicitly parse known data for the prompt
         const concern = obData.primary_concern || 'Unknown';
-        const symptoms = JSON.stringify(obData.symptoms || []); // Note: verify if 'symptoms' column is popluated or 'symptoms_selected'
-        // In v5 it's symptoms_selected (IDs). 'symptoms' column might be old text array?
-        // Let's rely on what's there but be safe.
+        const symptoms = JSON.stringify(obData.symptoms || []);
 
         const historySummary = `
         User has reported:
@@ -142,7 +126,6 @@ export async function sendAiMessage(chatId: string, userMessage: string) {
         ${isComplete ? "This is the final interaction. Thank the user, summarize key points, and ask them to proceed." : ""}
         `;
 
-        // Construct conversation transcript
         let transcript = `${instructions}\n\nExisting Conversation:\n`;
 
         history.forEach(m => {
@@ -152,8 +135,7 @@ export async function sendAiMessage(chatId: string, userMessage: string) {
 
         transcript += `\nNurse:`;
 
-        const result = await model.generateContent(transcript);
-        const responseText = result.response.text();
+        const responseText = await generateContent(transcript);
 
         // 4. Save assistant response
         await supabase.from('ai_chat_messages').insert({
