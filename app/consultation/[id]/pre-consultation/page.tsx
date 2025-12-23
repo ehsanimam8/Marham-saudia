@@ -65,15 +65,16 @@ function PreConsultationContent({ id }: { id: string }) {
 
         if (isSelected) {
             newSelected = selectedRecords.filter(id => id !== doc.id);
-            // Remove from uploaded_files if it was added from existing records
-            newUploadedFiles = newUploadedFiles.filter(f => f.url !== doc.document_url);
+            // Remove from uploaded_files using the unique originId we attach
+            newUploadedFiles = newUploadedFiles.filter(f => f.originId !== doc.id);
         } else {
             newSelected = [...selectedRecords, doc.id];
             // Add to uploaded_files
             newUploadedFiles.push({
                 name: doc.document_name || 'Medical Record',
                 url: doc.document_url,
-                type: 'document/existing' // Marker
+                type: 'document/existing', // Marker
+                originId: doc.id // Track origin ID for reliable removal
             });
         }
 
