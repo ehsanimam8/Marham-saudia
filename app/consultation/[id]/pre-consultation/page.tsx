@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { Loader2, Upload } from 'lucide-react';
 
 import { ConsultationLanguageProvider, useConsultationLanguage } from '@/app/consultation/LanguageProvider';
+import { saveMedicalDocument } from '@/app/actions/records';
 
 function PreConsultationContent({ id }: { id: string }) {
     const router = useRouter();
@@ -96,46 +97,21 @@ function PreConsultationContent({ id }: { id: string }) {
 
         try {
             setLoading(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('User not authenticated');
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('description', file.name);
 
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-            const filePath = `${user.id}/${fileName}`;
+            const result = await saveMedicalDocument(formData);
 
-            // 1. Upload to 'medical-records' bucket (Permanent Storage)
-            const { error: uploadError } = await supabase.storage
-                .from('medical-records')
-                .upload(filePath, file);
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('medical-records')
-                .getPublicUrl(filePath);
-
-            // 2. Insert into medical_documents table
-            const { data: newDoc, error: dbError } = await supabase
-                .from('medical_documents')
-                .insert({
-                    patient_id: user.id,
-                    document_name: file.name,
-                    document_url: publicUrl,
-                    document_type: file.type.includes('image') ? 'image' : 'report',
-                    uploaded_at: new Date().toISOString()
-                })
-                .select()
-                .single();
-
-            if (dbError) throw dbError;
+            if (!result.success || !result.record) throw new Error('Upload failed');
 
             // 3. Update State: Add to existing records and select it
             const newRecord = {
-                id: newDoc.id,
-                document_name: newDoc.document_name,
-                upload_date: newDoc.uploaded_at || newDoc.created_at || new Date().toISOString(),
-                document_url: newDoc.document_url,
-                source: 'medical_documents'
+                id: result.record.id,
+                document_name: result.record.name,
+                upload_date: result.record.date,
+                document_url: result.record.url,
+                source: result.record.source
             };
 
             setExistingRecords(prev => [newRecord, ...prev]);
