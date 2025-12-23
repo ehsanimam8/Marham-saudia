@@ -40,13 +40,17 @@ function PreConsultationContent({ id }: { id: string }) {
     useEffect(() => {
         const fetchRecords = async () => {
             const { data: { user } } = await supabase.auth.getUser();
+            console.log("Current User:", user?.id);
             if (!user) return;
 
-            const { data: docs } = await supabase
+            const { data: docs, error } = await supabase
                 .from('medical_documents')
                 .select('*')
                 .eq('patient_id', user.id)
                 .order('created_at', { ascending: false });
+
+            console.log("Fetched Docs:", docs);
+            if (error) console.error("Error fetching docs:", error);
 
             if (docs) setExistingRecords(docs);
             setLoadingRecords(false);
