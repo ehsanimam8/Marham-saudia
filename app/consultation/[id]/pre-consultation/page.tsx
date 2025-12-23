@@ -59,27 +59,35 @@ function PreConsultationContent({ id }: { id: string }) {
     }, []);
 
     const toggleRecordSelection = (doc: any) => {
-        const isSelected = selectedRecords.includes(doc.id);
-        let newSelected;
-        let newUploadedFiles = [...formData.uploaded_files];
+        // We use state setter to ensure we always work with latest state
+        setSelectedRecords(prevSelected => {
+            const isSelected = prevSelected.includes(doc.id);
+            if (isSelected) {
+                return prevSelected.filter(id => id !== doc.id);
+            } else {
+                return [...prevSelected, doc.id];
+            }
+        });
 
-        if (isSelected) {
-            newSelected = selectedRecords.filter(id => id !== doc.id);
-            // Remove from uploaded_files using the unique originId we attach
-            newUploadedFiles = newUploadedFiles.filter(f => f.originId !== doc.id);
-        } else {
-            newSelected = [...selectedRecords, doc.id];
-            // Add to uploaded_files
-            newUploadedFiles.push({
-                name: doc.document_name || 'Medical Record',
-                url: doc.document_url,
-                type: 'document/existing', // Marker
-                originId: doc.id // Track origin ID for reliable removal
-            });
-        }
+        // Also update the formData to match
+        setFormData(prev => {
+            let newUploadedFiles = [...prev.uploaded_files];
+            const exists = newUploadedFiles.find(f => f.originId === doc.id);
 
-        setSelectedRecords(newSelected);
-        setFormData(prev => ({ ...prev, uploaded_files: newUploadedFiles }));
+            if (exists) {
+                // Remove
+                newUploadedFiles = newUploadedFiles.filter(f => f.originId !== doc.id);
+            } else {
+                // Add
+                newUploadedFiles.push({
+                    name: doc.document_name || 'Medical Record',
+                    url: doc.document_url,
+                    type: 'document/existing',
+                    originId: doc.id
+                });
+            }
+            return { ...prev, uploaded_files: newUploadedFiles };
+        });
     };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
