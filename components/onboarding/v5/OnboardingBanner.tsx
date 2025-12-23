@@ -1,7 +1,14 @@
+"use client";
+
 import Link from 'next/link';
 import { Sparkles, Stethoscope, Activity } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function OnboardingBanner({ className = "" }: { className?: string }) {
+    useEffect(() => {
+        console.log("OnboardingBanner mounted");
+    }, []);
+
     return (
         <div className={`relative overflow-hidden group bg-teal-600 ${className}`}>
             {/* Background with Gradient and Glassmorphism */}
