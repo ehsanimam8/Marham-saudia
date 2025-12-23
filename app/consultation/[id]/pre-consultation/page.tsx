@@ -39,21 +39,21 @@ function PreConsultationContent({ id }: { id: string }) {
 
     useEffect(() => {
         const fetchRecords = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            console.log("Current User:", user?.id);
-            if (!user) return;
+            try {
+                const response = await fetch('/api/patient/documents');
+                if (!response.ok) throw new Error('Failed to fetch documents');
 
-            const { data: docs, error } = await supabase
-                .from('medical_documents')
-                .select('*')
-                .eq('patient_id', user.id)
-                .order('created_at', { ascending: false });
+                const data = await response.json();
+                console.log("Fetched Docs (API):", data.documents);
 
-            console.log("Fetched Docs:", docs);
-            if (error) console.error("Error fetching docs:", error);
-
-            if (docs) setExistingRecords(docs);
-            setLoadingRecords(false);
+                if (data.documents) {
+                    setExistingRecords(data.documents);
+                }
+            } catch (error) {
+                console.error("Error loading records:", error);
+            } finally {
+                setLoadingRecords(false);
+            }
         };
         fetchRecords();
     }, []);
