@@ -4,7 +4,7 @@ import DoctorFilters from '@/components/patient/doctors/DoctorFilters';
 import DoctorSearch from '@/components/patient/doctors/DoctorSearch';
 import Footer from '@/components/patient/home/Footer';
 import { Filter } from 'lucide-react';
-import StartOnboardingBanner from '@/components/onboarding/v5/StartOnboardingBanner';
+import HomeBanner from '@/components/onboarding/v5/HomeBanner';
 
 interface SearchParams {
     specialty?: string;
@@ -51,8 +51,8 @@ export default async function DoctorsPage({
             </div>
 
             {/* AI Onboarding Banner */}
-            <div className="container mx-auto px-4 -mt-4 mb-4 relative z-10">
-                <StartOnboardingBanner className="rounded-2xl shadow-sm" />
+            <div className="container mx-auto px-4 -mt-4 mb-4 relative z-10 hidden md:block">
+                <HomeBanner className="rounded-2xl shadow-sm bg-gradient-to-r from-teal-600 to-teal-500 py-6" />
             </div>
 
             {/* Main Content */}
