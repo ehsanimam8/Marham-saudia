@@ -13,9 +13,10 @@ export const dynamic = 'force-dynamic';
 export default function Home() {
   return (
     <main className="min-h-screen bg-white" suppressHydrationWarning>
+      <div className="bg-red-500 text-white text-xs p-1 text-center font-mono">v0.1.2 - DEBUG BANNER</div>
       <Hero />
-      <div className="container mx-auto px-4 mt-8 relative z-20 mb-12 min-h-[200px]">
-        <OnboardingBanner className="rounded-3xl shadow-2xl w-full" />
+      <div className="w-full bg-teal-600 my-8">
+        <OnboardingBanner className="rounded-3xl shadow-2xl w-full max-w-7xl mx-auto" />
       </div>
       <TrustIndicators />
       <HowItWorks />
