@@ -131,9 +131,15 @@ export async function getPatientRecords(): Promise<MedicalRecord[]> {
     }
 
     // 3. Normalize and Combine
+    const cleanName = (name: string, desc?: string) => {
+        if (desc && desc.trim().length > 0) return desc;
+        // Strip extension and replace underscores/dashes with spaces
+        return name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+    };
+
     const normalizedLegacy = legacyRecords.map((r: any) => ({
         id: r.id,
-        name: r.file_name || r.description || 'Legacy Record',
+        name: cleanName(r.file_name, r.description),
         type: r.record_type || 'report',
         date: r.record_date || r.created_at,
         url: null, // Needs signing
@@ -144,7 +150,7 @@ export async function getPatientRecords(): Promise<MedicalRecord[]> {
 
     const normalizedNew = newDocs.map((d: any) => ({
         id: d.id,
-        name: d.document_name || 'Medical Document',
+        name: cleanName(d.document_name || 'Medical Document'),
         type: d.document_type || 'report',
         date: d.uploaded_at || d.created_at,
         url: d.document_url, // Usually public
