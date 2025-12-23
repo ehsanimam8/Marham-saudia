@@ -2,38 +2,48 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 
-export async function uploadMedicalRecord(formData: FormData) {
+// Unified type for returned records
+export interface MedicalRecord {
+    id: string;
+    name: string;
+    type: string;
+    date: string;
+    url: string | null;
+    filePath: string | null;
+    bucket: string;
+    source: 'dashboard' | 'chat' | 'medical_documents';
+}
+
+/**
+ * Unified function to upload a file and save it as a medical document.
+ * This should be used by Dashboard, Pre-Consultation, and Chat flows.
+ */
+export async function saveMedicalDocument(formData: FormData) {
     const supabase = await createClient();
 
-    // Auth Check
+    // 1. Auth Check
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Unauthorized");
 
-    // Get Patient ID
-    const { data: patient } = await (supabase
-        .from('patients') as any)
-        .select('id')
-        .eq('profile_id', user.id)
-        .single();
-
-    if (!patient) throw new Error("Patient profile not found");
-
     const file = formData.get('file') as File;
-    const recordType = formData.get('recordType') as string;
     const description = formData.get('description') as string;
-    const recordDate = formData.get('recordDate') as string;
+    // Optional metadata
+    const recordType = (formData.get('recordType') as string) || 'report';
+    const bucketName = 'medical-records'; // Standardize on this bucket
 
     if (!file) throw new Error("No file uploaded");
 
-    // 1. Upload File to Supabase Storage
-    // Structure: {user_id}/{timestamp}_{filename}
+    // 2. Upload File to Supabase Storage
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
     const filePath = `${user.id}/${fileName}`;
 
+    // Use Admin Client if needed for RLS bypass or robust upload, strictly speaking service role shouldn't be needed for own files 
+    // if Policies are correct. But let's use standard client first.
     const { error: uploadError } = await supabase.storage
-        .from('patient_records')
+        .from(bucketName)
         .upload(filePath, file);
 
     if (uploadError) {
@@ -41,18 +51,23 @@ export async function uploadMedicalRecord(formData: FormData) {
         throw new Error("Failed to upload file");
     }
 
-    // 2. Insert Record into DB
-    const { error: dbError } = await (supabase
-        .from('patient_records') as any)
+    const { data: { publicUrl } } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+
+    // 3. Insert Record into Unified 'medical_documents' DB
+    // We use user.id directly as patient_id now (Unified approach)
+    const { data: newDoc, error: dbError } = await (supabase
+        .from('medical_documents') as any)
         .insert({
-            patient_id: patient.id,
-            record_type: recordType, // prescription, lab_result, etc.
-            file_path: filePath,
-            file_name: file.name,
-            description: description,
-            record_date: recordDate || new Date().toISOString(),
-            ai_status: 'pending' // Default for future AI feature
-        });
+            patient_id: user.id,
+            document_name: description || file.name,
+            document_url: publicUrl,
+            document_type: file.type.includes('image') ? 'image' : 'report',
+            uploaded_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
     if (dbError) {
         console.error('DB error:', dbError);
@@ -60,91 +75,98 @@ export async function uploadMedicalRecord(formData: FormData) {
     }
 
     revalidatePath('/dashboard/records');
-    return { success: true };
+
+    // Return normalized record
+    return {
+        success: true,
+        record: {
+            id: newDoc.id,
+            name: newDoc.document_name,
+            type: newDoc.document_type,
+            date: newDoc.uploaded_at,
+            url: newDoc.document_url,
+            filePath: null, // It's public usually in this bucket
+            bucket: bucketName,
+            source: 'medical_documents'
+        }
+    };
 }
 
-// ... existing imports
+/**
+ * Deprecated wrapper for legacy dashboard calls if any.
+ * Redirects to new logic but adapts arguments if needed.
+ */
+export async function uploadMedicalRecord(formData: FormData) {
+    return saveMedicalDocument(formData);
+}
 
-export async function getPatientRecords() {
+/**
+ * Centralized fetcher for all medical records.
+ * Merges legacy 'patient_records' with new 'medical_documents'.
+ */
+export async function getPatientRecords(): Promise<MedicalRecord[]> {
     const supabase = await createClient();
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    const { data: patient } = await (supabase
-        .from('patients') as any)
-        .select('id')
-        .eq('profile_id', user.id)
-        .single();
-
-    if (!patient) return [];
-
-    // 1. Fetch from 'patient_records' (Dashboard uploads - uses table ID)
-    const { data: manualRecords, error: rError } = await (supabase
-        .from('patient_records') as any)
-        .select('*')
-        .eq('patient_id', patient.id);
-
-    // 2. Fetch from 'medical_documents' (Chat/Pre-consult - uses auth ID)
-    const { data: chatDocs, error: dError } = await (supabase
-        .from('medical_documents') as any)
-        .select('*')
-        // Try linking via both IDs to be safe, or just user.id as per recent convention.
-        // Recent convention is user.id.
-        .eq('patient_id', user.id);
-
-    // Log errors but don't fail completeflow
-    if (rError) console.error("Error fetching patient_records", rError);
-    if (dError) console.error("Error fetching medical_documents", dError);
-
-    const records1 = manualRecords || [];
-    const docs2 = chatDocs || [];
-
-    // Normalize and Combine
-    // We want a uniform shape for the frontend
-    const combined = [
-        ...records1.map((r: any) => ({
-            id: r.id,
-            name: r.file_name || 'Medical Record',
-            type: r.record_type || 'report',
-            date: r.record_date || r.created_at,
-            url: null, // to be signed
-            filePath: r.file_path,
-            bucket: 'patient_records',
-            source: 'dashboard'
-        })),
-        ...docs2.map((d: any) => {
-            const rawUrl = d.document_url || d.file_url;
-            const isUrl = rawUrl && (rawUrl.startsWith('http') || rawUrl.startsWith('https'));
-            return {
-                id: d.id,
-                name: d.document_name || d.file_name || 'Consultation Document',
-                type: d.document_type || 'report',
-                date: d.uploaded_at || d.created_at,
-                url: isUrl ? rawUrl : null,
-                filePath: isUrl ? null : rawUrl,
-                bucket: 'medical-records',
-                source: 'chat'
-            };
-        })
-    ];
-
-    // Sort by date desc
-    combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    // Generate signed URLs for private bucket items
-    const finalRecords = await Promise.all(combined.map(async (record) => {
-        let finalUrl = record.url;
-        if (record.filePath && record.bucket) {
-            const { data: signed } = await supabase.storage
-                .from(record.bucket)
-                .createSignedUrl(record.filePath, 3600);
-            if (signed?.signedUrl) {
-                finalUrl = signed.signedUrl;
-            }
+    // 1. Fetch Legacy 'patient_records' (requires patient ID lookup)
+    let legacyRecords: any[] = [];
+    try {
+        const { data: patient } = await (supabase.from('patients') as any).select('id').eq('profile_id', user.id).single();
+        if (patient) {
+            const { data: recs } = await (supabase.from('patient_records') as any).select('*').eq('patient_id', patient.id);
+            if (recs) legacyRecords = recs;
         }
-        return { ...record, signedUrl: finalUrl, url: finalUrl };
+    } catch (e) {
+        console.error("Legacy fetch error", e);
+    }
+
+    // 2. Fetch Unified 'medical_documents' (direct user.id)
+    let newDocs: any[] = [];
+    try {
+        const { data: docs } = await (supabase.from('medical_documents') as any).select('*').eq('patient_id', user.id);
+        if (docs) newDocs = docs;
+    } catch (e) {
+        console.error("Medical docs fetch error", e);
+    }
+
+    // 3. Normalize and Combine
+    const normalizedLegacy = legacyRecords.map((r: any) => ({
+        id: r.id,
+        name: r.file_name || r.description || 'Legacy Record',
+        type: r.record_type || 'report',
+        date: r.record_date || r.created_at,
+        url: null, // Needs signing
+        filePath: r.file_path,
+        bucket: 'patient_records',
+        source: 'dashboard' as const
     }));
 
-    return finalRecords;
+    const normalizedNew = newDocs.map((d: any) => ({
+        id: d.id,
+        name: d.document_name || 'Medical Document',
+        type: d.document_type || 'report',
+        date: d.uploaded_at || d.created_at,
+        url: d.document_url, // Usually public
+        filePath: null,
+        bucket: 'medical-records',
+        source: 'medical_documents' as const
+    }));
+
+    // 4. Sign URLs for legacy private items
+    const legacyWithUrls = await Promise.all(normalizedLegacy.map(async (rec) => {
+        if (rec.bucket && rec.filePath) {
+            try {
+                const { data } = await supabase.storage.from(rec.bucket).createSignedUrl(rec.filePath, 3600);
+                if (data?.signedUrl) return { ...rec, url: data.signedUrl };
+            } catch (e) { return rec; }
+        }
+        return rec;
+    }));
+
+    const allRecords = [...legacyWithUrls, ...normalizedNew].sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    return allRecords;
 }
