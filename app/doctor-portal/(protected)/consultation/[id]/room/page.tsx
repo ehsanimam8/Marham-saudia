@@ -36,6 +36,7 @@ export default function DoctorRoomPage({ params }: { params: Promise<{ id: strin
     const [userId, setUserId] = useState<string | null>(null);
     const [unreadChatCount, setUnreadChatCount] = useState(0);
 
+    // Initial Room Join (Run once)
     useEffect(() => {
         // Get user ID
         supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null));
@@ -63,9 +64,14 @@ export default function DoctorRoomPage({ params }: { params: Promise<{ id: strin
                 setLoading(false);
             }
         };
-        joinRoom();
 
-        // Chat subscription for unread count
+        if (!token) {
+            joinRoom();
+        }
+    }, [id]); // Removed activeTab dependency
+
+    // Chat Subscription (Runs when tab changes to manage notifications)
+    useEffect(() => {
         const chatChannel = supabase
             .channel(`chat_unread_${id}`)
             .on('postgres_changes', {
