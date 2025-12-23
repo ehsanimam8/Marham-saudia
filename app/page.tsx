@@ -8,6 +8,8 @@ import WhyMarham from '@/components/patient/home/WhyMarham';
 import Footer from '@/components/patient/home/Footer';
 import OnboardingBanner from '@/components/onboarding/v5/OnboardingBanner';
 
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white" suppressHydrationWarning>

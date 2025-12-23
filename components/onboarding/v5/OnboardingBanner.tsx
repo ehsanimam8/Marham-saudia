@@ -14,7 +14,7 @@ export default function OnboardingBanner({ className = "" }: { className?: strin
             {/* Pattern Overlay */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
 
-            <div className="relative container mx-auto px-6 py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="relative w-full max-w-7xl mx-auto px-6 py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
 
                 {/* Text Section */}
                 <div className="flex-1 text-center md:text-right z-10">
@@ -35,7 +35,7 @@ export default function OnboardingBanner({ className = "" }: { className?: strin
                     <Link href="/onboarding/v5" className="relative group/btn inline-block z-30">
                         <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl blur opacity-25 group-hover/btn:opacity-75 transition duration-200 z-0"></div>
                         <div className="relative px-8 py-4 bg-white rounded-xl leading-none flex items-center gap-3 text-teal-700 font-bold hover:text-teal-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer z-10">
-                            <span>ابدأ الفحص المجاني</span>
+                            <span>ابدأ الفحص المجاني الآن</span>
                             <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center group-hover/btn:bg-teal-100 transition-colors">
                                 <Stethoscope className="w-4 h-4" />
                             </div>
