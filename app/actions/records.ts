@@ -79,17 +79,19 @@ export async function getPatientRecords() {
 
     if (!patient) return [];
 
-    // 1. Fetch from 'patient_records' (Dashboard uploads)
+    // 1. Fetch from 'patient_records' (Dashboard uploads - uses table ID)
     const { data: manualRecords, error: rError } = await (supabase
         .from('patient_records') as any)
         .select('*')
         .eq('patient_id', patient.id);
 
-    // 2. Fetch from 'medical_documents' (Chat uploads / Onboarding uploads)
+    // 2. Fetch from 'medical_documents' (Chat/Pre-consult - uses auth ID)
     const { data: chatDocs, error: dError } = await (supabase
         .from('medical_documents') as any)
         .select('*')
-        .eq('patient_id', patient.id);
+        // Try linking via both IDs to be safe, or just user.id as per recent convention.
+        // Recent convention is user.id.
+        .eq('patient_id', user.id);
 
     // Log errors but don't fail completeflow
     if (rError) console.error("Error fetching patient_records", rError);
