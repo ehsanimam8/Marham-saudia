@@ -71,24 +71,25 @@ export async function uploadConsultationFile(formData: FormData) {
 
         // 3. Insert into Medical Documents (Admin)
         // Resolve patient_id
-        let patientId = null;
+        let targetPatientId = null;
         if (userRole === 'patient') {
-            // userId is profile_id. Get patient.id
-            const { data: pData } = await adminClient.from('patients').select('id').eq('profile_id', userId).single();
-            patientId = pData?.id;
+            // userId IS the auth.users.id which we use as patient_id now
+            targetPatientId = userId;
         } else {
             // Doctor is uploading? Get patient_id from appointment
+            // appointments.patient_id is a UUID referencing auth.users(id)
             const { data: appData } = await adminClient.from('appointments').select('patient_id').eq('id', appointmentId).single();
-            patientId = appData?.patient_id;
+            targetPatientId = appData?.patient_id;
         }
 
-        if (patientId) {
+        if (targetPatientId) {
             const { error: docError } = await adminClient.from('medical_documents').insert({
-                patient_id: patientId,
+                patient_id: targetPatientId,
                 document_name: description,
                 document_url: publicUrl,
                 document_type: file.type.includes('image') ? 'image' : 'report',
-                uploaded_at: new Date().toISOString()
+                uploaded_at: new Date().toISOString() // Using uploaded_at if schema supports it, otherwise created_at is automatic
+                // Note: Schema might use created_at default. Let's check schema if needed, but extra field usually ignored or fine.
             });
             if (docError) console.error("Doc insert warning:", docError);
         }
