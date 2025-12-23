@@ -42,23 +42,13 @@ function PreConsultationContent({ id }: { id: string }) {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            // Get patient profile first to ensure we match correctly? 
-            // Or usually medical_documents are linked to user_id or patient_id.
-            // Let's assume user_id or profile_id reference.
-            // Checking logical assumption: medical_documents usually has patient_id or user_id.
-            // Let's try fetching by patient_id linked to auth user.
+            const { data: docs } = await supabase
+                .from('medical_documents')
+                .select('*')
+                .eq('patient_id', user.id)
+                .order('created_at', { ascending: false });
 
-            const { data: patient } = await supabase.from('patients').select('id').eq('profile_id', user.id).single();
-
-            if (patient) {
-                const { data: docs } = await supabase
-                    .from('medical_documents')
-                    .select('*')
-                    .eq('patient_id', patient.id)
-                    .order('created_at', { ascending: false });
-
-                if (docs) setExistingRecords(docs);
-            }
+            if (docs) setExistingRecords(docs);
             setLoadingRecords(false);
         };
         fetchRecords();
