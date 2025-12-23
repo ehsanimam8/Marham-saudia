@@ -71,21 +71,18 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
                         </span>
                     </div>
                     <div className="flex gap-2">
-                        <Button
-                            asChild
-                            variant="outline"
-                            size="sm"
-                            className="text-xs"
+                        <Link
+                            href={`/doctors/${doctor.id}`}
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 py-2"
                         >
-                            <Link href={`/doctors/${doctor.id}`}>
-                                الملف الكامل
-                            </Link>
-                        </Button>
-                        <Button asChild size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
-                            <Link href={`/book/${doctor.id}`}>
-                                احجزي الآن
-                            </Link>
-                        </Button>
+                            الملف الكامل
+                        </Link>
+                        <Link
+                            href={`/book/${doctor.id}`}
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium bg-teal-600 text-white hover:bg-teal-700 h-8 px-3 py-2 shadow-sm"
+                        >
+                            احجزي الآن
+                        </Link>
                     </div>
                 </div>
             </div>
