@@ -33,10 +33,10 @@ export default function StartOnboardingBanner({ className = "" }: { className?: 
                 </div>
 
                 {/* Interactive Action Section */}
-                <div className="flex-shrink-0 z-10 flex flex-col items-center md:items-end gap-3">
-                    <Link href="/onboarding/v5" className="relative group/btn inline-block">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl blur opacity-25 group-hover/btn:opacity-75 transition duration-200"></div>
-                        <div className="relative px-8 py-4 bg-white rounded-xl leading-none flex items-center gap-3 text-teal-700 font-bold hover:text-teal-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer">
+                <div className="flex-shrink-0 z-20 flex flex-col items-center md:items-end gap-3 relative">
+                    <Link href="/onboarding/v5" className="relative group/btn inline-block z-30">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl blur opacity-25 group-hover/btn:opacity-75 transition duration-200 z-0"></div>
+                        <div className="relative px-8 py-4 bg-white rounded-xl leading-none flex items-center gap-3 text-teal-700 font-bold hover:text-teal-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 cursor-pointer z-10">
                             <span>ابدأ الفحص المجاني</span>
                             <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center group-hover/btn:bg-teal-100 transition-colors">
                                 <Stethoscope className="w-4 h-4" />
@@ -54,7 +54,7 @@ export default function StartOnboardingBanner({ className = "" }: { className?: 
                 </div>
 
                 {/* Floating Icon Decoration (Hidden on mobile) */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden lg:block opacity-10 pointer-events-none">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden lg:block opacity-10 pointer-events-none z-0">
                     <Stethoscope className="w-64 h-64 text-white rotate-12" />
                 </div>
             </div>
