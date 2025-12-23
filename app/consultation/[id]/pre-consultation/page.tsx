@@ -221,29 +221,40 @@ function PreConsultationContent({ id }: { id: string }) {
                             </div>
 
                             {/* Existing Medical Records Selection */}
-                            {existingRecords.length > 0 && (
-                                <div className="space-y-3 pt-4 border-t">
-                                    <Label className="text-base font-semibold text-gray-800">Share from Medical Records</Label>
-                                    <p className="text-sm text-gray-500">Select previously uploaded files to share with the doctor.</p>
-                                    <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2 bg-gray-50 rounded-lg">
-                                        {existingRecords.map((doc) => (
-                                            <div key={doc.id} className="flex items-start gap-2 p-2 bg-white border rounded shadow-sm hover:border-blue-300">
-                                                <input
-                                                    type="checkbox"
-                                                    id={`doc-${doc.id}`}
-                                                    checked={selectedRecords.includes(doc.id)}
-                                                    onChange={() => toggleRecordSelection(doc)}
-                                                    className="mt-1"
-                                                />
-                                                <label htmlFor={`doc-${doc.id}`} className="text-sm cursor-pointer flex-1">
-                                                    <span className="font-medium truncate block">{doc.document_name}</span>
-                                                    <span className="text-xs text-gray-400 block">{doc.date || 'No date'}</span>
-                                                </label>
-                                            </div>
-                                        ))}
+                            <div className="space-y-3 pt-4 border-t">
+                                <Label className="text-base font-semibold text-gray-800">Share from Medical Records</Label>
+                                {loadingRecords ? (
+                                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                        Checking for existing records...
                                     </div>
-                                </div>
-                            )}
+                                ) : existingRecords.length > 0 ? (
+                                    <>
+                                        <p className="text-sm text-gray-500">Select previously uploaded files to share with the doctor.</p>
+                                        <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto p-2 bg-gray-50 rounded-lg">
+                                            {existingRecords.map((doc) => (
+                                                <div key={doc.id} className="flex items-start gap-2 p-2 bg-white border rounded shadow-sm hover:border-blue-300">
+                                                    <input
+                                                        type="checkbox"
+                                                        id={`doc-${doc.id}`}
+                                                        checked={selectedRecords.includes(doc.id)}
+                                                        onChange={() => toggleRecordSelection(doc)}
+                                                        className="mt-1"
+                                                    />
+                                                    <label htmlFor={`doc-${doc.id}`} className="text-sm cursor-pointer flex-1">
+                                                        <span className="font-medium truncate block">{doc.document_name}</span>
+                                                        <span className="text-xs text-gray-400 block">{doc.upload_date ? new Date(doc.upload_date).toLocaleDateString() : 'No date'}</span>
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="text-sm text-gray-400 italic bg-gray-50 p-3 rounded">
+                                        No previous medical documents found for this account.
+                                    </p>
+                                )}
+                            </div>
 
                             <div className="space-y-2 pt-4 border-t">
                                 <Label>{t.upload}</Label>
