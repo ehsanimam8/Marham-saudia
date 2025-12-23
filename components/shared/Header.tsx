@@ -41,8 +41,8 @@ export default function Header() {
         return () => subscription.unsubscribe();
     }, [pathname]);
 
-    // Hide Header on Admin and Doctor Pages
-    if (pathname?.startsWith('/admin') || pathname?.startsWith('/doctor-portal')) return null;
+    // Hide Header on Admin, Doctor, and Dashboard Pages
+    if (pathname?.startsWith('/admin') || pathname?.startsWith('/doctor-portal') || pathname?.startsWith('/dashboard')) return null;
 
 
 
@@ -55,7 +55,7 @@ export default function Header() {
     ];
 
     return (
-        <header className="bg-white border-b border-gray-100 sticky top-0 z-50 notranslate" translate="no">
+        <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
             <nav className="container mx-auto px-4">
                 <div className="flex items-center justify-between py-3">
                     {/* Logo */}

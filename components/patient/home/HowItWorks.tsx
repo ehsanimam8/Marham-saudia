@@ -4,20 +4,17 @@ const steps = [
     {
         icon: Search,
         title: "1. اختاري طبيبتك",
-        description: "تصفحي قائمة الطبيبات حسب التخصص والتقييم",
-        subtitle: "Choose your doctor"
+        description: "تصفحي قائمة الطبيبات حسب التخصص والتقييم"
     },
     {
         icon: Calendar,
         title: "2. احجزي موعدك",
-        description: "اختاري الوقت المناسب وادفعي بأمان",
-        subtitle: "Book appointment"
+        description: "اختاري الوقت المناسب وادفعي بأمان"
     },
     {
         icon: Video,
         title: "3. استشيري من منزلك",
-        description: "تحدثي مع الطبيبة عبر مكالمة فيديو خاصة",
-        subtitle: "Consult from home"
+        description: "تحدثي مع الطبيبة عبر مكالمة فيديو خاصة"
     }
 ];
 
@@ -41,7 +38,6 @@ export default function HowItWorks() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
                             <p className="text-gray-600 mb-1">{step.description}</p>
-                            <p className="text-sm text-gray-400 font-sans">{step.subtitle}</p>
                         </div>
                     ))}
                 </div>

@@ -158,20 +158,20 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
     });
 
     return (
-        <div className="w-full max-w-md mx-auto flex flex-col min-h-[80vh]">
+        <div className="w-full max-w-md mx-auto flex flex-col min-h-[80vh]" dir="rtl">
             <ProgressBar currentStep={4} totalSteps={6} className="mb-8" />
 
-            <button onClick={handleBack} className="text-slate-400 hover:text-slate-600 mb-4 flex items-center gap-1 group">
-                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                Back
+            <button onClick={handleBack} className="text-slate-400 hover:text-slate-600 mb-4 flex items-center gap-1 group font-arabic">
+                <ChevronLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform rotate-180" />
+                رجوع
             </button>
 
             <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-6 text-slate-900 leading-tight">
-                    {currentQuestion.question_en}
+                <h1 className="text-2xl font-bold mb-6 text-slate-900 leading-tight font-arabic">
+                    {currentQuestion.question_ar || currentQuestion.question_en}
                 </h1>
 
-                <div className="space-y-4">
+                <div className="space-y-4 font-arabic">
                     {(questionType === 'boolean' || questionType === 'yes_no') && (
                         <RadioGroup
                             value={answers[currentQuestion.id]}
@@ -179,18 +179,18 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                             className="space-y-3"
                         >
                             <div className={cn(
-                                "flex items-center space-x-3 border-2 rounded-xl p-4 cursor-pointer transition-all",
+                                "flex items-center space-x-3 space-x-reverse border-2 rounded-xl p-4 cursor-pointer transition-all",
                                 answers[currentQuestion.id] === 'yes' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
                             )}>
                                 <RadioGroupItem value="yes" id="yes" />
-                                <Label htmlFor="yes" className="flex-1 cursor-pointer font-medium">Yes</Label>
+                                <Label htmlFor="yes" className="flex-1 cursor-pointer font-medium text-right mr-3">نعم</Label>
                             </div>
                             <div className={cn(
-                                "flex items-center space-x-3 border-2 rounded-xl p-4 cursor-pointer transition-all",
+                                "flex items-center space-x-3 space-x-reverse border-2 rounded-xl p-4 cursor-pointer transition-all",
                                 answers[currentQuestion.id] === 'no' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
                             )}>
                                 <RadioGroupItem value="no" id="no" />
-                                <Label htmlFor="no" className="flex-1 cursor-pointer font-medium">No</Label>
+                                <Label htmlFor="no" className="flex-1 cursor-pointer font-medium text-right mr-3">لا</Label>
                             </div>
                         </RadioGroup>
                     )}
@@ -201,17 +201,23 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                             onValueChange={handleAnswer}
                             className="space-y-3"
                         >
-                            {normalizedOptions.map((opt: any) => (
-                                <div key={opt.value} className={cn(
-                                    "flex items-center space-x-3 border-2 rounded-xl p-4 cursor-pointer transition-all",
-                                    answers[currentQuestion.id] === opt.value ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
-                                )}>
-                                    <RadioGroupItem value={opt.value} id={opt.value} />
-                                    <Label htmlFor={opt.value} className="flex-1 cursor-pointer font-medium">
-                                        {opt.label}
-                                    </Label>
-                                </div>
-                            ))}
+                            {normalizedOptions.map((opt: any) => {
+                                // Try to find Arabic label in the original option object
+                                const originalOpt = rawOptions.find((ro: any) => (typeof ro === 'string' ? ro === opt.value : ro.value === opt.value));
+                                const labelAr = originalOpt?.label_ar || originalOpt?.value || opt.label;
+
+                                return (
+                                    <div key={opt.value} className={cn(
+                                        "flex items-center space-x-3 space-x-reverse border-2 rounded-xl p-4 cursor-pointer transition-all",
+                                        answers[currentQuestion.id] === opt.value ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
+                                    )}>
+                                        <RadioGroupItem value={opt.value} id={opt.value} />
+                                        <Label htmlFor={opt.value} className="flex-1 cursor-pointer font-medium text-right mr-3">
+                                            {labelAr}
+                                        </Label>
+                                    </div>
+                                );
+                            })}
                         </RadioGroup>
                     )}
                 </div>
@@ -221,13 +227,13 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                 <Button
                     onClick={handleNext}
                     disabled={submitting || !answers[currentQuestion.id]}
-                    className="w-full h-12 text-lg"
+                    className="w-full h-12 text-lg font-arabic"
                 >
-                    {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLastQuestion ? 'Complete' : 'Next Question'}
+                    {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                    {submitting ? 'جاري التحميل...' : (isLastQuestion ? 'إكمال' : 'السؤال التالي')}
                 </Button>
 
-                <FeedbackSheet sessionId={sessionId} stepName={`Question: ${currentQuestion.question_en}`} />
+                <FeedbackSheet sessionId={sessionId} stepName={`سؤال: ${currentQuestion.question_ar || currentQuestion.question_en}`} />
             </div>
         </div>
     );

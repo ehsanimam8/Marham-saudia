@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Stethoscope, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Stethoscope, AlertCircle, ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 function DoctorLoginForm() {
     const router = useRouter();
@@ -19,11 +19,10 @@ function DoctorLoginForm() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Check for URL params errors
-    // Need to wrap in useEffect to avoid hydration mismatch if searchParams change? 
-    // Actually searchParams is available on client.
     useEffect(() => {
         const urlError = searchParams.get('error');
         if (urlError === 'not_a_doctor') {
@@ -68,9 +67,6 @@ function DoctorLoginForm() {
                 await supabase.auth.signOut();
 
                 if (profile.role === 'patient') {
-                    // Setting error state with JSX element (React Node) isn't standard for simple state usually typed as string. 
-                    // But I typed it string | null.
-                    // I will throw an error message string for simplicity or update type.
                     throw new Error('هذا حساب مريضة. يرجى استخدام بوابة المرضى.');
                 } else {
                     throw new Error('هذا الحساب غير مصرح له بالدخول إلى بوابة الأطباء');
@@ -90,7 +86,8 @@ function DoctorLoginForm() {
                 throw new Error('لم يتم العثور على سجل طبيبة. يرجى التواصل مع الدعم.');
             }
 
-            // All checks passed - redirect (layout will handle pending/rejected status)
+            // All checks passed - redirect
+            setIsRedirecting(true);
             // Force a hard navigation to clear any DOM issues from extensions
             window.location.href = '/doctor-portal';
 
@@ -109,17 +106,17 @@ function DoctorLoginForm() {
                 <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
                     <Stethoscope className="w-6 h-6 text-teal-600" />
                 </div>
-                <div>
+                <div className="font-arabic">
                     <h1 className="text-2xl font-bold text-gray-900">مرهم Marham</h1>
                     <p className="text-sm text-gray-600">بوابة الأطباء</p>
                 </div>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-8 font-arabic">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">تسجيل الدخول</h2>
                 <p className="text-gray-600">
                     ليس لديك حساب؟{' '}
-                    <Link href="/doctor-portal/register" className="text-teal-600 hover:text-teal-700 font-medium">
+                    <Link href="/doctor-portal/register" className="text-teal-600 hover:text-teal-700 font-medium font-arabic">
                         سجلي الآن
                     </Link>
                 </p>
@@ -128,12 +125,12 @@ function DoctorLoginForm() {
             {error && (
                 <Alert variant="destructive" className="mb-6">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription className="font-arabic">{error}</AlertDescription>
                 </Alert>
             )}
 
             <form onSubmit={handleLogin} className="space-y-6">
-                <div className="space-y-2">
+                <div className="space-y-2 font-arabic">
                     <Label htmlFor="email">البريد الإلكتروني</Label>
                     <Input
                         id="email"
@@ -143,12 +140,12 @@ function DoctorLoginForm() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         dir="ltr"
-                        className="text-left"
+                        className="text-left font-sans"
                         autoComplete="email"
                     />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 font-arabic">
                     <div className="flex items-center justify-between">
                         <Label htmlFor="password">كلمة المرور</Label>
                         <Link
@@ -166,7 +163,7 @@ function DoctorLoginForm() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             dir="ltr"
-                            className="text-left pr-10"
+                            className="text-left pr-10 font-sans"
                             autoComplete="current-password"
                         />
                         <button
@@ -181,18 +178,15 @@ function DoctorLoginForm() {
 
                 <Button
                     type="submit"
-                    className="w-full bg-teal-600 hover:bg-teal-700"
+                    className="w-full bg-teal-600 hover:bg-teal-700 font-arabic"
                     size="lg"
-                    disabled={loading}
+                    disabled={loading || isRedirecting}
                     suppressHydrationWarning
                 >
-                    {loading ? (
+                    {loading || isRedirecting ? (
                         <span className="flex items-center gap-2">
-                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>جاري تسجيل الدخول...</span>
+                            <Loader2 className="animate-spin h-4 w-4" />
+                            <span>{isRedirecting ? 'جاري التحميل...' : 'جاري تسجيل الدخول...'}</span>
                         </span>
                     ) : (
                         <span className="flex items-center">
@@ -232,7 +226,7 @@ export default function DoctorLoginPage() {
         <div className="min-h-screen flex" dir="rtl">
             {/* Left Side - Form */}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<div>جاري التحميل...</div>}>
                     <DoctorLoginForm />
                 </Suspense>
             </div>

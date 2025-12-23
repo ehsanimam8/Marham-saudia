@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Shield, Lock, AlertCircle } from 'lucide-react';
+import { Shield, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
 function AdminLoginForm() {
     const router = useRouter();
@@ -15,6 +15,7 @@ function AdminLoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const urlError = searchParams.get('error');
@@ -51,6 +52,7 @@ function AdminLoginForm() {
                 throw new Error('غير مصرح لك بالدخول إلى لوحة التحكم');
             }
 
+            setIsRedirecting(true);
             router.push('/admin/dashboard');
             router.refresh();
 
@@ -68,7 +70,7 @@ function AdminLoginForm() {
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 text-purple-600">
                     <Shield className="w-8 h-8" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900">مشرف النظام</h1>
+                <h1 className="text-2xl font-bold text-gray-900 font-arabic">مشرف النظام</h1>
                 <p className="text-sm text-gray-500 mt-1">تسجيل الدخول للوحة التحكم</p>
             </div>
 
@@ -100,7 +102,7 @@ function AdminLoginForm() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="text-left"
+                            className="text-left font-sans"
                             dir="ltr"
                         />
                         <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
@@ -109,10 +111,15 @@ function AdminLoginForm() {
 
                 <Button
                     type="submit"
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    disabled={loading}
+                    className="w-full bg-purple-600 hover:bg-purple-700 font-arabic"
+                    disabled={loading || isRedirecting}
                 >
-                    {loading ? 'جاري الدخول...' : 'تسجيل الدخول'}
+                    {loading || isRedirecting ? (
+                        <>
+                            <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                            {isRedirecting ? 'جاري التحميل...' : 'جاري الدخول...'}
+                        </>
+                    ) : 'تسجيل الدخول'}
                 </Button>
             </form>
         </div>
@@ -122,7 +129,7 @@ function AdminLoginForm() {
 export default function AdminLoginPage() {
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>جاري التحميل...</div>}>
                 <AdminLoginForm />
             </Suspense>
         </div>

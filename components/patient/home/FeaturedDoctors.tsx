@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import type { Doctor } from '@/lib/api/doctors';
+import { translateSpecialty, translateHospital } from '@/lib/translations';
 
 async function getFeaturedDoctors(): Promise<Doctor[]> {
     const supabase = await createClient();
@@ -74,11 +75,11 @@ export default async function FeaturedDoctors() {
 
                             <div className="p-5">
                                 <h3 className="font-bold text-lg text-gray-900 mb-1">{doctor.profiles.full_name_ar}</h3>
-                                <p className="text-teal-600 text-sm font-medium mb-2">{doctor.specialty}</p>
+                                <p className="text-teal-600 text-sm font-medium mb-2">{translateSpecialty(doctor.specialty)}</p>
 
                                 <div className="flex items-center gap-1 text-gray-500 text-xs mb-4">
                                     <MapPin className="w-3 h-3" />
-                                    {doctor.hospital}
+                                    {translateHospital(doctor.hospital)}
                                 </div>
 
                                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login, signup } from '../actions';
 import { Button } from '@/components/ui/button';
@@ -13,10 +13,12 @@ export default function AuthForms({ next }: { next?: string }) {
     const router = useRouter();
     const [loginState, loginAction, isLoginPending] = useActionState(login, null);
     const [signupState, signupAction, isSignupPending] = useActionState(signup, null);
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     // Handle successful login redirect
     useEffect(() => {
         if (loginState?.success) {
+            setIsRedirecting(true);
             router.push(loginState.redirectTo || '/dashboard');
             router.refresh();
         }
@@ -25,6 +27,7 @@ export default function AuthForms({ next }: { next?: string }) {
     // Handle successful signup redirect
     useEffect(() => {
         if (signupState?.success) {
+            setIsRedirecting(true);
             router.push(signupState.redirectTo || '/dashboard');
             router.refresh();
         }
@@ -75,11 +78,11 @@ export default function AuthForms({ next }: { next?: string }) {
                         <Input id="password-login" name="password" type="password" required className="text-left" dir="ltr" />
                     </div>
 
-                    <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isLoginPending}>
-                        {isLoginPending ? (
+                    <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isLoginPending || isRedirecting}>
+                        {isLoginPending || isRedirecting ? (
                             <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                جاري تسجيل الدخول...
+                                {isRedirecting ? 'جاري التحميل...' : 'جاري تسجيل الدخول...'}
                             </>
                         ) : (
                             'تسجيل الدخول'
@@ -112,11 +115,11 @@ export default function AuthForms({ next }: { next?: string }) {
                         <Input id="password-signup" name="password" type="password" required className="text-left" dir="ltr" minLength={6} />
                     </div>
 
-                    <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isSignupPending}>
-                        {isSignupPending ? (
+                    <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isSignupPending || isRedirecting}>
+                        {isSignupPending || isRedirecting ? (
                             <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                جاري إنشاء الحساب...
+                                {isRedirecting ? 'جاري التحميل...' : 'جاري إنشاء الحساب...'}
                             </>
                         ) : (
                             'إنشاء حساب جديد'

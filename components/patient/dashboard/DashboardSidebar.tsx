@@ -6,6 +6,8 @@ import { LayoutDashboard, Calendar, FileText, Settings, LogOut } from 'lucide-re
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/(auth)/actions';
 
+import Image from 'next/image';
+
 const navigation = [
     { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
     { name: 'مواعيدي', href: '/dashboard/appointments', icon: Calendar },
@@ -17,7 +19,18 @@ export default function DashboardSidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 right-0 bg-white border-l border-gray-200 pt-16">
+        <div className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 right-0 bg-white border-l border-gray-200">
+            <div className="p-6 border-b border-gray-100 mb-2">
+                <Link href="/" className="flex items-center gap-2">
+                    <Image
+                        src="/logo.png"
+                        alt="Marham Saudi"
+                        width={180}
+                        height={40}
+                        className="h-12 w-auto object-contain"
+                    />
+                </Link>
+            </div>
             <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
                 <div className="flex-1 px-4 py-6 space-y-1">
                     {navigation.map((item) => {

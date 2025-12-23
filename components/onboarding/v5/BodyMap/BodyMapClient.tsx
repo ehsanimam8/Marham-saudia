@@ -66,13 +66,11 @@ export default function BodyMapClient() {
             // For layout consistency, we wrap image in a div that respects the className sizing
             // Assuming className usually sets w-X h-X
             return (
-                <div className={`${className} relative overflow-hidden rounded-none`}>
-                    {/* Use img for simplicity or Next Image if domain is whitelisted. 
-                         Using img ensures external URLs work without config changes. */}
+                <div className={`${className} relative overflow-hidden shadow-sm`}>
                     <img
                         src={iconIdentifier}
                         alt="icon"
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover"
                     />
                 </div>
             );
@@ -122,12 +120,11 @@ export default function BodyMapClient() {
         return (
             <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto p-6 min-h-[80vh]">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 text-teal-900 leading-tight">
-                        How can we help you today?
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 text-teal-900 leading-tight font-arabic">
+                        كيف يمكننا مساعدتك اليوم؟
                     </h1>
                     <p className="text-xl text-gray-500">
-                        Choose the area that best matches your needs
-                        <span className="block text-sm mt-2 font-arabic text-teal-600">اختر المجال الذي يناسب احتياجاتك</span>
+                        اختر المجال الذي يدخل ضمن نطاق احتياجاتك
                     </p>
                 </div>
 
@@ -142,14 +139,11 @@ export default function BodyMapClient() {
                             <div className="bg-teal-50 p-6 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300 group-hover:bg-teal-100 relative z-10 w-24 h-24 flex items-center justify-center">
                                 {renderIcon(cat.icon, "w-12 h-12 text-teal-600")}
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2 group-hover:text-teal-700 relative z-10">
-                                {cat.name_en}
-                            </h3>
-                            <p className="text-gray-500 text-sm leading-relaxed mb-4 relative z-10">
-                                {cat.description_en}
-                            </p>
-                            <p className="text-teal-600 font-arabic text-sm mt-auto relative z-10 font-medium">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-2 group-hover:text-teal-700 relative z-10 font-arabic">
                                 {cat.name_ar}
+                            </h3>
+                            <p className="text-gray-500 text-sm leading-relaxed mb-4 relative z-10 font-arabic">
+                                {cat.description_ar || cat.description_en}
                             </p>
                         </button>
                     ))}
@@ -164,15 +158,15 @@ export default function BodyMapClient() {
 
             {/* Header with Back Button */}
             <div className="w-full flex items-center justify-between mb-10">
-                <Button variant="ghost" onClick={handleBackToCategories} className="gap-2 text-gray-600 hover:text-teal-700 pl-0 hover:bg-transparent">
-                    <ArrowLeft className="w-5 h-5" /> Change Category
+                <Button variant="ghost" onClick={handleBackToCategories} className="gap-2 text-gray-600 hover:text-teal-700 pl-0 hover:bg-transparent font-arabic">
+                    <ArrowLeft className="w-5 h-5 ml-1" /> تغيير الفئة
                 </Button>
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-teal-900">
-                        {categories.find(c => c.id === selectedCategory)?.name_en}
+                    <h2 className="text-2xl font-bold text-teal-900 font-arabic">
+                        {categories.find(c => c.id === selectedCategory)?.name_ar}
                     </h2>
                     <p className="text-sm text-gray-500 font-arabic">
-                        Select area of concern | {categories.find(c => c.id === selectedCategory)?.name_ar}
+                        اختر منطقة الشكوى
                     </p>
                 </div>
                 <div className="w-[140px]"></div> {/* Spacer */}
@@ -181,7 +175,7 @@ export default function BodyMapClient() {
             {(isLoading || (isDataLoading && bodyParts.length === 0)) ? (
                 <div className="flex flex-col items-center justify-center py-20">
                     <div className="w-12 h-12 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin mb-4"></div>
-                    <p className="text-gray-500">{isLoading ? 'Starting your session...' : 'Loading areas...'}</p>
+                    <p className="text-gray-500 font-arabic">{isLoading ? 'جاري بدء الجلسة...' : 'جاري تحميل المناطق...'}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
@@ -191,24 +185,21 @@ export default function BodyMapClient() {
                             onClick={() => handleBodyPartSelect(part.id)}
                             className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:border-teal-500 hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group"
                         >
-                            <div className="p-4 bg-gray-50 rounded-full mb-4 group-hover:bg-teal-50 transition-colors w-20 h-20 flex items-center justify-center">
-                                {renderIcon(part.icon, "w-10 h-10 text-gray-600 group-hover:text-teal-600 transition-colors")}
+                            <div className={`overflow-hidden mb-4 group-hover:scale-105 transition-transform duration-500 ${selectedCategory === 'beauty' ? 'w-full aspect-square rounded-2xl' : 'p-4 bg-gray-50 rounded-full w-20 h-20 flex items-center justify-center group-hover:bg-teal-50'}`}>
+                                {renderIcon(part.icon, `${selectedCategory === 'beauty' ? 'w-full h-full' : 'w-10 h-10 text-gray-600 group-hover:text-teal-600 transition-colors'}`)}
                             </div>
-                            <h3 className="font-semibold text-lg text-gray-800 group-hover:text-teal-700 transition-colors">
-                                {part.nameEn}
-                            </h3>
-                            <p className="text-sm text-gray-400 font-arabic mt-1 group-hover:text-teal-600 transition-colors">
+                            <h3 className="font-semibold text-lg text-gray-800 group-hover:text-teal-700 transition-colors font-arabic">
                                 {part.nameAr}
-                            </p>
+                            </h3>
                         </button>
                     ))}
                 </div>
             )}
 
             {!isDataLoading && bodyParts.length === 0 && (
-                <div className="text-center py-20 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200 w-full">
-                    <p>No specific areas found for this category yet.</p>
-                    <Button variant="link" onClick={handleBackToCategories}>Go back</Button>
+                <div className="text-center py-20 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200 w-full font-arabic">
+                    <p>لم يتم العثور على مناطق محددة لهذه الفئة بعد.</p>
+                    <Button variant="link" onClick={handleBackToCategories}>العودة للوراء</Button>
                 </div>
             )}
 

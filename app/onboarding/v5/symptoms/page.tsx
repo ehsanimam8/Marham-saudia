@@ -52,7 +52,7 @@ export default async function SymptomsPage({ searchParams }: PageProps) {
 
     return (
         <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-            <Suspense fallback={<div className="text-center p-8">Loading symptoms...</div>}>
+            <Suspense fallback={<div className="text-center p-8 font-arabic">جاري تحميل الأعراض...</div>}>
                 <SymptomsClient
                     sessionId={sessionId}
                     concernDetails={concernDetails}

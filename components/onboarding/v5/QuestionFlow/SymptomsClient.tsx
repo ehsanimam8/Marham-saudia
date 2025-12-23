@@ -64,10 +64,10 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                 url: result.document.file_url,
                 id: result.document.id
             });
-            toast.success('Image uploaded successfully');
+            toast.success('تم رفع الصورة بنجاح');
         } catch (error) {
             console.error('Upload failed:', error);
-            toast.error('Failed to upload image. Please try again.');
+            toast.error('فشل في رفع الصورة. يرجى المحاولة مرة أخرى.');
         } finally {
             setUploading(false);
         }
@@ -182,11 +182,11 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
             <ProgressBar currentStep={3} totalSteps={6} className="mb-8" />
 
             <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-2 text-primary text-center">
-                    {concernDetails?.name_en || (isBeauty ? 'Select Your Ideal Result' : 'Symptoms Check')}
+                <h1 className="text-2xl font-bold mb-2 text-primary text-center font-arabic">
+                    {concernDetails?.name_ar || (isBeauty ? 'اختاري النتيجة المثالية' : 'فحص الأعراض')}
                 </h1>
-                <p className="text-center text-muted-foreground mb-8">
-                    {concernDetails?.description_en || (isBeauty ? 'Choose the look you want to achieve' : 'Select all symptoms that apply to you')}
+                <p className="text-center text-muted-foreground mb-8 font-arabic">
+                    {concernDetails?.description_ar || (isBeauty ? 'اختاري المظهر الذي ترغبين في تحقيقه' : 'حددي جميع الأعراض التي تنطبق عليك')}
                 </p>
 
                 <div className="space-y-3 mb-8">
@@ -212,9 +212,9 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                                             loading="lazy"
                                         />
                                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
-                                            <h3 className="font-bold text-white text-sm">{option.name}</h3>
+                                            <h3 className="font-bold text-white text-sm font-arabic">{option.name}</h3>
                                             {option.description && (
-                                                <p className="text-white/80 text-xs line-clamp-1">{option.description}</p>
+                                                <p className="text-white/80 text-xs line-clamp-1 font-arabic">{option.description}</p>
                                             )}
                                         </div>
 
@@ -234,8 +234,8 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                             ))}
                         </div>
                     ) : symptoms.length === 0 ? (
-                        <div className="text-center p-8 bg-slate-50 rounded-lg">
-                            <p>{isBeauty ? 'No specific options listed. You can describe your goals below.' : 'No specific symptoms listed for this concern. You can skip or describe below.'}</p>
+                        <div className="text-center p-8 bg-slate-50 rounded-lg font-arabic">
+                            <p>{isBeauty ? 'لا توجد خيارات محددة مسجلة. يمكنك وصف أهدافك أدناه.' : 'لا توجد أعراض محددة مسجلة لهذا القلق. يمكنك التخطي أو الوصف أدناه.'}</p>
                         </div>
                     ) : (
                         symptoms.map((symptom) => (
@@ -250,10 +250,10 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                                 )}
                             >
                                 <span className="text-2xl">{symptom.icon || (isBeauty ? '✨' : '⚕️')}</span>
-                                <div>
-                                    <h3 className="font-medium text-slate-900">{symptom.name_en}</h3>
-                                    {symptom.description_en && (
-                                        <p className="text-sm text-slate-500">{symptom.description_en}</p>
+                                <div className="font-arabic">
+                                    <h3 className="font-medium text-slate-900">{symptom.name_ar || symptom.name_en}</h3>
+                                    {(symptom.description_ar || symptom.description_en) && (
+                                        <p className="text-sm text-slate-500">{symptom.description_ar || symptom.description_en}</p>
                                     )}
                                 </div>
                                 <div className="ml-auto">
@@ -274,12 +274,12 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                 </div>
 
                 {/* VISUAL SYMPTOMS / UPLOAD SECTION */}
-                <div className="mb-8 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <h3 className="font-semibold text-slate-900 mb-2">{isBeauty ? 'Current Photo (Optional)' : 'Visual Indicators?'}</h3>
+                <div className="mb-8 bg-white p-4 rounded-xl border border-slate-100 shadow-sm font-arabic">
+                    <h3 className="font-semibold text-slate-900 mb-2">{isBeauty ? 'الصورة الحالية (اختياري)' : 'مؤشرات بصرية؟'}</h3>
                     <p className="text-sm text-slate-500 mb-4">
                         {isBeauty
-                            ? 'Upload a photo of the area you want to enhance to help us suggest the best procedure.'
-                            : 'If you have visible symptoms (like redness, swelling, or a rash), uploading a photo helps our doctors triaging.'}
+                            ? 'قومي بتحميل صورة للمنطقة التي تريدين تحسينها لمساعدتنا في اقتراح أفضل إجراء.'
+                            : 'إذا كان لديك أعراض مرئية (مثل الاحمرار أو التورم أو الطفح الجلدي)، فإن تحميل صورة يساعد أطباءنا في التشخيص.'}
                     </p>
 
                     {uploadedImage ? (
@@ -292,7 +292,7 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                                 <X className="w-4 h-4" />
                             </button>
                             <div className="bg-emerald-50 text-emerald-600 text-xs font-medium p-2 text-center flex items-center justify-center gap-1">
-                                <ImageIcon className="w-3 h-3" /> Image attached
+                                <ImageIcon className="w-3 h-3" /> تم إرفاق الصورة
                             </div>
                         </div>
                     ) : (
@@ -315,7 +315,7 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                                 ) : (
                                     <>
                                         <Camera className="w-6 h-6 text-primary mb-1" />
-                                        <span className="text-sm font-medium text-slate-600">Take Photo</span>
+                                        <span className="text-sm font-medium text-slate-600 font-arabic">التقاط صورة</span>
                                     </>
                                 )}
                             </label>
@@ -338,7 +338,7 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                                 ) : (
                                     <>
                                         <ImageIcon className="w-6 h-6 text-primary mb-1" />
-                                        <span className="text-sm font-medium text-slate-600">Upload</span>
+                                        <span className="text-sm font-medium text-slate-600 font-arabic">تحميل</span>
                                     </>
                                 )}
                             </label>
@@ -353,15 +353,15 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                 <Button
                     onClick={handleContinue}
                     disabled={submitting || uploading}
-                    className="w-full h-12 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
+                    className="w-full h-12 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all font-arabic"
                 >
                     {submitting ? (
                         <div className="flex items-center gap-2">
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Updating...
+                            جاري التحميل...
                         </div>
                     ) : (
-                        selectedSymptoms.length === 0 && !uploadedImage ? 'Skip / No Symptoms' : 'Continue'
+                        selectedSymptoms.length === 0 && !uploadedImage ? 'تخطي / لا توجد أعراض' : 'متابعة'
                     )}
                 </Button>
             </div>

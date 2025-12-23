@@ -137,7 +137,7 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
     const startListening = () => {
         console.log('🎤 Initializing speech recognition...');
         if (typeof window === 'undefined' || !('webkitSpeechRecognition' in window)) {
-            toast.error("Voice input is not supported in this browser.");
+            toast.error("مدخلات الصوت غير مدعومة في هذا المتصفح.");
             return;
         }
 
@@ -237,10 +237,10 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
                         <Bot className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg">Marham AI Nurse</h3>
-                        <p className="text-xs text-purple-100 flex items-center gap-1">
+                        <h3 className="font-bold text-lg font-arabic">ممرضة مرهم الآلية</h3>
+                        <p className="text-xs text-purple-100 flex items-center gap-1 font-arabic">
                             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                            Online • Personal Assessment
+                            متصلة • تقييم شخصي
                         </p>
                     </div>
                 </div>
@@ -276,16 +276,16 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
                                 <Button
                                     size="lg"
                                     onClick={() => setHasStarted(true)}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-8 py-8 rounded-full shadow-xl animate-bounce"
+                                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg px-8 py-8 rounded-full shadow-xl animate-bounce font-arabic"
                                 >
-                                    Start Assessment
+                                    بدء التقييم
                                 </Button>
                             </div>
                         ) : null}
 
                         {/* Status Text */}
-                        <div className="absolute top-4 text-white/60 text-sm font-medium">
-                            {isSpeaking ? "Nurse is speaking..." : isListening ? "Listening to you..." : isLoading ? "Thinking..." : "Ready"}
+                        <div className="absolute top-4 text-white/60 text-sm font-medium font-arabic">
+                            {isSpeaking ? "الممرضة تتحدث..." : isListening ? "أنا أسمعك..." : isLoading ? "جاري التفكير..." : "جاهزة"}
                         </div>
 
                         {/* Orb Animation */}
@@ -336,7 +336,7 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
                                 onClick={isListening ? stopListening : startListening}
                                 disabled={!hasStarted}
                             >
-                                {isListening ? "Pause Listening" : "Tap to Speak"}
+                                {isListening ? "إيقاف الاستماع" : "اضغطي للتحدث"}
                             </Button>
                         </div>
                     </motion.div>
@@ -370,7 +370,7 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
                     <div className="flex justify-start">
                         <div className="bg-white border border-slate-200 rounded-2xl p-4 rounded-bl-none shadow-sm flex items-center gap-2">
                             <Loader2 className="w-4 h-4 animate-spin text-purple-600" />
-                            <span className="text-xs text-gray-500">Nurse is typing...</span>
+                            <span className="text-xs text-gray-500 font-arabic">الممرضة تكتب...</span>
                         </div>
                     </div>
                 )}
@@ -384,15 +384,15 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
                         <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Bot className="w-6 h-6" />
                         </div>
-                        <h4 className="font-bold text-green-900 mb-2">Assessment Complete</h4>
-                        <p className="text-sm text-green-800 mb-4">
-                            Thank you. I have recorded all details for the doctor.
+                        <h4 className="font-bold text-green-900 mb-2 font-arabic">اكتمل التقييم</h4>
+                        <p className="text-sm text-green-800 mb-4 font-arabic">
+                            شكراً لكِ. لقد قمتُ بتسجيل جميع التفاصيل للطبيبة.
                         </p>
                         <Button
                             onClick={onComplete}
-                            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold"
+                            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold font-arabic"
                         >
-                            Proceed to Scheduling
+                            الانتقال لجدولة الموعد
                         </Button>
                     </motion.div>
                 )}
@@ -410,8 +410,8 @@ export default function AiNurseChat({ sessionId, onClose, onComplete }: AiNurseC
                     <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Type your answer here..."
-                        className="flex-1 bg-slate-50 border-slate-200 focus:ring-purple-500"
+                        placeholder="اكتبي إجابتك هنا..."
+                        className="flex-1 bg-slate-50 border-slate-200 focus:ring-purple-500 font-arabic text-right"
                         disabled={isLoading || isListening}
                     />
                     <Button

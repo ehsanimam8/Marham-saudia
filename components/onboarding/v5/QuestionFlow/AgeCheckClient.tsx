@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { ProgressBar } from '../shared/ProgressBar';
 import { OnboardingFormState } from '@/lib/onboarding/v5/types';
 
+import { ChevronRight, Loader2 } from 'lucide-react';
+
 // Simple age ranges as per spec
 const ageRanges = [
     { id: '18-24', labelAr: '18-24 سنة', labelEn: '18-24 years', icon: '👧' },
@@ -21,51 +23,52 @@ export default function AgeCheckClient() {
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('sessionId');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedRange, setSelectedRange] = useState<string | null>(null);
 
     const handleSelect = async (rangeId: string) => {
         if (!sessionId) return;
         setIsSubmitting(true);
+        setSelectedRange(rangeId);
         try {
             await updateOnboardingSession({
                 sessionId,
                 ageRange: rangeId
             });
 
-            // Logic for next screen
-            // We need current state to determine next screen correctly.
-            // Ideally we fetch current session state.
-            // For now, we assume implicit state progression or pass params.
-            // Or we reconstruct "what we know".
-            // In a real app we'd fetch the session in the Server Component and pass it down.
-            // I'll resort to a hardcoded next step or fetch logic if I had time.
-            // Spec `getNextScreen` uses state. 
-            // Let's assume we proceed to symptoms.
-
             router.push(`/onboarding/v5/symptoms?sessionId=${sessionId}`);
         } catch (error) {
             console.error(error);
             setIsSubmitting(false);
+            setSelectedRange(null);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 pt-8">
+        <div className="min-h-screen bg-slate-50 p-4 pt-8" dir="rtl">
             <div className="max-w-xl mx-auto">
                 <ProgressBar currentStep={3} totalSteps={5} className="mb-8" />
-                <h2 className="text-2xl font-bold text-center mb-2">How old are you?</h2>
-                <p className="text-center text-gray-500 mb-8">This helps us recommend the right specialist</p>
+                <h2 className="text-2xl font-bold text-center mb-2 font-arabic text-teal-900">كم عمرك؟</h2>
+                <p className="text-center text-gray-500 mb-8 font-arabic">يساعدنا هذا في التوصية بالأخصائية المناسبة لكِ</p>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {ageRanges.map(range => (
                         <button
                             key={range.id}
                             onClick={() => handleSelect(range.id)}
                             disabled={isSubmitting}
-                            className="p-6 bg-white border rounded-xl hover:border-teal-500 hover:bg-teal-50 transition-all flex flex-col items-center gap-2"
+                            className={`p-6 bg-white border rounded-xl hover:border-teal-500 hover:bg-teal-50 transition-all flex items-center justify-between group ${selectedRange === range.id ? 'border-teal-500 bg-teal-50' : ''}`}
                         >
-                            <span className="text-4xl">{range.icon}</span>
-                            <span className="font-semibold">{range.labelEn}</span>
-                            <span className="text-xs text-gray-400">{range.labelAr}</span>
+                            <div className="flex items-center gap-4">
+                                <span className="text-4xl">{range.icon}</span>
+                                <div className="text-right">
+                                    <span className="font-bold text-lg block font-arabic">{range.labelAr}</span>
+                                </div>
+                            </div>
+                            {isSubmitting && selectedRange === range.id ? (
+                                <Loader2 className="w-5 h-5 text-teal-600 animate-spin" />
+                            ) : (
+                                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-teal-500 transition-colors" />
+                            )}
                         </button>
                     ))}
                 </div>

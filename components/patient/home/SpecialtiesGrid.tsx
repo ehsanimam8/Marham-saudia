@@ -5,37 +5,31 @@ const specialties = [
     {
         icon: Heart,
         title: "صحة المرأة",
-        titleEn: "Women's Health",
         href: "/doctors?specialty=womens-health"
     },
     {
         icon: Baby,
         title: "الحمل والولادة",
-        titleEn: "Pregnancy Care",
         href: "/doctors?specialty=pregnancy"
     },
     {
         icon: Stethoscope,
         title: "أمراض النساء",
-        titleEn: "OB/GYN",
         href: "/doctors?specialty=obgyn"
     },
     {
         icon: Activity,
         title: "تكيس المبايض",
-        titleEn: "PCOS",
         href: "/doctors?specialty=pcos"
     },
     {
         icon: Sparkles,
         title: "الخصوبة",
-        titleEn: "Fertility",
         href: "/doctors?specialty=fertility"
     },
     {
         icon: Brain,
         title: "الصحة النفسية",
-        titleEn: "Mental Health",
         href: "/doctors?specialty=mental-health"
     }
 ];
@@ -61,7 +55,6 @@ export default function SpecialtiesGrid() {
                                 <item.icon className="w-6 h-6" />
                             </div>
                             <h3 className="font-bold text-gray-900 mb-1">{item.title}</h3>
-                            <p className="text-xs text-gray-400 font-sans">{item.titleEn}</p>
                         </Link>
                     ))}
                 </div>

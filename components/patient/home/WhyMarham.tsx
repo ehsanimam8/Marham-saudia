@@ -3,23 +3,19 @@ import { CheckCircle2 } from 'lucide-react';
 const benefits = [
     {
         title: "طبيبات سعوديات فقط",
-        description: "نفهم ثقافتك وخصوصيتك، جميع طبيباتنا سعوديات مؤهلات.",
-        titleEn: "Female Saudi Doctors Only"
+        description: "نفهم ثقافتك وخصوصيتك، جميع طبيباتنا سعوديات مؤهلات."
     },
     {
         title: "خصوصية تامة 100%",
-        description: "بياناتك مشفرة ومحمية، ولا نشاركها مع أي طرف ثالث.",
-        titleEn: "100% Private & Secure"
+        description: "بياناتك مشفرة ومحمية، ولا نشاركها مع أي طرف ثالث."
     },
     {
         title: "متاحة في أي وقت",
-        description: "احجزي موعدك في الوقت الذي يناسبك، حتى في عطلة نهاية الأسبوع.",
-        titleEn: "Available Anytime"
+        description: "احجزي موعدك في الوقت الذي يناسبك، حتى في عطلة نهاية الأسبوع."
     },
     {
         title: "تقبل التأمين الصحي",
-        description: "نتعاون مع كبرى شركات التأمين في المملكة لتغطية تكاليف علاجك.",
-        titleEn: "Insurance Accepted"
+        description: "نتعاون مع كبرى شركات التأمين في المملكة لتغطية تكاليف علاجك."
     }
 ];
 

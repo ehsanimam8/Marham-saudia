@@ -3,23 +3,19 @@ import { ShieldCheck, UserCheck, Clock, CreditCard } from 'lucide-react';
 const indicators = [
     {
         icon: UserCheck,
-        title: "طبيبات سعوديات مرخصات",
-        subtitle: "Licensed Saudi Doctors"
+        title: "طبيبات سعوديات مرخصات"
     },
     {
         icon: ShieldCheck,
-        title: "استشارات خاصة وآمنة",
-        subtitle: "Private & Secure"
+        title: "استشارات خاصة وآمنة"
     },
     {
         icon: Clock,
-        title: "بدون قوائم انتظار",
-        subtitle: "No Waiting Lists"
+        title: "بدون قوائم انتظار"
     },
     {
         icon: CreditCard,
-        title: "نقبل التأمين الصحي",
-        subtitle: "Insurance Accepted"
+        title: "نقبل التأمين الصحي"
     }
 ];
 
@@ -35,7 +31,6 @@ export default function TrustIndicators() {
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-900">{item.title}</h3>
-                                <p className="text-xs text-gray-500 font-sans">{item.subtitle}</p>
                             </div>
                         </div>
                     ))}

@@ -4,7 +4,7 @@ import AgeCheckClient from '@/components/onboarding/v5/QuestionFlow/AgeCheckClie
 export default function AgePage() {
     return (
         <main>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>جاري التحميل...</div>}>
                 <AgeCheckClient />
             </Suspense>
         </main>

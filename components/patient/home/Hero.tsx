@@ -13,10 +13,6 @@ export default function Hero() {
                     </h1>
                     <p className="text-lg md:text-xl text-teal-50 max-w-lg mx-auto md:mx-0">
                         احجزي استشارة مع طبيبة متخصصة من منزلك في خصوصية تامة.
-                        <br />
-                        <span className="text-sm opacity-90 block mt-2 font-sans" dir="ltr">
-                            Women&apos;s Healthcare from Female Saudi Doctors
-                        </span>
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                         <Button asChild size="lg" className="bg-white text-teal-700 hover:bg-teal-50 font-bold text-lg px-8 shadow-lg">

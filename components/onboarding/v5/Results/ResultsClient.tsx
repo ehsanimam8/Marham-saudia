@@ -45,9 +45,8 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
 
         setIsSchedulingNurse(true);
         try {
-            // Simplified scheduling logic for demo - in real app would pick time
             const now = new Date();
-            now.setMinutes(now.getMinutes() + 15); // Schedule for 15 mins from now as "ASAP"
+            now.setMinutes(now.getMinutes() + 15);
 
             await scheduleNurseCall({
                 sessionId: session.id,
@@ -58,9 +57,9 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
 
             setNurseScheduled(true);
             setShowNurseDialog(false);
-            toast.success('Nurse consultation requested successfully!');
+            toast.success('تم إرسال طلب استشارة الممرضة بنجاح!');
         } catch (error) {
-            toast.error('Failed to schedule nurse call');
+            toast.error('فشل في جدولة مكالمة الممرضة');
         } finally {
             setIsSchedulingNurse(false);
         }
@@ -125,8 +124,8 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                 <div className="inline-block p-3 bg-teal-100 rounded-full mb-4">
                     <CheckCircle className="w-8 h-8 text-teal-600" />
                 </div>
-                <h1 className="text-3xl font-bold text-teal-900 mb-2">Analysis Complete</h1>
-                <p className="text-gray-600 max-w-lg mx-auto">We&apos;ve analyzed your symptoms and prepared a personalized care plan for you.</p>
+                <h1 className="text-3xl font-bold text-teal-900 mb-2 font-arabic">اكتمل التحليل</h1>
+                <p className="text-gray-600 max-w-lg mx-auto font-arabic">لقد قمنا بتحليل أعراضك وأعددنا لكِ خطة رعاية مخصصة.</p>
             </header>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -134,9 +133,9 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                 <div className="md:col-span-2 space-y-8">
                     {/* 1. Helpful Content / Tips */}
                     <section>
-                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-800">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-800 font-arabic">
                             <AlertCircle className="w-5 h-5 text-teal-600" />
-                            Insights & Tips
+                            نصائح ومعلومات مفيدة
                         </h2>
 
                         {articles && articles.length > 0 ? (
@@ -174,8 +173,8 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                         {aiInsights?.quick_tip && (
                             <Card className="bg-blue-50 border-blue-100 mt-4">
                                 <CardContent className="p-6">
-                                    <h3 className="font-bold text-blue-900 mb-2">Quick Tip (AI Powered)</h3>
-                                    <p className="text-blue-700">{aiInsights.quick_tip}</p>
+                                    <h3 className="font-bold text-blue-900 mb-2 font-arabic">نصيحة سريعة (بالذكاء الاصطناعي)</h3>
+                                    <p className="text-blue-700 font-arabic">{aiInsights.quick_tip}</p>
                                 </CardContent>
                             </Card>
                         )}
@@ -183,9 +182,9 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
 
                     {/* 2. Doctor Matches */}
                     <section>
-                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-800">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-800 font-arabic">
                             <Stethoscope className="w-5 h-5 text-teal-600" />
-                            Recommended Specialists
+                            الطبيبات المرشحات لكِ
                         </h2>
 
                         <div className="grid gap-6">
@@ -206,7 +205,7 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                                     </div>
                                                     <span className="text-gray-300">|</span>
                                                     <span className="text-green-600 font-medium flex items-center gap-0.5">
-                                                        <CheckCircle className="w-3 h-3" /> {matchScore}% Match
+                                                        <CheckCircle className="w-3 h-3" /> نسبة المطابقة {matchScore}%
                                                     </span>
                                                 </div>
                                             </div>
@@ -223,12 +222,12 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                         )}
 
                                         <div className="flex items-center gap-4 text-sm mt-4 pt-4 border-t border-gray-50">
-                                            <div className="flex items-center gap-1.5 text-slate-600 bg-slate-100 px-3 py-1.5 rounded-md">
+                                            <div className="flex items-center gap-1.5 text-slate-600 bg-slate-100 px-3 py-1.5 rounded-md font-arabic">
                                                 <Calendar className="w-4 h-4" />
-                                                Next: <span className="font-semibold">{doctor.next_available}</span>
+                                                الموعد القادم: <span className="font-semibold">{doctor.next_available}</span>
                                             </div>
                                             <div className="font-bold text-slate-900 text-lg ml-auto">
-                                                SAR {doctor.consultation_price}
+                                                {doctor.consultation_price} ريال
                                             </div>
                                         </div>
                                     </div>
@@ -236,16 +235,16 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                     <div className="bg-slate-50 p-4 border-t sm:border-t-0 sm:border-l border-slate-100 flex flex-row sm:flex-col justify-center gap-3 w-full sm:w-48">
                                         <Button
                                             onClick={() => router.push(`/doctors/${doctor.id}?book=true`)}
-                                            className="flex-1 bg-teal-600 hover:bg-teal-700 w-full shadow-sm"
+                                            className="flex-1 bg-teal-600 hover:bg-teal-700 w-full shadow-sm font-arabic"
                                         >
-                                            Book Now
+                                            احجزي الآن
                                         </Button>
                                         <Button
                                             variant="outline"
                                             onClick={() => router.push(`/doctors/${doctor.id}`)}
-                                            className="flex-1 border-teal-200 text-teal-700 hover:bg-teal-50 w-full"
+                                            className="flex-1 border-teal-200 text-teal-700 hover:bg-teal-50 w-full font-arabic"
                                         >
-                                            View Profile
+                                            عرض الملف
                                         </Button>
                                     </div>
                                 </div>
@@ -271,16 +270,16 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                 <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center backdrop-blur-sm">
                                     <Sparkles className="w-6 h-6 text-yellow-300" />
                                 </div>
-                                <span className="bg-white/20 text-xs px-2 py-1 rounded-full backdrop-blur-md">Gemini Pro Powered</span>
+                                <span className="bg-white/20 text-xs px-2 py-1 rounded-full backdrop-blur-md">مدعوم من Gemini Pro</span>
                             </div>
 
-                            <h3 className="text-2xl font-bold mb-2">Detailed AI Analysis</h3>
-                            <p className="text-violet-100 text-sm mb-6 leading-relaxed">
-                                Chat with Marham&apos;s AI Nurse to provide a deeper medical history. We&apos;ll record your details for the doctor and verify your case.
+                            <h3 className="text-2xl font-bold mb-2 font-arabic">تحليل تفصيلي بالذكاء الاصطناعي</h3>
+                            <p className="text-violet-100 text-sm mb-6 leading-relaxed font-arabic">
+                                تحدثي مع ممرضة مرهم الآلية لتقديم تاريخ طبي أعمق. سنقوم بتسجيل تفاصيلك للطبيبة والتحقق من حالتك.
                             </p>
 
-                            <Button variant="secondary" className="w-full bg-white text-violet-700 font-bold hover:bg-violet-50">
-                                Start AI Assessment
+                            <Button variant="secondary" className="w-full bg-white text-violet-700 font-bold hover:bg-violet-50 font-arabic">
+                                ابدأي التقييم الذكي
                             </Button>
                         </CardContent>
                     </Card>
@@ -293,16 +292,16 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                             <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4 backdrop-blur-sm">
                                 <Video className="w-6 h-6 text-white" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Free Nurse Assessment</h3>
-                            <p className="text-indigo-100 text-sm mb-6 leading-relaxed">
-                                Not sure which specialist to choose? Speak with a licensed nurse for a free primary assessment and guidance.
+                            <h3 className="text-xl font-bold mb-2 font-arabic">تقييم مجاني مع ممرضة</h3>
+                            <p className="text-indigo-100 text-sm mb-6 leading-relaxed font-arabic">
+                                لستِ متأكدة من الطبيبة المناسبة؟ تحدثي مع ممرضة مرخصة لتقييم أولي مجاني وتوجيهك للأفضل.
                             </p>
 
                             {nurseScheduled && (
-                                <div className="bg-white/20 backdrop-blur-md rounded-lg p-4 text-center border border-white/30">
+                                <div className="bg-white/20 backdrop-blur-md rounded-lg p-4 text-center border border-white/30 font-arabic">
                                     <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-300" />
-                                    <p className="font-semibold">Request Sent!</p>
-                                    <p className="text-xs text-indigo-100">A nurse will contact you shortly.</p>
+                                    <p className="font-semibold">تم إرسال الطلب!</p>
+                                    <p className="text-xs text-indigo-100">ستتصل بك الممرضة قريباً.</p>
                                 </div>
                             )}
 
@@ -310,28 +309,28 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                 <>
                                     <Button
                                         onClick={() => setShowNurseDialog(true)}
-                                        className="w-full bg-white text-indigo-700 hover:bg-indigo-50 font-bold border-none"
+                                        className="w-full bg-white text-indigo-700 hover:bg-indigo-50 font-bold border-none font-arabic"
                                     >
-                                        Request Free Call
+                                        اطلبي اتصالاً مجانياً
                                     </Button>
 
                                     <Dialog open={showNurseDialog} onOpenChange={setShowNurseDialog}>
                                         <DialogContent className="sm:max-w-md">
                                             <DialogHeader>
-                                                <DialogTitle>Request Nurse Consultation</DialogTitle>
-                                                <DialogDescription>
-                                                    Enter your phone number and we will call you within 15 minutes for a free initial assessment.
+                                                <DialogTitle className="font-arabic">طلب استشارة ممرضة</DialogTitle>
+                                                <DialogDescription className="font-arabic">
+                                                    أدخلي رقم جوالك وسنتصل بك خلال 15 دقيقة لتقديم تقييم أولي مجاني.
                                                 </DialogDescription>
                                             </DialogHeader>
                                             <div className="space-y-4 py-4">
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="phone">Phone Number</Label>
+                                                    <Label htmlFor="phone" className="font-arabic">رقم الجوال</Label>
                                                     <div className="relative">
-                                                        <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                                                        <Phone className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
                                                         <Input
                                                             id="phone"
                                                             placeholder="05XXXXXXXX"
-                                                            className="pl-9"
+                                                            className="pr-9"
                                                             value={phone}
                                                             onChange={(e) => setPhone(e.target.value)}
                                                         />
@@ -342,9 +341,9 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                                 <Button
                                                     onClick={handleScheduleNurse}
                                                     disabled={isSchedulingNurse || !phone}
-                                                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                                    className="w-full bg-indigo-600 hover:bg-indigo-700 font-arabic"
                                                 >
-                                                    {isSchedulingNurse ? 'Scheduling...' : 'Confirm Request'}
+                                                    {isSchedulingNurse ? 'جاري الطلب...' : 'تأكيد الطلب'}
                                                 </Button>
                                             </DialogFooter>
                                         </DialogContent>
@@ -360,14 +359,14 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                             <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Upload className="w-8 h-8 text-teal-600" />
                             </div>
-                            <h3 className="font-bold text-gray-900 mb-2">Have Medical Reports?</h3>
-                            <p className="text-gray-500 text-sm mb-6">
-                                Upload previous prescriptions, lab results, or photos of the affected area for better analysis.
+                            <h3 className="font-bold text-gray-900 mb-2 font-arabic">لديكِ تقارير طبية؟</h3>
+                            <p className="text-gray-500 text-sm mb-6 font-arabic">
+                                قومي برفع الوصفات السابقة، نتائج التحاليل، أو صور المنطقة المصابة لتحليل أفضل.
                             </p>
 
-                            <div className="flex items-center justify-center gap-2 mb-4 text-sm font-medium text-teal-700 bg-teal-50 py-2 rounded-lg">
+                            <div className="flex items-center justify-center gap-2 mb-4 text-sm font-medium text-teal-700 bg-teal-50 py-2 rounded-lg font-arabic">
                                 <FileText className="w-4 h-4" />
-                                <span>{documentCount} documents uploaded</span>
+                                <span>تم رفع {documentCount} ملفات</span>
                             </div>
 
                             <div className="mb-4">
@@ -379,11 +378,11 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                     className="w-full text-sm bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-2.5 focus:ring-teal-500 focus:border-teal-500"
                                     disabled={uploading}
                                 >
-                                    <option value="diagnosis">Medical Report</option>
-                                    <option value="prescription">Prescription</option>
-                                    <option value="lab_result">Lab Result</option>
-                                    <option value="imaging">Photo/Imaging</option>
-                                    <option value="other">Other</option>
+                                    <option value="diagnosis">تقرير طبي</option>
+                                    <option value="prescription">وصفة طبية</option>
+                                    <option value="lab_result">نتيجة مختبر</option>
+                                    <option value="imaging">صورة / أشعة</option>
+                                    <option value="other">أخرى</option>
                                 </select>
                             </div>
 
@@ -398,17 +397,17 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                 />
                                 <Label
                                     htmlFor="file-upload"
-                                    className={`block w-full py-3 px-4 rounded-lg border border-teal-200 text-teal-700 font-semibold cursor-pointer hover:bg-teal-50 transition-colors text-center ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                                    className={`block w-full py-3 px-4 rounded-lg border border-teal-200 text-teal-700 font-semibold cursor-pointer hover:bg-teal-50 transition-colors text-center font-arabic ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                                 >
-                                    {uploading ? 'Uploading...' : 'Upload File'}
+                                    {uploading ? 'جاري الرفع...' : 'رفع ملف'}
                                 </Label>
                             </div>
-                            <p className="text-xs text-gray-400 mt-2">Max 10MB • JPG, PNG, PDF</p>
+                            <p className="text-xs text-gray-400 mt-2 font-sans">Max 10MB • JPG, PNG, PDF</p>
 
                             {/* Document List */}
                             {documents.length > 0 && (
-                                <div className="mt-6 space-y-3 text-left">
-                                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Uploaded Files</h4>
+                                <div className="mt-6 space-y-3 text-right">
+                                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 font-arabic">الملفات المرفوعة</h4>
                                     {documents.map((doc: MedicalDocument) => (
                                         <div key={doc.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 shadow-sm text-sm group">
                                             <div className="flex items-center gap-2 overflow-hidden">
@@ -432,8 +431,8 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                     <div className="bg-gray-50 rounded-xl p-4 flex gap-3 items-start">
                         <AlertCircle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                         <div>
-                            <p className="text-xs text-gray-500 leading-relaxed">
-                                <strong>Privacy Note:</strong> All your data is encrypted and shared only with the doctor you book. We adhere to strict Saudi health data regulations.
+                            <p className="text-xs text-gray-500 leading-relaxed font-arabic">
+                                <strong>ملاحظة الخصوصية:</strong> جميع بياناتك مشفرة ومحمية، ولن يتم مشاركتها إلا مع الطبيبة التي تحجزين معها. نحن نلتزم بمعايير الأمن الصحي في المملكة.
                             </p>
                         </div>
                     </div>
