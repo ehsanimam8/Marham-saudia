@@ -88,30 +88,61 @@ function PreConsultationContent({ id }: { id: string }) {
 
         try {
             setLoading(true);
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `${id}/${fileName}`;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('User not authenticated');
 
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
+
+            // 1. Upload to 'medical-records' bucket (Permanent Storage)
             const { error: uploadError } = await supabase.storage
-                .from('consultation-files')
+                .from('medical-records')
                 .upload(filePath, file);
 
             if (uploadError) throw uploadError;
 
             const { data: { publicUrl } } = supabase.storage
-                .from('consultation-files')
+                .from('medical-records')
                 .getPublicUrl(filePath);
 
-            setFormData(prev => ({
-                ...prev,
-                uploaded_files: [...prev.uploaded_files, { name: file.name, url: publicUrl, type: file.type }]
-            }));
+            // 2. Insert into medical_documents table
+            const { data: newDoc, error: dbError } = await supabase
+                .from('medical_documents')
+                .insert({
+                    patient_id: user.id,
+                    document_name: file.name,
+                    document_url: publicUrl,
+                    document_type: file.type.includes('image') ? 'image' : 'report',
+                    uploaded_at: new Date().toISOString()
+                })
+                .select()
+                .single();
 
-            toast.success(t.success);
-        } catch (error) {
-            toast.error(t.error);
+            if (dbError) throw dbError;
+
+            // 3. Update State: Add to existing records and select it
+            const newRecord = {
+                id: newDoc.id,
+                document_name: newDoc.document_name,
+                upload_date: newDoc.uploaded_at || newDoc.created_at || new Date().toISOString(),
+                document_url: newDoc.document_url,
+                source: 'medical_documents'
+            };
+
+            setExistingRecords(prev => [newRecord, ...prev]);
+
+            // Auto-select
+            toggleRecordSelection(newRecord);
+
+            toast.success("File saved to records and selected");
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || t.error);
         } finally {
             setLoading(false);
+            // Reset input
+            e.target.value = '';
         }
     };
 
@@ -276,14 +307,10 @@ function PreConsultationContent({ id }: { id: string }) {
                                     </Label>
                                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                                 </div>
-                                <div className="space-y-1">
-                                    {formData.uploaded_files.map((file, idx) => (
-                                        <div key={idx} className="text-sm text-gray-600 flex justify-between items-center bg-gray-50 px-3 py-1 rounded">
-                                            <span className="truncate max-w-[200px]">{file.name}</span>
-                                            {file.type === 'document/existing' && <span className="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded">Existing</span>}
-                                        </div>
-                                    ))}
-                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Uploaded files will be saved to your medical records and selected automatically.</p>
+                                {/* 
+                                   Files are now displayed in the list above 
+                                */}
                             </div>
 
                             <Button type="submit" className="w-full" disabled={loading}>
