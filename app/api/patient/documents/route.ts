@@ -74,7 +74,7 @@ export async function GET(request: Request) {
             // Let's just return metadata for selection.
             return {
                 id: r.id,
-                document_name: r.file_name || r.description || 'Medical Record',
+                document_name: r.description || r.file_name || 'Medical Record',
                 upload_date: r.record_date || r.created_at,
                 document_url: null, // Will need signing or valid public ID
                 file_path: r.file_path, // Store path to sign later or use ID
