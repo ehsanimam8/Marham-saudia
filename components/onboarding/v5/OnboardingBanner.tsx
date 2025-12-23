@@ -1,11 +1,9 @@
-"use client";
-
 import Link from 'next/link';
-import { ArrowLeft, Sparkles, Stethoscope, Activity } from 'lucide-react';
+import { Sparkles, Stethoscope, Activity } from 'lucide-react';
 
-export default function StartOnboardingBanner({ className = "" }: { className?: string }) {
+export default function OnboardingBanner({ className = "" }: { className?: string }) {
     return (
-        <div className={`relative overflow-hidden group ${className}`}>
+        <div className={`relative overflow-hidden group bg-teal-600 ${className}`}>
             {/* Background with Gradient and Glassmorphism */}
             <div className="absolute inset-0 bg-gradient-to-r from-teal-600 to-blue-600 opacity-95 group-hover:opacity-100 transition-opacity duration-300" />
 
