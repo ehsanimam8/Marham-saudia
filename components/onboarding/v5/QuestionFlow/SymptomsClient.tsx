@@ -183,10 +183,10 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
 
             <div className="flex-1">
                 <h1 className="text-2xl font-bold mb-2 text-primary text-center font-arabic">
-                    {concernDetails?.name_ar || (isBeauty ? 'اختاري النتيجة المثالية' : 'فحص الأعراض')}
+                    <span>{concernDetails?.name_ar || (isBeauty ? 'اختاري النتيجة المثالية' : 'فحص الأعراض')}</span>
                 </h1>
                 <p className="text-center text-muted-foreground mb-8 font-arabic">
-                    {concernDetails?.description_ar || (isBeauty ? 'اختاري المظهر الذي ترغبين في تحقيقه' : 'حددي جميع الأعراض التي تنطبق عليك')}
+                    <span>{concernDetails?.description_ar || (isBeauty ? 'اختاري المظهر الذي ترغبين في تحقيقه' : 'حددي جميع الأعراض التي تنطبق عليك')}</span>
                 </p>
 
                 <div className="space-y-3 mb-8">
@@ -358,10 +358,10 @@ export default function SymptomsClient({ sessionId, concernDetails, symptoms, se
                     {submitting ? (
                         <div className="flex items-center gap-2">
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            جاري التحميل...
+                            <span>جاري التحميل...</span>
                         </div>
                     ) : (
-                        selectedSymptoms.length === 0 && !uploadedImage ? 'تخطي / لا توجد أعراض' : 'متابعة'
+                        <span>{selectedSymptoms.length === 0 && !uploadedImage ? 'تخطي / لا توجد أعراض' : 'متابعة'}</span>
                     )}
                 </Button>
             </div>

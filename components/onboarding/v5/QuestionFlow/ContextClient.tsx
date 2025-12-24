@@ -34,7 +34,7 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
     // We need to track the "current active question" index
     // But questions might be skipped.
     const sortedQuestions = useMemo(() => {
-        return questions.sort((a, b) => a.display_order - b.display_order);
+        return [...questions].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
     }, [questions]);
 
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -94,7 +94,10 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
             // Let's assume we derive urgency/diagnosis from answers here or on server.
             // We'll update the explicit columns.
 
-            let updates: any = { sessionId };
+            let updates: any = {
+                sessionId,
+                contextAnswers: answers // Pass full answers
+            };
 
             // Map common answers to columns (naive mapping)
             // If any answer suggests previous diagnosis
@@ -163,7 +166,7 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
 
             <button onClick={handleBack} className="text-slate-400 hover:text-slate-600 mb-4 flex items-center gap-1 group font-arabic">
                 <ChevronLeft className="w-5 h-5 group-hover:translate-x-1 transition-transform rotate-180" />
-                رجوع
+                <span>رجوع</span>
             </button>
 
             <div className="flex-1">
@@ -230,7 +233,7 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                     className="w-full h-12 text-lg font-arabic"
                 >
                     {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                    {submitting ? 'جاري التحميل...' : (isLastQuestion ? 'إكمال' : 'السؤال التالي')}
+                    <span>{submitting ? 'جاري التحميل...' : (isLastQuestion ? 'إكمال' : 'السؤال التالي')}</span>
                 </Button>
 
                 <FeedbackSheet sessionId={sessionId} stepName={`سؤال: ${currentQuestion.question_ar || currentQuestion.question_en}`} />

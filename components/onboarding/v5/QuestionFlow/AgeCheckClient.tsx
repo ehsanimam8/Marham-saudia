@@ -47,8 +47,8 @@ export default function AgeCheckClient() {
         <div className="min-h-screen bg-slate-50 p-4 pt-8" dir="rtl">
             <div className="max-w-xl mx-auto">
                 <ProgressBar currentStep={3} totalSteps={5} className="mb-8" />
-                <h2 className="text-2xl font-bold text-center mb-2 font-arabic text-teal-900">كم عمرك؟</h2>
-                <p className="text-center text-gray-500 mb-8 font-arabic">يساعدنا هذا في التوصية بالأخصائية المناسبة لكِ</p>
+                <h2 className="text-2xl font-bold text-center mb-2 font-arabic text-teal-900"><span>كم عمرك؟</span></h2>
+                <p className="text-center text-gray-500 mb-8 font-arabic"><span>يساعدنا هذا في التوصية بالأخصائية المناسبة لكِ</span></p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {ageRanges.map(range => (

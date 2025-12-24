@@ -18,8 +18,8 @@ export const ProgressBar: FC<ProgressBarProps> = ({
     return (
         <div className={`w-full ${className || ''}`}>
             {label && (
-                <p className="text-sm text-gray-600 mb-2 text-center">
-                    {label}
+                <p className="text-sm text-gray-600 mb-2 text-center font-arabic" translate="no">
+                    <span translate="no">{label}</span>
                 </p>
             )}
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -28,8 +28,8 @@ export const ProgressBar: FC<ProgressBarProps> = ({
                     style={{ width: `${percentage}%` }}
                 />
             </div>
-            <div className="flex justify-between mt-1 text-xs text-gray-500">
-                <span>Step {currentStep}</span>
+            <div className="flex justify-between mt-1 text-xs text-gray-500 font-arabic" translate="no">
+                <span>الخطوة {currentStep}</span>
                 <span>{percentage.toFixed(0)}%</span>
             </div>
         </div>

@@ -25,14 +25,14 @@ export default function FeedbackSheet({ sessionId, stepName, triggerText = "Can'
         try {
             await updateOnboardingSession({
                 sessionId,
-                userFeedback: `[Step: ${stepName}] ${feedback}`
+                userFeedback: `[الخطوة: ${stepName}] ${feedback}`
             });
-            toast.success('Thanks for your feedback!');
+            toast.success('شكراً لملاحظاتك!');
             setFeedback('');
             setOpen(false);
         } catch (e) {
             console.error(e);
-            toast.error('Failed to send feedback');
+            toast.error('فشل في إرسال الملاحظات');
         } finally {
             setSubmitting(false);
         }
@@ -41,31 +41,31 @@ export default function FeedbackSheet({ sessionId, stepName, triggerText = "Can'
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <button className="text-sm text-slate-400 hover:text-slate-600 underline decoration-dotted transition-colors flex items-center gap-2 mx-auto mt-4">
+                <button className="text-sm text-slate-400 hover:text-slate-600 underline decoration-dotted transition-colors flex items-center gap-2 mx-auto mt-4 font-arabic">
                     <MessageSquarePlus className="w-4 h-4" />
-                    {triggerText}
+                    <span>لدي ملاحظة أو لم أجد ما أبحث عنه</span>
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Tell us more</DialogTitle>
-                    <DialogDescription>
-                        If you can't find what you're looking for or have a suggestion, please let us know.
+                <DialogHeader className="text-right">
+                    <DialogTitle className="font-arabic">أخبرينا بالمزيد</DialogTitle>
+                    <DialogDescription className="font-arabic">
+                        إذا لم تجدي ما تبحثين عنه أو كان لديكِ اقتراح، يرجى إخبارنا هنا.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
                     <Textarea
-                        placeholder="Type your feedback here..."
+                        placeholder="اكتبي ملاحظاتك هنا..."
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
-                        className="min-h-[150px] resize-none"
+                        className="min-h-[150px] resize-none text-right font-arabic"
                     />
                     <Button
                         onClick={handleSubmit}
                         disabled={submitting || !feedback.trim()}
-                        className="w-full bg-slate-900 text-white"
+                        className="w-full bg-slate-900 text-white font-arabic"
                     >
-                        {submitting ? 'Sending...' : 'Send Feedback'}
+                        <span>{submitting ? 'جاري الإرسال...' : 'إرسال الملاحظات'}</span>
                     </Button>
                 </div>
             </DialogContent>

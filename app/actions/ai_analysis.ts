@@ -65,17 +65,6 @@ export async function generatePatientStories(sessionId: string) {
         }
     }
 
-    // 4. Fetch Answers (Context)
-    // The previous code queried 'onboarding_answers'. Let's verify if that table is populated. 
-    // ContextClient.tsx doesn't seem to insert into 'onboarding_answers'. It updates 'onboarding_sessions' columns (urgency etc).
-    // Be careful. If ContextClient DOES NOT write to 'onboarding_answers', then that table is empty.
-    // Checking ContextClient.tsx again... It calls `updateOnboardingSession`. It DOES NOT seem to insert into 'onboarding_answers'. 
-    // So distinct answers might not be stored in DB separately!
-    // We will skip detailed Q&A for now if not available, relying on what's in the session.
-    // If we want detailed Q&A, we need to ensure they are saved.
-
-    const answersList = "Patient answered questionnaire."; // Placeholder if we don't have distinct answer rows.
-
     // 5. Fetch AI Chat Transcript
     // Only if AI Nurse was used.
     let chatTranscript = 'No additional chat context.';
@@ -101,6 +90,38 @@ export async function generatePatientStories(sessionId: string) {
         // Ignore chat fetch errors
     }
 
+    // 4. Extract Context Answers from user_feedback
+    let detailedAnswers = 'None';
+    if (session.user_feedback && session.user_feedback.includes('[CONTEXT_ANSWERS]')) {
+        try {
+            const answersPart = session.user_feedback.split('[CONTEXT_ANSWERS]')[1];
+            const answersJson = JSON.parse(answersPart);
+
+            // Fetch question text to make it readable for AI
+            const { data: questions } = await supabase
+                .from('followup_questions')
+                .select('id, question_en')
+                .in('id', Object.keys(answersJson));
+
+            if (questions) {
+                detailedAnswers = questions.map(q => `${q.question_en}: ${answersJson[q.id]}`).join('\n');
+            }
+        } catch (e) {
+            console.error("AI Analysis: Failed to parse context answers", e);
+        }
+    }
+
+    // Determine category and doctor specialty recommendation
+    let category = 'medical'; // default
+    if (session.body_part) {
+        const { data: bp } = await supabase.from('body_parts').select('category_id').eq('id', session.body_part).single();
+        if (bp) category = bp.category_id;
+    }
+
+    let specialtyRecommendation = 'General Practitioner';
+    if (category === 'beauty') specialtyRecommendation = 'Dermatologist or Plastic Surgeon';
+    else if (category === 'mental') specialtyRecommendation = 'Psychologist or Psychiatrist';
+    else if (category === 'medical') specialtyRecommendation = 'Gynecologist or Internal Medicine Specialist';
 
     const prompt = `
     You are a helpful medical assistant for Marham Saudi, a women's health platform.
@@ -110,27 +131,42 @@ export async function generatePatientStories(sessionId: string) {
     - Body Part: ${bodyPartName}
     - Symptoms: ${symptomsList}
     - Age Range: ${session.age_range || 'Not specified'}
+    - Detailed Answers:
+    ${detailedAnswers}
     
     AI Nurse Context (if any):
     ${chatTranscript}
     
-    Please generate the following 5 sections in valid JSON format. Do not use markdown backticks.
+    REQUIRED: Generate a comprehensive analysis in valid JSON format. Do not use markdown backticks.
     
-    1. "clinical_summary": A concise paragraph for the doctor summarizing the patient's condition.
-    2. "patient_story": A simplified, empathetic narrative explaining to the patient what might be happening, in a reassuring tone (English).
-    3. "patient_story_ar": The same patient story translated into warm, reassuring Arabic.
-    4. "quick_tip": A very short, actionable health tip strictly based on their reported symptoms (e.g. "Stay hydrated").
-    5. "quick_tip_ar": The same quick tip in Arabic.
+    The response MUST include:
+    1. "clinical_summary": A concise paragraph for the doctor.
+    2. "patient_story": An empathetic narrative for the patient, including relatable details about their symptoms (English).
+    3. "patient_story_ar": The narrative in warm, reassuring Arabic.
+    4. "expectations": What the patient should expect in terms of recovery or next steps (English).
+    5. "expectations_ar": Expectations in Arabic.
+    6. "process_details": Description of the diagnostic or treatment processes they might undergo (English).
+    7. "process_details_ar": Process details in Arabic.
+    8. "doctor_profile": Recommendation for the type of doctor they should see. They should see a ${specialtyRecommendation}. Explain why (English).
+    9. "doctor_profile_ar": Doctor profile recommendation in Arabic.
+    10. "quick_tip": A short, actionable health tip.
+    11. "quick_tip_ar": Quick tip in Arabic.
     
     Example output format:
     {
       "clinical_summary": "...",
-        "patient_story": "...",
+      "patient_story": "...",
         "patient_story_ar": "...",
+        "expectations": "...",
+        "expectations_ar": "...",
+        "process_details": "...",
+        "process_details_ar": "...",
+        "doctor_profile": "...",
+        "doctor_profile_ar": "...",
         "quick_tip": "...",
         "quick_tip_ar": "..."
     }
-  `;
+    `;
 
     try {
         const aiText = await generateContent(prompt);

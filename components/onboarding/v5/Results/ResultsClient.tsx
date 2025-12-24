@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { scheduleNurseCall, uploadMedicalDocument } from '@/app/actions/onboarding_v5';
+import { generatePatientStories } from '@/app/actions/ai_analysis';
 import { FC } from 'react';
 import { OnboardingSession, DoctorMatch, MedicalDocument } from '@/lib/onboarding/v5/types';
 import { Button } from '@/components/ui/button';
@@ -30,12 +31,40 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
     const [nurseScheduled, setNurseScheduled] = useState(session.scheduled_nurse_call);
     const [showNurseDialog, setShowNurseDialog] = useState(false);
     const [phone, setPhone] = useState('');
-
     const [uploading, setUploading] = useState(false);
     const [documentType, setDocumentType] = useState('diagnosis');
     const [documents, setDocuments] = useState<MedicalDocument[]>(initialDocuments || []);
     const [documentCount, setDocumentCount] = useState(session.documents_uploaded || (initialDocuments?.length || 0));
     const [showAiChat, setShowAiChat] = useState(false);
+    const [aiLanguage, setAiLanguage] = useState<'ar' | 'en'>('ar');
+    const [currentAiInsights, setCurrentAiInsights] = useState(aiInsights);
+    const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+
+    useEffect(() => {
+        if (!currentAiInsights && !isGeneratingAi) {
+            handleGenerateAi();
+        }
+    }, []);
+
+    const handleGenerateAi = async () => {
+        if (isGeneratingAi) return;
+        setIsGeneratingAi(true);
+        try {
+            const result = await generatePatientStories(session.id);
+            if (result.success) {
+                setCurrentAiInsights(result.data);
+                // toast.success('تم تحديث التقرير بنجاح');
+            } else {
+                toast.error('الخدمة مزدحمة حالياً، سنحاول مرة أخرى');
+                // Optional: retry after a delay
+                setTimeout(handleGenerateAi, 5000);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsGeneratingAi(false);
+        }
+    };
 
     const handleScheduleNurse = async () => {
         if (!phone) {
@@ -171,11 +200,143 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
 
                         {/* Always show Quick Tip if available from AI */}
                         {aiInsights?.quick_tip && (
-                            <Card className="bg-blue-50 border-blue-100 mt-4">
-                                <CardContent className="p-6">
-                                    <h3 className="font-bold text-blue-900 mb-2 font-arabic">نصيحة سريعة (بالذكاء الاصطناعي)</h3>
-                                    <p className="text-blue-700 font-arabic">{aiInsights.quick_tip}</p>
+                            <Card className="bg-teal-50 border-teal-100 mt-4 overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-teal-100/50 rounded-full -mr-8 -mt-8 blur-xl"></div>
+                                <CardContent className="p-6 relative z-10">
+                                    <h3 className="font-bold text-teal-900 mb-2 flex items-center gap-2 font-arabic">
+                                        <Sparkles className="w-5 h-5 text-teal-600" />
+                                        <span>نصيحة سريعة</span>
+                                    </h3>
+                                    <p className="text-teal-800 font-arabic leading-relaxed">
+                                        {aiLanguage === 'ar' ? aiInsights.quick_tip_ar : aiInsights.quick_tip}
+                                    </p>
                                 </CardContent>
+                            </Card>
+                        )}
+
+                        {/* AI Analysis Sections */}
+                        {currentAiInsights ? (
+                            <div className="space-y-6 mt-8">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-xl font-bold flex items-center gap-2 text-slate-800 font-arabic">
+                                        <Bot className="w-5 h-5 text-violet-600" />
+                                        <span>تقرير الذكاء الاصطناعي الشامل</span>
+                                    </h2>
+                                    <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+                                        <button
+                                            onClick={() => setAiLanguage('ar')}
+                                            className={`px-3 py-1 text-xs rounded-md transition-all ${aiLanguage === 'ar' ? 'bg-white shadow-sm text-violet-700 font-bold' : 'text-slate-500'}`}
+                                        >العربية</button>
+                                        <button
+                                            onClick={() => setAiLanguage('en')}
+                                            className={`px-3 py-1 text-xs rounded-md transition-all ${aiLanguage === 'en' ? 'bg-white shadow-sm text-violet-700 font-bold' : 'text-slate-500'}`}
+                                        >English</button>
+                                    </div>
+                                </div>
+
+                                {/* Patient Narrative */}
+                                <Card className="border-violet-100 bg-violet-50/30">
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-lg font-bold text-violet-900 flex items-center gap-2 font-arabic">
+                                            <Sparkles className="w-5 h-5" />
+                                            <span>تحليل الحالة</span>
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="text-slate-700 font-arabic leading-relaxed whitespace-pre-wrap">
+                                            {aiLanguage === 'ar' ? currentAiInsights.patient_story_ar : currentAiInsights.patient_story}
+                                        </p>
+                                    </CardContent>
+                                </Card>
+
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    {/* Expectations */}
+                                    <Card className="border-emerald-100 bg-emerald-50/30">
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base font-bold text-emerald-900 flex items-center gap-2 font-arabic">
+                                                <Calendar className="w-4 h-4" />
+                                                <span>ماذا نتوقع؟</span>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="text-sm text-slate-700 font-arabic leading-relaxed">
+                                                {aiLanguage === 'ar' ? currentAiInsights.expectations_ar : currentAiInsights.expectations}
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Process Details */}
+                                    <Card className="border-blue-100 bg-blue-50/30">
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base font-bold text-blue-900 flex items-center gap-2 font-arabic">
+                                                <FileText className="w-4 h-4" />
+                                                <span>خطوات التشخيص</span>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="text-sm text-slate-700 font-arabic leading-relaxed">
+                                                {aiLanguage === 'ar' ? currentAiInsights.process_details_ar : currentAiInsights.process_details}
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Recommended Doctor Profile */}
+                                <Card className="border-indigo-100 bg-gradient-to-r from-indigo-50/50 to-white overflow-hidden relative">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                                    <CardContent className="p-6 relative z-10">
+                                        <div className="flex flex-col sm:flex-row gap-4 items-start">
+                                            <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shrink-0">
+                                                <Stethoscope className="w-8 h-8 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-lg text-indigo-900 mb-2 font-arabic">التوصية بالتخصص الطبي</h3>
+                                                <p className="text-slate-700 font-arabic leading-relaxed">
+                                                    {aiLanguage === 'ar' ? currentAiInsights.doctor_profile_ar : currentAiInsights.doctor_profile}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        ) : (
+                            <Card className="mt-8 border-none bg-gradient-to-br from-violet-50 to-white shadow-inner overflow-hidden relative">
+                                <div className="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-0"></div>
+                                <CardContent className="p-10 text-center relative z-10">
+                                    <div className="relative w-24 h-24 mx-auto mb-6">
+                                        <div className="absolute inset-0 bg-violet-200 rounded-full animate-ping opacity-25"></div>
+                                        <div className="relative bg-white w-24 h-24 rounded-full shadow-lg flex items-center justify-center">
+                                            <Bot className="w-12 h-12 text-violet-600 animate-pulse" />
+                                        </div>
+                                        <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-lg shadow-md">
+                                            <Sparkles className="w-5 h-5 text-yellow-500 animate-bounce" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-900 mb-2 font-arabic">جاري توليد تقرير الذكاء الاصطناعي...</h3>
+                                    <p className="text-slate-500 mb-8 font-arabic max-w-sm mx-auto">
+                                        يقوم Gemini الآن بتحليل إجاباتك وأعراضك بدقة لتوفير أفضل توصية طبية لكِ.
+                                    </p>
+
+                                    <div className="flex flex-col gap-3 max-w-xs mx-auto">
+                                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                            <div className="h-full bg-violet-600 animate-progress-indefinite rounded-full w-1/2"></div>
+                                        </div>
+                                        <div className="flex justify-between text-[10px] text-slate-400 font-arabic">
+                                            <span>تحليل الإجابات</span>
+                                            <span>تحديد الأخصائية</span>
+                                            <span>كتابة التقرير</span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                                <style jsx>{`
+                                    @keyframes progress-indefinite {
+                                        0% { transform: translateX(-100%); }
+                                        100% { transform: translateX(200%); }
+                                    }
+                                    .animate-progress-indefinite {
+                                        animation: progress-indefinite 2s infinite linear;
+                                    }
+                                `}</style>
                             </Card>
                         )}
                     </section>

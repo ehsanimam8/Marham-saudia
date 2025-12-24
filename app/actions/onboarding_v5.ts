@@ -242,6 +242,7 @@ interface UpdateSessionData {
         approach?: number;
     };
     userFeedback?: string;
+    contextAnswers?: Record<string, any>;
 }
 
 export async function updateOnboardingSession(data: UpdateSessionData) {
@@ -294,6 +295,28 @@ export async function updateOnboardingSession(data: UpdateSessionData) {
         const oldFeedback = (existing as any)?.user_feedback || '';
         const separator = oldFeedback ? '\n---\n' : '';
         dbUpdates.user_feedback = `${oldFeedback}${separator}${updates.userFeedback}`;
+    }
+
+    if (updates.contextAnswers) {
+        // Store answers as a tagged JSON block in user_feedback
+        const answersStr = `[CONTEXT_ANSWERS]${JSON.stringify(updates.contextAnswers)}`;
+
+        // Fetch existing feedback to append
+        const { data: existing } = await supabase
+            .from('onboarding_sessions')
+            .select('user_feedback')
+            .eq('id', sessionId)
+            .single();
+
+        const oldFeedback = (existing as any)?.user_feedback || '';
+        // If we already have answers, we might want to replace them or append. 
+        // For simplicity, let's just append if it's not already there, or replace the block.
+        if (oldFeedback.includes('[CONTEXT_ANSWERS]')) {
+            dbUpdates.user_feedback = oldFeedback.replace(/\[CONTEXT_ANSWERS\].*$/, answersStr);
+        } else {
+            const separator = oldFeedback ? '\n' : '';
+            dbUpdates.user_feedback = `${oldFeedback}${separator}${answersStr}`;
+        }
     }
 
     const { error } = await supabase
