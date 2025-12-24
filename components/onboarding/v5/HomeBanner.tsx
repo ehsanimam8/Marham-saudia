@@ -26,8 +26,8 @@ export default function HomeBanner({ className = "" }: { className?: string }) {
                 {/* Text Section */}
                 <div className="flex-1 text-center md:text-right z-10">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/10 text-white text-xs font-medium mb-3">
-                        <Sparkles className="w-3 h-3 text-yellow-300" />
-                        <span>ميزة جديدة: الفحص بالذكاء الاصطناعي</span>
+                        <Activity className="w-3 h-3 text-white" />
+                        <span>تقييم فوري للأعراض</span>
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
                         محتار أي تخصص تحتاج؟

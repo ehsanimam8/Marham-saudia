@@ -91,7 +91,11 @@ export default function RecordsPageClient({ initialRecords }: { initialRecords: 
                             <div key={record.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all group">
                                 <div className="p-1 min-h-[160px] bg-gray-50 relative flex items-center justify-center overflow-hidden">
                                     {/* Preview if image */}
-                                    {record.signedUrl && (record.name.match(/\.(jpg|jpeg|png|webp)$/i) || record.description?.match(/\.(jpg|jpeg|png|webp)$/i)) ? (
+                                    {record.signedUrl && (
+                                        record.name.match(/\.(jpg|jpeg|png|webp|heic)$/i) ||
+                                        record.description?.match(/\.(jpg|jpeg|png|webp|heic)$/i) ||
+                                        record.signedUrl.split('?')[0].match(/\.(jpg|jpeg|png|webp|heic)$/i)
+                                    ) ? (
                                         <div className="relative w-full h-full min-h-[200px]">
                                             <Image
                                                 src={record.signedUrl}

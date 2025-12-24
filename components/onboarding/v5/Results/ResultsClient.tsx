@@ -1,31 +1,34 @@
+// @ts-nocheck
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { scheduleNurseCall, uploadMedicalDocument } from '@/app/actions/onboarding_v5';
-import { generatePatientStories } from '@/app/actions/ai_analysis';
 import { FC } from 'react';
 import { OnboardingSession, DoctorMatch, MedicalDocument } from '@/lib/onboarding/v5/types';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Calendar, Clock, Stethoscope, Video, FileText, Upload, CheckCircle, AlertCircle, Bot, Sparkles } from 'lucide-react';
+import { Star, MapPin, Calendar, Clock, Stethoscope, Video, FileText, Upload, CheckCircle, AlertCircle, Trash2, Phone } from 'lucide-react';
 import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Trash2, Phone } from 'lucide-react';
 import { deleteMedicalDocument } from '@/app/actions/onboarding_v5';
-import AiNurseChat from './AiNurseChat';
 
 interface ResultsClientProps {
     session: OnboardingSession;
     matchedDoctors: DoctorMatch[];
     articles: any[];
     documents: MedicalDocument[];
-    aiInsights?: any;
+    summaryData?: {
+        concern: any;
+        bodyPart: any;
+        symptoms: any[];
+        contextAnswers: any[];
+    };
 }
 
-const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articles, documents: initialDocuments, aiInsights }) => {
+const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articles, documents: initialDocuments, summaryData }) => {
     const router = useRouter();
     const [isSchedulingNurse, setIsSchedulingNurse] = useState(false);
     const [nurseScheduled, setNurseScheduled] = useState(session.scheduled_nurse_call);
@@ -35,36 +38,6 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
     const [documentType, setDocumentType] = useState('diagnosis');
     const [documents, setDocuments] = useState<MedicalDocument[]>(initialDocuments || []);
     const [documentCount, setDocumentCount] = useState(session.documents_uploaded || (initialDocuments?.length || 0));
-    const [showAiChat, setShowAiChat] = useState(false);
-    const [aiLanguage, setAiLanguage] = useState<'ar' | 'en'>('ar');
-    const [currentAiInsights, setCurrentAiInsights] = useState(aiInsights);
-    const [isGeneratingAi, setIsGeneratingAi] = useState(false);
-
-    useEffect(() => {
-        if (!currentAiInsights && !isGeneratingAi) {
-            handleGenerateAi();
-        }
-    }, []);
-
-    const handleGenerateAi = async () => {
-        if (isGeneratingAi) return;
-        setIsGeneratingAi(true);
-        try {
-            const result = await generatePatientStories(session.id);
-            if (result.success) {
-                setCurrentAiInsights(result.data);
-                // toast.success('تم تحديث التقرير بنجاح');
-            } else {
-                toast.error('الخدمة مزدحمة حالياً، سنحاول مرة أخرى');
-                // Optional: retry after a delay
-                setTimeout(handleGenerateAi, 5000);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsGeneratingAi(false);
-        }
-    };
 
     const handleScheduleNurse = async () => {
         if (!phone) {
@@ -134,32 +107,99 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
 
     return (
         <div className="max-w-5xl mx-auto p-4 pb-20 space-y-8 relative">
-            {/* AI Chat Overlay */}
-            {showAiChat && (
-                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-                    <AiNurseChat
-                        sessionId={session.id}
-                        onClose={() => setShowAiChat(false)}
-                        onComplete={() => {
-                            setShowAiChat(false);
-                            setShowNurseDialog(true);
-                            toast.success("AI Assessment Complete. Please schedule your call.");
-                        }}
-                    />
-                </div>
-            )}
             {/* Header */}
-            <header className="text-center py-8 bg-gradient-to-b from-teal-50 to-white rounded-b-3xl -mt-4 mb-4 select-none">
-                <div className="inline-block p-3 bg-teal-100 rounded-full mb-4">
-                    <CheckCircle className="w-8 h-8 text-teal-600" />
+            <header className="text-center py-10 bg-gradient-to-br from-teal-600 via-teal-500 to-teal-400 rounded-3xl mb-8 shadow-xl shadow-teal-500/20 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-24 -mb-24 blur-2xl"></div>
+
+                <div className="relative z-10 flex flex-col items-center">
+                    <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl mb-4 border border-white/30 shadow-inner">
+                        <CheckCircle className="w-10 h-10 text-white" />
+                    </div>
+                    <h1 className="text-4xl font-bold mb-3 font-arabic">اكتمل تحليل حالتك</h1>
+                    <p className="text-teal-50 max-w-lg mx-auto font-arabic text-lg opacity-90">لقد قمنا بتحليل اختياراتك وأعددنا لكِ أفضل الخيارات الطبية المناسبة.</p>
                 </div>
-                <h1 className="text-3xl font-bold text-teal-900 mb-2 font-arabic">اكتمل التحليل</h1>
-                <p className="text-gray-600 max-w-lg mx-auto font-arabic">لقد قمنا بتحليل أعراضك وأعددنا لكِ خطة رعاية مخصصة.</p>
             </header>
 
             <div className="grid md:grid-cols-3 gap-8">
-
                 <div className="md:col-span-2 space-y-8">
+                    {/* 0. Selection Summary Card */}
+                    {summaryData && (
+                        <Card className="border-none shadow-lg bg-white overflow-hidden group">
+                            <CardHeader className="bg-slate-50/50 border-b border-slate-100 flex flex-row items-center justify-between py-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-teal-100 rounded-lg">
+                                        <FileText className="w-5 h-5 text-teal-600" />
+                                    </div>
+                                    <CardTitle className="text-xl font-bold font-arabic text-slate-800">ملخص إجاباتك</CardTitle>
+                                </div>
+                                <div className="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full border border-teal-100 font-arabic">
+                                    تم التحديث الآن
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    {/* Primary Concern & Body Part */}
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-teal-50/50 rounded-2xl border border-teal-100/50 hover:bg-teal-50 transition-colors">
+                                            <Label className="text-teal-600 font-bold mb-2 block text-right font-arabic">المجال الرئيسي</Label>
+                                            <div className="flex items-center gap-3 flex-row-reverse">
+                                                <span className="text-2xl">{summaryData.concern?.icon || '🩺'}</span>
+                                                <div className="text-right">
+                                                    <div className="font-bold text-slate-800 font-arabic">{summaryData.concern?.name_ar || 'غير محدد'}</div>
+                                                    <div className="text-xs text-slate-500 font-arabic">{summaryData.bodyPart?.name_ar || 'كامل الجسم'}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {summaryData.symptoms.length > 0 && (
+                                            <div className="p-4 bg-rose-50/50 rounded-2xl border border-rose-100/50 hover:bg-rose-50 transition-colors">
+                                                <Label className="text-rose-600 font-bold mb-2 block text-right font-arabic">الأعراض المحددة</Label>
+                                                <div className="flex flex-wrap gap-2 justify-end">
+                                                    {summaryData.symptoms.map(s => (
+                                                        <span key={s.id} className="px-3 py-1 bg-white border border-rose-100 rounded-full text-sm font-medium text-rose-700 shadow-sm font-arabic">
+                                                            {s.name_ar}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Context & Metadata */}
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 hover:bg-blue-50 transition-colors">
+                                            <Label className="text-blue-600 font-bold mb-2 block text-right font-arabic">معلومات المريض</Label>
+                                            <div className="space-y-2 text-right">
+                                                <div className="flex items-center justify-between flex-row-reverse">
+                                                    <span className="text-slate-500 text-sm font-arabic">العمر:</span>
+                                                    <span className="font-semibold text-slate-800 font-arabic">{session.age_range || 'غير محدد'} سنوات</span>
+                                                </div>
+                                                <div className="flex items-center justify-between flex-row-reverse">
+                                                    <span className="text-slate-500 text-sm font-arabic">الحالة:</span>
+                                                    <span className="font-semibold text-slate-800 font-arabic">{session.urgency === 'very_urgent' ? 'طارئة' : session.urgency === 'urgent' ? 'عاجلة' : 'روتينية'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {summaryData.contextAnswers.length > 0 && (
+                                            <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/50">
+                                                <Label className="text-slate-600 font-bold mb-3 block text-right font-arabic">إجابات إضافية</Label>
+                                                <div className="space-y-3">
+                                                    {summaryData.contextAnswers.slice(0, 3).map((a, i) => (
+                                                        <div key={i} className="text-right border-r-2 border-slate-200 pr-3">
+                                                            <div className="text-[10px] text-slate-400 font-arabic leading-tight mb-0.5">{a.question}</div>
+                                                            <div className="text-sm font-bold text-slate-700 font-arabic">{a.answer === 'yes' ? 'نعم' : a.answer === 'no' ? 'لا' : a.answer}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
                     {/* 1. Helpful Content / Tips */}
                     <section>
                         <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-800 font-arabic">
@@ -197,148 +237,6 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                 ))}
                             </div>
                         ) : null}
-
-                        {/* Always show Quick Tip if available from AI */}
-                        {aiInsights?.quick_tip && (
-                            <Card className="bg-teal-50 border-teal-100 mt-4 overflow-hidden relative">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-teal-100/50 rounded-full -mr-8 -mt-8 blur-xl"></div>
-                                <CardContent className="p-6 relative z-10">
-                                    <h3 className="font-bold text-teal-900 mb-2 flex items-center gap-2 font-arabic">
-                                        <Sparkles className="w-5 h-5 text-teal-600" />
-                                        <span>نصيحة سريعة</span>
-                                    </h3>
-                                    <p className="text-teal-800 font-arabic leading-relaxed">
-                                        {aiLanguage === 'ar' ? aiInsights.quick_tip_ar : aiInsights.quick_tip}
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {/* AI Analysis Sections */}
-                        {currentAiInsights ? (
-                            <div className="space-y-6 mt-8">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-xl font-bold flex items-center gap-2 text-slate-800 font-arabic">
-                                        <Bot className="w-5 h-5 text-violet-600" />
-                                        <span>تقرير الذكاء الاصطناعي الشامل</span>
-                                    </h2>
-                                    <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
-                                        <button
-                                            onClick={() => setAiLanguage('ar')}
-                                            className={`px-3 py-1 text-xs rounded-md transition-all ${aiLanguage === 'ar' ? 'bg-white shadow-sm text-violet-700 font-bold' : 'text-slate-500'}`}
-                                        >العربية</button>
-                                        <button
-                                            onClick={() => setAiLanguage('en')}
-                                            className={`px-3 py-1 text-xs rounded-md transition-all ${aiLanguage === 'en' ? 'bg-white shadow-sm text-violet-700 font-bold' : 'text-slate-500'}`}
-                                        >English</button>
-                                    </div>
-                                </div>
-
-                                {/* Patient Narrative */}
-                                <Card className="border-violet-100 bg-violet-50/30">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="text-lg font-bold text-violet-900 flex items-center gap-2 font-arabic">
-                                            <Sparkles className="w-5 h-5" />
-                                            <span>تحليل الحالة</span>
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-slate-700 font-arabic leading-relaxed whitespace-pre-wrap">
-                                            {aiLanguage === 'ar' ? currentAiInsights.patient_story_ar : currentAiInsights.patient_story}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    {/* Expectations */}
-                                    <Card className="border-emerald-100 bg-emerald-50/30">
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-base font-bold text-emerald-900 flex items-center gap-2 font-arabic">
-                                                <Calendar className="w-4 h-4" />
-                                                <span>ماذا نتوقع؟</span>
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-slate-700 font-arabic leading-relaxed">
-                                                {aiLanguage === 'ar' ? currentAiInsights.expectations_ar : currentAiInsights.expectations}
-                                            </p>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Process Details */}
-                                    <Card className="border-blue-100 bg-blue-50/30">
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-base font-bold text-blue-900 flex items-center gap-2 font-arabic">
-                                                <FileText className="w-4 h-4" />
-                                                <span>خطوات التشخيص</span>
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-slate-700 font-arabic leading-relaxed">
-                                                {aiLanguage === 'ar' ? currentAiInsights.process_details_ar : currentAiInsights.process_details}
-                                            </p>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Recommended Doctor Profile */}
-                                <Card className="border-indigo-100 bg-gradient-to-r from-indigo-50/50 to-white overflow-hidden relative">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                                    <CardContent className="p-6 relative z-10">
-                                        <div className="flex flex-col sm:flex-row gap-4 items-start">
-                                            <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shrink-0">
-                                                <Stethoscope className="w-8 h-8 text-white" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-lg text-indigo-900 mb-2 font-arabic">التوصية بالتخصص الطبي</h3>
-                                                <p className="text-slate-700 font-arabic leading-relaxed">
-                                                    {aiLanguage === 'ar' ? currentAiInsights.doctor_profile_ar : currentAiInsights.doctor_profile}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        ) : (
-                            <Card className="mt-8 border-none bg-gradient-to-br from-violet-50 to-white shadow-inner overflow-hidden relative">
-                                <div className="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-0"></div>
-                                <CardContent className="p-10 text-center relative z-10">
-                                    <div className="relative w-24 h-24 mx-auto mb-6">
-                                        <div className="absolute inset-0 bg-violet-200 rounded-full animate-ping opacity-25"></div>
-                                        <div className="relative bg-white w-24 h-24 rounded-full shadow-lg flex items-center justify-center">
-                                            <Bot className="w-12 h-12 text-violet-600 animate-pulse" />
-                                        </div>
-                                        <div className="absolute -bottom-2 -right-2 bg-white p-2 rounded-lg shadow-md">
-                                            <Sparkles className="w-5 h-5 text-yellow-500 animate-bounce" />
-                                        </div>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-slate-900 mb-2 font-arabic">جاري توليد تقرير الذكاء الاصطناعي...</h3>
-                                    <p className="text-slate-500 mb-8 font-arabic max-w-sm mx-auto">
-                                        يقوم Gemini الآن بتحليل إجاباتك وأعراضك بدقة لتوفير أفضل توصية طبية لكِ.
-                                    </p>
-
-                                    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-                                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-violet-600 animate-progress-indefinite rounded-full w-1/2"></div>
-                                        </div>
-                                        <div className="flex justify-between text-[10px] text-slate-400 font-arabic">
-                                            <span>تحليل الإجابات</span>
-                                            <span>تحديد الأخصائية</span>
-                                            <span>كتابة التقرير</span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <style jsx>{`
-                                    @keyframes progress-indefinite {
-                                        0% { transform: translateX(-100%); }
-                                        100% { transform: translateX(200%); }
-                                    }
-                                    .animate-progress-indefinite {
-                                        animation: progress-indefinite 2s infinite linear;
-                                    }
-                                `}</style>
-                            </Card>
-                        )}
                     </section>
 
                     {/* 2. Doctor Matches */}
@@ -422,29 +320,6 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
 
                 {/* Sidebar Actions */}
                 <div className="space-y-6">
-
-                    {/* NEW: AI Nurse CTA */}
-                    <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-700 text-white border-none shadow-xl overflow-hidden relative group cursor-pointer hover:scale-[1.02] transition-transform" onClick={() => setShowAiChat(true)}>
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl animate-pulse"></div>
-                        <CardContent className="p-6 relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                                    <Sparkles className="w-6 h-6 text-yellow-300" />
-                                </div>
-                                <span className="bg-white/20 text-xs px-2 py-1 rounded-full backdrop-blur-md">مدعوم من Gemini Pro</span>
-                            </div>
-
-                            <h3 className="text-2xl font-bold mb-2 font-arabic">تحليل تفصيلي بالذكاء الاصطناعي</h3>
-                            <p className="text-violet-100 text-sm mb-6 leading-relaxed font-arabic">
-                                تحدثي مع ممرضة مرهم الآلية لتقديم تاريخ طبي أعمق. سنقوم بتسجيل تفاصيلك للطبيبة والتحقق من حالتك.
-                            </p>
-
-                            <Button variant="secondary" className="w-full bg-white text-violet-700 font-bold hover:bg-violet-50 font-arabic">
-                                ابدأي التقييم الذكي
-                            </Button>
-                        </CardContent>
-                    </Card>
-
                     {/* 3. Nurse Consultation CTA */}
                     <Card className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white border-none shadow-lg overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-xl"></div>
@@ -570,17 +445,42 @@ const ResultsClient: FC<ResultsClientProps> = ({ session, matchedDoctors, articl
                                 <div className="mt-6 space-y-3 text-right">
                                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 font-arabic">الملفات المرفوعة</h4>
                                     {documents.map((doc: MedicalDocument) => (
-                                        <div key={doc.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 shadow-sm text-sm group">
-                                            <div className="flex items-center gap-2 overflow-hidden">
-                                                <FileText className="w-4 h-4 text-teal-500 shrink-0" />
-                                                <span className="truncate text-gray-700">{doc.file_name}</span>
+                                        <div key={doc.id} className="flex flex-col p-3 bg-white rounded-lg border border-gray-100 shadow-sm text-sm group">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2 overflow-hidden">
+                                                    <FileText className="w-4 h-4 text-teal-500 shrink-0" />
+                                                    <span className="truncate text-gray-700">{doc.file_name}</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteDocument(doc.id)}
+                                                    className="text-gray-400 hover:text-red-500 p-1 transition-opacity"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </div>
-                                            <button
-                                                onClick={() => handleDeleteDocument(doc.id)}
-                                                className="text-gray-400 hover:text-red-500 p-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+
+                                            {/* Image Preview */}
+                                            {doc.file_type.startsWith('image/') && (
+                                                <div className="mt-2 rounded-md overflow-hidden border border-gray-50 bg-gray-50 max-h-32">
+                                                    <img
+                                                        src={doc.file_url}
+                                                        alt={doc.file_name}
+                                                        className="w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                                                        onClick={() => window.open(doc.file_url, '_blank')}
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {doc.file_type === 'application/pdf' && (
+                                                <a
+                                                    href={doc.file_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="mt-1 text-xs text-teal-600 font-bold hover:underline font-arabic text-left"
+                                                >
+                                                    عرض ملف PDF
+                                                </a>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

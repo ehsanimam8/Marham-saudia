@@ -74,11 +74,16 @@ export async function uploadConsultationFile(formData: FormData) {
             if (targetPatientId) {
                 await adminClient.from('medical_documents').insert({
                     patient_id: targetPatientId,
+                    title: file.name,
                     document_name: description || file.name,
                     document_url: publicUrl,
-                    document_type: file.type.includes('image') ? 'image' : 'report',
+                    file_url: publicUrl,
+                    file_name: file.name,
+                    file_size_bytes: file.size,
+                    file_type: file.type,
+                    document_type: file.type.includes('image') ? 'imaging' : 'other',
                     uploaded_at: new Date().toISOString()
-                });
+                } as any);
             }
         }
 

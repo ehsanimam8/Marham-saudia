@@ -1,0 +1,17 @@
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient('https://znmnqvmcwjjtocbosgnr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpubW5xdm1jd2pqdG9jYm9zZ25yIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDg0NTc2MywiZXhwIjoyMDgwNDIxNzYzfQ.SSJNR6LF4DfEySQSE9AqKenYKW4TkYSwgCzZSLFnduM');
+
+async function checkColumns() {
+    const { data, error } = await supabase.from('onboarding_sessions').select('*').limit(1);
+    if (error) {
+        console.error(error);
+        return;
+    }
+    if (data && data.length > 0) {
+        console.log('Columns:', Object.keys(data[0]));
+    } else {
+        console.log('No data found in onboarding_sessions');
+    }
+}
+
+checkColumns();

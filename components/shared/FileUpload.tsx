@@ -33,6 +33,9 @@ export function FileUpload({
         setUploading(true);
         const uploadedFiles: UploadedFile[] = [];
 
+        // Determine bucket - Standardizing on medical-records which is public and has correct RLS
+        const bucketName = 'medical-records';
+
         for (const file of Array.from(e.target.files)) {
             // Validate file
             if (file.size > 10 * 1024 * 1024) {
@@ -42,11 +45,11 @@ export function FileUpload({
 
             // Upload to Supabase Storage
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `medical-documents/${patientId}/${appointmentId}/${fileName}`;
+            const fileName = `${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${patientId}/${appointmentId}/${fileName}`;
 
-            const { error: uploadError, data } = await supabase.storage
-                .from('medical-files')
+            const { error: uploadError } = await supabase.storage
+                .from(bucketName)
                 .upload(filePath, file);
 
             if (uploadError) {
@@ -57,7 +60,7 @@ export function FileUpload({
 
             // Get public URL
             const { data: { publicUrl } } = supabase.storage
-                .from('medical-files')
+                .from(bucketName)
                 .getPublicUrl(filePath);
 
             // Auto-detect category
@@ -68,7 +71,7 @@ export function FileUpload({
                 .from('medical_documents') as any)
                 .insert({
                     patient_id: patientId,
-                    document_type: category,
+                    document_type: category, // Using normalized categories
                     title: file.name,
                     file_url: publicUrl,
                     file_name: file.name,
@@ -101,25 +104,18 @@ export function FileUpload({
         setUploading(false);
         if (uploadedFiles.length > 0) {
             toast.success("تم رفع الملفات بنجاح");
-            // We trigger callback with cumulative files or just new ones? 
-            // Spec says `onUploadComplete(uploadedFiles)`. 
-            // If we want to persist ALL files in parent, we might pass all.
-            // But let's pass the new ones, or better, pass the updated total list if parent manages ID list.
-            // Actually the parent needs IDs.
-            // Let's pass the single new batch, but usage depends on parent.
-            // I will update the parent to just append IDs. 
             onUploadComplete(uploadedFiles);
         }
     }
 
     function detectCategory(fileName: string, fileType: string): string {
         const lower = fileName.toLowerCase();
-        if (lower.includes('blood') || lower.includes('cbc') || lower.includes('lab') || lower.includes('تحليل')) return 'blood_test';
-        if (lower.includes('xray') || lower.includes('x-ray') || lower.includes('أشعة')) return 'xray';
-        if (lower.includes('ultrasound') || lower.includes('sono') || lower.includes('سونار')) return 'ultrasound';
-        if (lower.includes('mri') || lower.includes('رنين')) return 'mri';
+        // Matching with DB Enum: lab_result, prescription, imaging, diagnosis, surgical_record, allergy_record, vaccination, insurance, other
+        if (lower.includes('blood') || lower.includes('cbc') || lower.includes('lab') || lower.includes('تحليل')) return 'lab_result';
+        if (lower.includes('xray') || lower.includes('x-ray') || lower.includes('أشعة') || lower.includes('ultrasound') || lower.includes('mri')) return 'imaging';
         if (lower.includes('prescription') || lower.includes('rx') || lower.includes('وصفة')) return 'prescription';
-        if (fileType.startsWith('image/')) return 'report';
+        if (lower.includes('diagnosis') || lower.includes('تشخيص') || lower.includes('report') || lower.includes('تقرير')) return 'diagnosis';
+        if (fileType.startsWith('image/')) return 'imaging';
         return 'other';
     }
 

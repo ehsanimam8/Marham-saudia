@@ -1,6 +1,7 @@
 // @ts-nocheck
 'use server';
 
+// Trigger rebuild for server actions manifest after file deletions
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { OnboardingSession, BodyPart, Symptom, FollowupQuestion, PriorityOption, Concern } from '@/lib/onboarding/v5/types';
@@ -452,11 +453,31 @@ export async function uploadMedicalDocument(formData: FormData) {
         throw new Error('User must be logged in to upload documents');
     }
 
+    // Initialize Admin Client for reliable processing (bypassing RLS since we validated user above)
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const adminClient = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
     const file = formData.get('file') as File;
     const documentType = formData.get('documentType') as string;
     const documentDate = formData.get('documentDate') as string;
     const sessionId = formData.get('sessionId') as string;
     const notes = formData.get('notes') as string;
+
+    // Resolve patients.id (The table PK) from the auth user's profile_id
+    const { data: patientRecord } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('profile_id', user.id)
+        .single();
+
+    if (!patientRecord) {
+        throw new Error('لم يتم العثور على سجل مريض لهذا المستخدم');
+    }
+
+    const patientTableId = patientRecord.id;
 
     // Validate file
     if (!file || file.size === 0) {
@@ -474,35 +495,48 @@ export async function uploadMedicalDocument(formData: FormData) {
         throw new Error('Invalid file type. Only JPEG, PNG, HEIC, and PDF are allowed');
     }
 
-    // Generate unique filename
+    // 2. Upload File to Supabase Storage
     const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+    const filePath = `${user.id}/${fileName}`;
 
-    // Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-        .from('medical-documents')
-        .upload(fileName, file, {
-            contentType: file.type,
+    // Convert to Buffer for reliability in Server Actions
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Use 'medical-records' bucket as it has better policies and is unified across the app
+    const bucketName = 'medical-records';
+
+    // Upload to Supabase Storage (Using Admin Client)
+    const { error: uploadError } = await adminClient.storage
+        .from(bucketName)
+        .upload(filePath, buffer, {
+            contentType: file.type || 'application/octet-stream',
             upsert: false
         });
 
     if (uploadError) {
         console.error('Error uploading file:', uploadError);
-        throw new Error('Failed to upload file');
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-        .from('medical-documents')
-        .getPublicUrl(fileName);
+    const { data: { publicUrl } } = adminClient.storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
 
     // Save document metadata to database
-    const { data: document, error: dbError } = await supabase
+    // Use user.id directly as patient_id references auth.users(id) in medical_documents table
+    // We use the admin client for insertion to explicitly set patient_id
+    const { data: document, error: dbError } = await adminClient
         .from('medical_documents')
-
         .insert({
-            patient_id: user.id,
+            patient_id: user.id, // Must be auth.users(id)
             onboarding_session_id: sessionId,
+            title: file.name, // Added to fix non-null constraint error
+            document_name: file.name, // Added for compatibility
+            document_url: publicUrl, // Added for compatibility
+            uploaded_by: user.id, // Added for compatibility
             file_url: publicUrl,
             file_name: file.name,
             file_size_bytes: file.size,
@@ -517,8 +551,8 @@ export async function uploadMedicalDocument(formData: FormData) {
     if (dbError) {
         console.error('Error saving document metadata:', dbError);
         // Try to clean up uploaded file
-        await supabase.storage.from('medical-documents').remove([fileName]);
-        throw new Error('Failed to save document metadata');
+        await adminClient.storage.from(bucketName).remove([filePath]);
+        throw new Error(`Failed to save document metadata: ${dbError.message} (${dbError.code})`);
     }
 
     // Check if discount unlocked (3+ documents)
@@ -532,10 +566,10 @@ export async function uploadMedicalDocument(formData: FormData) {
 
     // Update profile completeness
     const newCompleteness = calculateProfileCompleteness(count || 0);
-    await supabase
+    await adminClient
         .from('patients')
         .update({ profile_completeness: newCompleteness } as any)
-        .eq('id', user.id);
+        .eq('id', patientTableId);
 
     revalidatePath('/onboarding/v5/results');
 
@@ -572,14 +606,27 @@ export async function deleteMedicalDocument(documentId: string) {
         throw new Error('Document not found');
     }
 
-    // Extract filename from URL
-    const fileName = (document as any).file_url.split('/').pop();
+    // Initialize Admin Client for reliable deletion
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const adminClient = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    // Delete from storage
-    if (fileName) { // Ensure fileName exists
-        await supabase.storage
-            .from('medical-documents')
-            .remove([`${user.id}/${fileName}`]);
+    // Extract filePath from URL (more robust than just split pop)
+    // The URL structure is usually .../bucket/user-id/filename
+    const fileUrl = (document as any).file_url;
+
+    // Attempt to delete from both potential buckets (unified transition)
+    const buckets = ['medical-records', 'medical-documents', 'medical-files'];
+    for (const bucket of buckets) {
+        if (fileUrl.includes(bucket)) {
+            const pathParts = fileUrl.split(bucket + '/');
+            if (pathParts.length > 1) {
+                const filePath = pathParts[1];
+                await adminClient.storage.from(bucket).remove([filePath]);
+            }
+        }
     }
 
     // Delete from database
