@@ -58,14 +58,13 @@ export default function Header() {
         <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
             <nav className="container mx-auto px-4">
                 <div className="flex items-center justify-between py-3">
-                    {/* Logo */}
                     <Link href="/" className="flex items-center gap-2" suppressHydrationWarning>
                         <Image
                             src="/logo.png"
                             alt="Marham Saudi"
-                            width={240}
-                            height={60}
-                            className="h-20 w-auto object-contain"
+                            width={280}
+                            height={70}
+                            className="h-24 w-auto object-contain"
                             priority
                         />
                     </Link>
