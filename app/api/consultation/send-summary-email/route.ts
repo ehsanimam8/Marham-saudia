@@ -1,9 +1,15 @@
 import { Resend } from 'resend';
 import { createClient } from '@/lib/supabase/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
+    // Initialize Resend inside the handler to avoid build-time errors
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!resendApiKey) {
+        console.error('RESEND_API_KEY is not configured');
+        return Response.json({ success: false, error: 'Email service not configured' }, { status: 500 });
+    }
+
+    const resend = new Resend(resendApiKey);
     const { appointmentId, consultation } = await request.json();
     const supabase = await createClient();
 
