@@ -103,9 +103,9 @@ export default function ConcernSelectionClient({ bodyPartId, initialConcerns, bo
     if (!bodyPart) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                <h2 className="text-xl font-bold text-red-500 mb-2">Unavailable</h2>
-                <p className="text-gray-500">This body part is not configured yet.</p>
-                <Button onClick={handleBack} variant="outline" className="mt-4">Go Back</Button>
+                <h2 className="text-xl font-bold text-red-500 mb-2 font-arabic">غير متوفر</h2>
+                <p className="text-gray-500 font-arabic">هذا القسم غير متاح حالياً.</p>
+                <Button onClick={handleBack} variant="outline" className="mt-4 font-arabic">رجوع</Button>
             </div>
         );
     }
@@ -116,13 +116,13 @@ export default function ConcernSelectionClient({ bodyPartId, initialConcerns, bo
                 <div className="bg-orange-50 p-6 rounded-full mb-4">
                     <AlertCircle className="w-8 h-8 text-orange-400" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-900 mb-2">Coming Soon</h2>
-                <p className="text-gray-500 max-w-md">
-                    We are currently expanding our network of specialists for {bodyPart.nameEn}.
-                    Please check back later or try another category.
+                <h2 className="text-xl font-bold text-slate-900 mb-2 font-arabic">قريباً</h2>
+                <p className="text-gray-500 max-w-md font-arabic">
+                    نحن نعمل حالياً على توسيع شبكة الأطباء المتخصصين في {bodyPart.nameAr || bodyPart.nameEn}.
+                    يرجى المحاولة لاحقاً أو اختيار قسم آخر.
                 </p>
-                <Button onClick={handleBack} className="mt-8 bg-teal-600 hover:bg-teal-700">
-                    Choose another area
+                <Button onClick={handleBack} className="mt-8 bg-teal-600 hover:bg-teal-700 font-arabic">
+                    اختر منطقة أخرى
                 </Button>
             </div>
         );
@@ -134,18 +134,18 @@ export default function ConcernSelectionClient({ bodyPartId, initialConcerns, bo
                 <ProgressBar currentStep={2} totalSteps={5} label="Steps 2 of 5" className="mb-8" />
 
                 <div className="mb-6">
-                    <Button variant="ghost" onClick={handleBack} className="pl-0 hover:bg-transparent text-gray-500">
-                        <ChevronLeft className="w-5 h-5 mr-1" />
-                        Back
+                    <Button variant="ghost" onClick={handleBack} className="pl-0 hover:bg-transparent text-gray-500 font-arabic">
+                        <ChevronLeft className="w-5 h-5 ml-1 rotate-180" />
+                        رجوع
                     </Button>
                 </div>
 
                 <div className="text-center mb-10">
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                        What brings you here regarding your {bodyPart.nameEn}?
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2 font-arabic">
+                        ما الذي يقلقك بخصوص {bodyPart.nameAr || bodyPart.nameEn}؟
                     </h2>
-                    <p className="text-gray-500">
-                        ما الذي يقلقك؟
+                    <p className="text-gray-500 font-arabic">
+                        اختر المشكلة الأساسية
                     </p>
                 </div>
 
@@ -165,11 +165,11 @@ export default function ConcernSelectionClient({ bodyPartId, initialConcerns, bo
                             <div className={`${selectedConcern === concern.id ? 'text-teal-600' : 'text-slate-400'} mb-4 transition-colors`}>
                                 {concern.icon}
                             </div>
-                            <h3 className="font-semibold text-slate-800 text-sm md:text-base">
-                                {concern.titleEn}
+                            <h3 className="font-semibold text-slate-800 text-sm md:text-base font-arabic">
+                                {concern.titleAr || concern.titleEn}
                             </h3>
-                            <p className="text-xs text-slate-500 mt-1 font-arabic">
-                                {concern.titleAr}
+                            <p className="text-xs text-slate-400 mt-1">
+                                {concern.titleEn}
                             </p>
                         </div>
                     ))}
@@ -177,7 +177,7 @@ export default function ConcernSelectionClient({ bodyPartId, initialConcerns, bo
 
                 {selectedConcern && (
                     <div className="mt-8 text-center animate-in fade-in">
-                        <div className="text-sm text-gray-400 mb-2">One moment...</div>
+                        <div className="text-sm text-gray-400 mb-2 font-arabic">لحظة من فضلك...</div>
                         {isSubmitting && <div className="loader mx-auto w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>}
                     </div>
                 )}

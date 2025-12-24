@@ -177,6 +177,7 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                 <div className="space-y-4 font-arabic">
                     {(questionType === 'boolean' || questionType === 'yes_no') && (
                         <RadioGroup
+                            key={currentQuestion.id}
                             value={answers[currentQuestion.id]}
                             onValueChange={handleAnswer}
                             className="space-y-3"
@@ -186,20 +187,21 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                                 answers[currentQuestion.id] === 'yes' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
                             )}>
                                 <RadioGroupItem value="yes" id="yes" />
-                                <Label htmlFor="yes" className="flex-1 cursor-pointer font-medium text-right mr-3">نعم</Label>
+                                <Label htmlFor="yes" className="flex-1 cursor-pointer font-medium text-right ms-4">نعم</Label>
                             </div>
                             <div className={cn(
                                 "flex items-center space-x-3 space-x-reverse border-2 rounded-xl p-4 cursor-pointer transition-all",
                                 answers[currentQuestion.id] === 'no' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
                             )}>
                                 <RadioGroupItem value="no" id="no" />
-                                <Label htmlFor="no" className="flex-1 cursor-pointer font-medium text-right mr-3">لا</Label>
+                                <Label htmlFor="no" className="flex-1 cursor-pointer font-medium text-right ms-4">لا</Label>
                             </div>
                         </RadioGroup>
                     )}
 
                     {questionType === 'multiple_choice' && (
                         <RadioGroup
+                            key={currentQuestion.id}
                             value={answers[currentQuestion.id]}
                             onValueChange={handleAnswer}
                             className="space-y-3"
@@ -215,7 +217,7 @@ export default function ContextClient({ sessionId, questions, sessionData, conce
                                         answers[currentQuestion.id] === opt.value ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200"
                                     )}>
                                         <RadioGroupItem value={opt.value} id={opt.value} />
-                                        <Label htmlFor={opt.value} className="flex-1 cursor-pointer font-medium text-right mr-3">
+                                        <Label htmlFor={opt.value} className="flex-1 cursor-pointer font-medium text-right ms-4">
                                             {labelAr}
                                         </Label>
                                     </div>
